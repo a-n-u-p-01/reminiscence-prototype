@@ -11,7 +11,7 @@ const getCookie = (name) => {
 };
 
 const apiClient = axios.create({
-  baseURL: 'http://10.170.122.198:8080/api/v1', // Your exact network IP
+  baseURL: 'https://reminiscence-spring-boot.onrender.com/api/v1', // Your exact network IP
   headers: {
     'Content-Type': 'application/json',
     'Accept': '*/*',
