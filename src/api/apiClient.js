@@ -11,7 +11,7 @@ const getCookie = (name) => {
 };
 
 const apiClient = axios.create({
-  baseURL: 'https://reminiscence-spring-boot.onrender.com/api/v1', // Your exact network IP
+  baseURL: 'http://localhost:8080/api/v1', // Your exact network IP
   headers: {
     'Content-Type': 'application/json',
     'Accept': '*/*',
@@ -24,6 +24,7 @@ apiClient.interceptors.request.use(
     const token = getCookie('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    config.headers['X-Timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
     return config;
   },
