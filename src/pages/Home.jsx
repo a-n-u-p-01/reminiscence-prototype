@@ -112,7 +112,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, onNoteLogge
     <div className="space-y-6 min-h-[350px] animate-[fadeIn_0.12s_ease-out] max-w-xl mx-auto pb-8">
 
       {/* Header Blocks */}
-      <div>
+      <div className="border-b border-zinc-800/60 pb-4">
         <h1 className="text-xl font-bold tracking-tight text-zinc-100">
           {showDashboardMode ? 'Workspace Dashboard' : 'Knowledge Logging'}
         </h1>

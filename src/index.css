@@ -1,23 +1,89 @@
 @import "tailwindcss";
 
+/* =========================
+   GLOBAL THEME TOKENS
+========================= */
 @theme {
-  /* Global theme tokens */
   --color-dark-bg: #09090b;
   --color-dark-card: #121214;
   --color-dark-border: #27272a;
   --color-dark-muted: #71717a;
+
+  --app-primary: #1A73E8;
 }
 
-/* Global scaling factor - making typography and spacing scale proportionally */
+/* =========================
+   GLOBAL RESET
+========================= */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+
+  background-color: var(--color-dark-bg);
+}
+
+/* =========================
+   HTML
+========================= */
 html {
-  font-size: var(--app-font-size, 16px); 
+  font-size: var(--app-font-size, 16px);
+
+  background-color: var(--color-dark-bg);
+
+  overscroll-behavior: none;
 }
 
-/* Monolith Slate Theme */
+/* =========================
+   BODY
+========================= */
+body {
+  background-color: var(--color-dark-bg);
+
+  color: #f4f4f5;
+
+  font-family: ui-sans-serif, system-ui, sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+
+  overflow: hidden;
+
+  overscroll-behavior: none;
+
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* =========================
+   ROOT APP CONTAINER
+========================= */
+#root {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: 100dvh;
+
+  background-color: var(--color-dark-bg);
+
+  overflow: hidden;
+}
+
+/* =========================
+   THEMES
+========================= */
+
+/* Slate Theme */
 html.theme-slate {
-  --color-dark-bg: #0f172a;      /* slate-900 */
-  --color-dark-card: #1e293b;    /* slate-800 */
-  --color-dark-border: #334155;  /* slate-700 */
+  --color-dark-bg: #0f172a;
+  --color-dark-card: #1e293b;
+  --color-dark-border: #334155;
+
   --color-zinc-950: #020617;
   --color-zinc-900: #0f172a;
   --color-zinc-800: #1e293b;
@@ -28,16 +94,18 @@ html.theme-slate {
   --color-zinc-300: #cbd5e1;
   --color-zinc-200: #e2e8f0;
   --color-zinc-100: #f1f5f9;
-  --color-blue-600: #4f46e5;     /* indigo-600 */
-  --color-blue-500: #6366f1;     /* indigo-500 */
-  --color-blue-400: #818cf8;     /* indigo-400 */
+
+  --color-blue-600: #4f46e5;
+  --color-blue-500: #6366f1;
+  --color-blue-400: #818cf8;
 }
 
-/* Abyssal Blue Theme */
+/* Ocean Theme */
 html.theme-ocean {
   --color-dark-bg: #001220;
   --color-dark-card: #001b2e;
   --color-dark-border: #002b4a;
+
   --color-zinc-950: #00080f;
   --color-zinc-900: #001220;
   --color-zinc-800: #001b2e;
@@ -48,17 +116,18 @@ html.theme-ocean {
   --color-zinc-300: #66a7d4;
   --color-zinc-200: #99d2f8;
   --color-zinc-100: #cce9fb;
-  --color-blue-600: #008080;     /* teal tones */
+
+  --color-blue-600: #008080;
   --color-blue-500: #00a8a8;
   --color-blue-400: #00caca;
 }
 
-/* Clean Frost Theme (Light) */
+/* Frost Theme */
 html.theme-frost {
-  --color-desktop-bg: #e2e8f0;
   --color-dark-bg: #f8fafc;
   --color-dark-card: #ffffff;
   --color-dark-border: #e2e8f0;
+
   --color-zinc-950: #ffffff;
   --color-zinc-900: #f8fafc;
   --color-zinc-800: #f1f5f9;
@@ -69,17 +138,18 @@ html.theme-frost {
   --color-zinc-300: #475569;
   --color-zinc-200: #334155;
   --color-zinc-100: #0f172a;
+
   --color-blue-600: #2563eb;
   --color-blue-500: #3b82f6;
   --color-blue-400: #60a5fa;
 }
 
-/* Warm Sand Theme (Light) */
+/* Sand Theme */
 html.theme-sand {
-  --color-desktop-bg: #e7e5e4;
   --color-dark-bg: #fafafa;
   --color-dark-card: #ffffff;
   --color-dark-border: #e7e5e4;
+
   --color-zinc-950: #ffffff;
   --color-zinc-900: #fafafa;
   --color-zinc-800: #f5f5f4;
@@ -90,17 +160,18 @@ html.theme-sand {
   --color-zinc-300: #57534e;
   --color-zinc-200: #44403c;
   --color-zinc-100: #1c1917;
+
   --color-blue-600: #d97706;
   --color-blue-500: #f59e0b;
   --color-blue-400: #fbbf24;
 }
 
-/* Charcoal Matte Theme (Dark) */
+/* Matte Theme */
 html.theme-matte {
-  --color-desktop-bg: #09090b;
   --color-dark-bg: #18181b;
   --color-dark-card: #27272a;
   --color-dark-border: #3f3f46;
+
   --color-zinc-950: #121214;
   --color-zinc-900: #18181b;
   --color-zinc-800: #27272a;
@@ -111,56 +182,67 @@ html.theme-matte {
   --color-zinc-300: #d4d4d8;
   --color-zinc-200: #e4e4e7;
   --color-zinc-100: #f4f4f5;
+
   --color-blue-600: #3b82f6;
   --color-blue-500: #60a5fa;
   --color-blue-400: #93c5fd;
 }
 
-/* Base theme fallback (Zinc) */
+/* Zinc Theme */
 html.theme-zinc {
-  /* Relies on Tailwind default zinc values */
   --color-dark-bg: #09090b;
   --color-dark-card: #121214;
   --color-dark-border: #27272a;
-  --color-desktop-bg: #000000;
 }
 
-body {
-  background-color: var(--color-desktop-bg, #000); /* Outer desktop background */
-  color: #f4f4f5; /* zinc-100 */
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
+/* =========================
+   MAIN LAYOUT
+========================= */
+main {
+  flex: 1;
+
+  overflow-y: auto;
+
+  -webkit-overflow-scrolling: touch;
+
+  padding-bottom: calc(84px + env(safe-area-inset-bottom));
 }
 
-/* Enforce primary mobile layout globally */
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
+/* =========================
+   BOTTOM NAVIGATION
+========================= */
+.bottom-nav {
+  position: fixed;
 
-#root {
+  left: 0;
+  right: 0;
+  bottom: 0;
+
   width: 100%;
-  max-width: 100vw; /* occupy full viewport width */
-  background-color: var(--color-dark-bg);
-  min-height: 100vh;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  box-shadow: none; /* remove side borders for true full‑screen */
-  overflow-x: hidden;
+
+  height: calc(64px + env(safe-area-inset-bottom));
+
+  padding-bottom: env(safe-area-inset-bottom);
+
+  z-index: 50;
+
+  background-color: var(--color-dark-card);
+
+  border-top: 1px solid var(--color-dark-border);
+
+  backdrop-filter: blur(12px);
 }
 
-/* Hide scrollbars for a clean mobile container aesthetic */
+/* =========================
+   HIDE SCROLLBAR
+========================= */
 ::-webkit-scrollbar {
   display: none;
 }
 
+/* =========================
+   TOAST ANIMATION
+========================= */
 @keyframes toastSlide {
   0% {
     opacity: 0;
@@ -182,4 +264,3 @@ html, body, #root {
     transform: translateY(-20px) scale(0.98);
   }
 }
-
