@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, BookOpen, Settings, Home as HomeIcon, RotateCw } from 'lucide-react';
+import { Clock, BookOpen, Settings, Home as HomeIcon } from 'lucide-react';
 import AuthPage from './pages/Auth';
 import HomePage from './pages/Home';
 import { useAuth } from './context/AuthContext';
@@ -10,8 +10,10 @@ import ReviewScreen from './pages/ReviewScreen';
 import DashboardScreen from './pages/DashboardScreen';
 import SettingsScreen from './pages/SettingsScreen';
 import PullToRefresh from 'react-simple-pull-to-refresh';
+
 import { Keyboard } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
+import StatusCapsule from './components/StatusCapsule';
 
 export default function App() {
   const { isAuthenticated } = useAuth();
@@ -26,7 +28,7 @@ export default function App() {
   } = useReviewEngine();
 
   const { refreshDashboard } = useDashboard();
-  const { refreshHomeNote } = useHomeEngine(); // 🔑 Extract clean refresh dispatcher
+  const { refreshHomeNote, statusMessage } = useHomeEngine(); // 🔑 Extracting statusMessage directly from the engine context layer
 
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
@@ -91,7 +93,6 @@ export default function App() {
     if (currentTab === 'dashboard') {
       await Promise.all([handleSyncData(), refreshDashboard()]);
     } else if (currentTab === 'home') {
-      // 🔑 Synchronize both your core metrics count and the current daily logs in parallel
       await Promise.all([handleSyncData(), refreshHomeNote()]);
     } else {
       await handleSyncData();
@@ -103,16 +104,29 @@ export default function App() {
   }
 
   if (!isCountLoaded) {
-    return (
-      <div className="min-h-screen bg-theme flex items-center justify-center text-theme-muted font-mono text-xs tracking-wider animate-pulse">
+  return (
+    <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-12 px-6 select-none">
+      {/* 🌟 Shifted beautifully to the upper-middle third of the screen */}
+      <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse text-center">
         Initializing system...
       </div>
-    );
-  }
+
+      {/* Optional: Subtle, tiny version string or anchor at the very bottom to balance the negative space */}
+      <div className="text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
+        v1.0.0
+      </div>
+    </div>
+  );
+}
+
+  // 🔑 Determine which system context owns the global layout visual frame right now
+  const activeMessage = statusMessage || (isManualRefreshing ? "Syncing" : null);
+  const activeType = statusMessage ? (statusMessage.type || 'success') : 'sync';
 
   return (
     <div className="flex flex-col flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme">
       
+      {/* Safe Area Spacer Layout Shield */}
       <div
         style={{ height: 'env(safe-area-inset-top, 24px)' }}
         className="fixed top-0 left-0 right-0 bg-theme z-[90] w-full"
@@ -123,19 +137,11 @@ export default function App() {
         .pull-to-refresh-material { overflow: visible !important; }
       `}</style>
 
-      <div
-        style={{ top: 'calc(0.35rem + env(safe-area-inset-top, 0px))' }}
-        className={`fixed left-1/2 -translate-x-1/2 z-[100] pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isManualRefreshing ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 scale-95'
-        }`}
-      >
-        <div className="bg-theme-card backdrop-blur-md border border-theme rounded-full px-3.5 py-1.5 flex items-center gap-2 shadow-2xl">
-          <RotateCw size={12} className="text-blue-400 animate-spin" />
-          <span className="text-[10px] font-mono font-medium tracking-wider text-zinc-300 uppercase">
-            Syncing
-          </span>
-        </div>
-      </div>
+      {/* 🔑 PLACED HERE: Global Root Notification Layer — Evaluates note actions & swipe refreshes dynamically */}
+      <StatusCapsule 
+        message={activeMessage} 
+        type={activeType} 
+      />
 
       <PullToRefresh
         onRefresh={handleGlobalRefresh}

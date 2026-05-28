@@ -1,6 +1,7 @@
 import React from 'react';
 import { BookOpen, CheckCircle, Flame, Plus, Sparkles, AlertCircle, Brain, Target, CalendarDays, Edit2 } from 'lucide-react';
 import { useHomeEngine } from '../context/HomeContext';
+import StatusCapsule from '../components/StatusCapsule'; // 🔑 Added import for your standalone capsule
 
 export default function HomePage({ pendingCount, onNavigateToReview, mainContentRef }) {
   const {
@@ -82,7 +83,73 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         </div>
       ) : (
         <div className="space-y-8 animate-[fadeIn_0.15s_ease-out]">
-          {/* Timeline Flow */}
+       
+
+          <div className="space-y-4 pt-4 border-t border-zinc-900/60">
+            {/* 🔑 MODIFIED BLOCK: Old inline container stripped out for your explicit component call */}
+            <StatusCapsule
+              message={statusMessage}
+              type={statusMessage?.type || 'success'}
+            />
+
+            <form onSubmit={handleSave} className="space-y-4">
+              <div className="bg-theme-card border border-theme rounded-2xl p-4 focus-within:border-blue-500/50 transition-colors relative">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-[10px] font-mono tracking-wider text-theme-muted uppercase">
+                    Input Workspace Note
+                  </label>
+
+                  {hasExistingEntry && !isEditing && !isInitialFetching && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="text-xs text-blue-400 hover:text-blue-300 font-medium font-mono flex items-center gap-1 transition-colors px-1.5 py-0.5 rounded bg-blue-500/5 border border-blue-500/10 active:scale-[0.97]"
+                    >
+                      <Edit2 size={11} />
+                    </button>
+                  )}
+                </div>
+
+                <textarea
+                  required
+                  rows={5}
+                  value={noteText}
+                  disabled={isInputDisabled}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  placeholder={isInitialFetching ? "Syncing baseline..." : "Type anything you learned, read, or want to remember today..."}
+                  className="w-full bg-transparent text-sm text-theme-primary placeholder-zinc-600 resize-none focus:outline-none leading-relaxed disabled:opacity-50"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isInputDisabled || !hasUnsavedChanges}
+                className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-sm py-2.5 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-40"
+              >
+                {loading ? (
+                  <span className="h-4 w-4 border-2 border-zinc-950/30 border-t-zinc-950 rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Sparkles size={15} />
+                    Save Note
+                  </>
+                )}
+              </button>
+            </form>
+
+            {pendingCount > 0 && (
+              <button
+                onClick={() => {
+                  setForceShowInput(false);
+                  setStatusMessage(null);
+                }}
+                className="w-full border border-theme hover:bg-theme-card text-theme-secondary text-xs py-2 rounded-xl transition-colors font-medium"
+              >
+                &larr; Return to pending review panel ({pendingCount})
+              </button>
+            )}
+          </div>
+             {/* Timeline Flow */}
           <div className="bg-zinc-900/10 border border-theme rounded-2xl p-4 space-y-4 shadow-inner">
             <div className="flex items-center justify-between border-b border-zinc-800/50 pb-2.5">
               <span className="text-[10px] font-mono tracking-wider uppercase text-zinc-400 flex items-center gap-2">
@@ -132,114 +199,6 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Form */}
-          <div className="space-y-4 pt-4 border-t border-zinc-900/60">
-            {statusMessage && (
-              <div
-                style={{ top: 'calc(0.35rem + env(safe-area-inset-top, 0px))' }}
-                className="fixed left-1/2 -translate-x-1/2 z-[100] pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-              >
-                <div className={`backdrop-blur-md border rounded-full px-3.5 py-1.5 flex items-center gap-2 shadow-2xl ${
-                  statusMessage.type === 'success'
-                    ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-400'
-                    : 'bg-red-950/80 border-red-500/30 text-red-400'
-                }`}>
-                  <div className="shrink-0 flex items-center justify-center">
-                    {statusMessage.type === 'success' ? (
-                      <CheckCircle size={12} className="animate-pulse" />
-                    ) : (
-                      <AlertCircle size={12} />
-                    )}
-                  </div>
-                  <span className="text-[10px] font-mono font-medium tracking-wider uppercase">
-                    {statusMessage.text === 'Note saved successfully.' ? 'Saved' : statusMessage.text}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            <form onSubmit={handleSave} className="space-y-4">
-              <div className="bg-theme-card border border-theme rounded-2xl p-4 focus-within:border-blue-500/50 transition-colors relative">
-                <div className="flex justify-between items-center mb-2">
-                  <label className="block text-[10px] font-mono tracking-wider text-theme-muted uppercase">
-                    Input Workspace Note
-                  </label>
-
-                  {hasExistingEntry && !isEditing && !isInitialFetching && (
-                    <button
-                      type="button"
-                      onClick={() => setIsEditing(true)}
-                      className="text-xs text-blue-400 hover:text-blue-300 font-medium font-mono flex items-center gap-1 transition-colors px-1.5 py-0.5 rounded bg-blue-500/5 border border-blue-500/10 active:scale-[0.97]"
-                    >
-                      <Edit2 size={11} />
-                    </button>
-                  )}
-                </div>
-             <textarea
-  onFocus={(e) => {
-    setTimeout(() => {
-      const formCard = e.target.closest('.bg-theme-card');
-
-      if (formCard) {
-        formCard.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'nearest',
-        });
-      }
-    }, 320);
-  }}
-  onBlur={() => {
-    setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-    }, 180);
-  }}
-  required
-  rows={5}
-  value={noteText}
-  disabled={isInputDisabled}
-  onChange={(e) => setNoteText(e.target.value)}
-  placeholder={
-    isInitialFetching
-      ? "Syncing baseline..."
-      : "Type anything you learned, read, or want to remember today..."
-  }
-  className="w-full bg-transparent text-sm text-theme-primary placeholder-zinc-600 resize-none focus:outline-none leading-relaxed disabled:opacity-50"
-/>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isInputDisabled || !hasUnsavedChanges}
-                className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-sm py-2.5 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-40"
-              >
-                {loading ? (
-                  <span className="h-4 w-4 border-2 border-zinc-950/30 border-t-zinc-950 rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Sparkles size={15} />
-                    Save Note
-                  </>
-                )}
-              </button>
-            </form>
-
-            {pendingCount > 0 && (
-              <button
-                onClick={() => {
-                  setForceShowInput(false);
-                  setStatusMessage(null);
-                }}
-                className="w-full border border-theme hover:bg-theme-card text-theme-secondary text-xs py-2 rounded-xl transition-colors font-medium"
-              >
-                &larr; Return to pending review panel ({pendingCount})
-              </button>
-            )}
           </div>
         </div>
       )}
