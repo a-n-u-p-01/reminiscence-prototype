@@ -56,7 +56,7 @@ export default function AuthPage({ onAuthSuccess }) {
   };
 
  return (
-  <div className="min-h-dvh w-full bg-[#09090b] flex flex-col justify-center px-6 pb-12 -translate-y-8">
+  <div className="min-h-dvh w-full bg-dark-bg flex flex-col justify-center px-6 pb-12 -translate-y-8">
     
     {/* Brand Header */}
     <div className="flex items-center gap-2 mb-8 justify-center">
@@ -67,7 +67,7 @@ export default function AuthPage({ onAuthSuccess }) {
     </div>
 
     {/* Main Authentication Card */}
-    <div className="bg-[#121214] border border-zinc-800 rounded-2xl p-6 shadow-xl">
+    <div className="bg-dark-card border border-zinc-800 rounded-2xl p-6 shadow-xl">
       
       <h2 className="text-lg font-semibold mb-1 text-zinc-200">
         {isRegister ? 'Create your developer account' : 'Welcome back'}
@@ -115,7 +115,7 @@ export default function AuthPage({ onAuthSuccess }) {
                     fullName: e.target.value,
                   })
                 }
-                className="w-full bg-[#18181b] border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                className="w-full bg-dark-bg border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
               />
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function AuthPage({ onAuthSuccess }) {
                   email: e.target.value,
                 })
               }
-              className="w-full bg-[#18181b] border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+              className="w-full bg-dark-bg border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
             />
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function AuthPage({ onAuthSuccess }) {
                   password: e.target.value,
                 })
               }
-              className="w-full bg-[#18181b] border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+              className="w-full bg-dark-bg border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
             />
           </div>
         </div>

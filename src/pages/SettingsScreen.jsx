@@ -4,6 +4,8 @@ import {
   Palette, Check, Save, ChevronDown, Type 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { setItem } from '../storage/storageService';
+import { useSettings } from '../context/SettingsContext';
 
 // --- Premium Custom Dropdown Component ---
 function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false }) {
@@ -65,18 +67,19 @@ export default function SettingsScreen() {
   
   const [reviewCap, setReviewCap] = useState(25);
   const [algoEngine, setAlgoEngine] = useState('fsrs'); 
-  const [defaultSide, setDefaultSide] = useState('front'); 
+  const [defaultSide, setDefaultSide] = useState('front');
   const [autoRevealTimer, setAutoRevealTimer] = useState(0); 
 
-  const [interfaceTheme, setInterfaceTheme] = useState(() => localStorage.getItem('appTheme') || 'zinc'); 
-  
-  const scaleToPx = { sm: '14px', base: '16px', lg: '18px', xl: '20px' };
-  const pxToScale = { '14px': 'sm', '16px': 'base', '18px': 'lg', '20px': 'xl' };
-  const [textScale, setTextScale] = useState(() => {
-    const saved = localStorage.getItem('appTextScale') || '16px';
-    return pxToScale[saved] || 'base';
-  });
+  const { theme: contextTheme, setTheme, textScale: contextTextScale, setTextScale } = useSettings(); 
 
+  // Local draft state – only committed to context on Save
+  const [draftTheme, setDraftTheme] = useState(contextTheme);
+  const [draftTextScale, setDraftTextScale] = useState(contextTextScale);
+
+  // Keep drafts in sync if context loads async from storage
+  useEffect(() => { setDraftTheme(contextTheme); }, [contextTheme]);
+  useEffect(() => { setDraftTextScale(contextTextScale); }, [contextTextScale]);
+  
   const [isDirty, setIsDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); 
   
@@ -89,17 +92,18 @@ export default function SettingsScreen() {
     if (saveStatus === 'saved') setSaveStatus('idle');
   };
 
-  const handleSaveSettings = () => {
+  const handleSaveSettings = async () => {
     setSaveStatus('saving');
     
-    // Propagate Global Theme
-    localStorage.setItem('appTheme', interfaceTheme);
-    document.documentElement.className = `theme-${interfaceTheme}`;
-    
-    // Propagate Global Typography Scale
-    const newSizePx = scaleToPx[textScale];
-    localStorage.setItem('appTextScale', newSizePx);
-    document.documentElement.style.setProperty('--app-font-size', newSizePx);
+    // Persist theme and text scale via SettingsContext (which updates DOM + storage)
+    await setTheme(draftTheme);
+    await setTextScale(draftTextScale);
+
+    // Persist other UI‑only settings (store‑only)
+    await setItem('reviewCap', String(reviewCap));
+    await setItem('algoEngine', algoEngine);
+    await setItem('defaultSide', defaultSide);
+    await setItem('autoRevealTimer', String(autoRevealTimer));
 
     setTimeout(() => {
       setSaveStatus('saved');
@@ -147,7 +151,7 @@ export default function SettingsScreen() {
     }
   };
 
-  const f = fontMatrix[textScale];
+  const f = fontMatrix[draftTextScale] || fontMatrix.base;
 
   return (
     <div className={`text-zinc-100 pb-20 space-y-6 transition-all duration-150 ease-in-out ${f.root} animate-[fadeIn_0.2s_ease-out]`}>
@@ -363,9 +367,9 @@ export default function SettingsScreen() {
                   <button
                     key={scale}
                     type="button"
-                    onClick={() => markDirty(() => setTextScale(scale))}
+                    onClick={() => markDirty(() => setDraftTextScale(scale))}
                     className={`flex-1 text-center py-1 text-[10px] font-mono uppercase font-bold rounded-md transition-all ${
-                      textScale === scale
+                      draftTextScale === scale
                         ? 'bg-zinc-800 text-blue-400 shadow-sm'
                         : 'text-zinc-500 hover:text-zinc-300'
                     }`}
@@ -385,8 +389,8 @@ export default function SettingsScreen() {
                 </p>
               </div>
               <CustomSelect
-                value={interfaceTheme}
-                onChange={(val) => markDirty(() => setInterfaceTheme(val))}
+                value={draftTheme}
+                onChange={(val) => markDirty(() => setDraftTheme(val))}
                 sizeClass={f.label}
                 openUpwards={true}
                 options={[

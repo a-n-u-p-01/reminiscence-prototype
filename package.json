@@ -3,17 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
+"scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "init-android": "npx cap add android",
+    "assert-android": "npx capacitor-assets generate --android",
+    "build-android": "npm run build && npx cap sync android && cd android && set JAVA_HOME=C:\\android-studio\\jbr&& gradlew assembleDebug && cd .. && npx cap run android",
+    "android-live": "set JAVA_HOME=C:\\android-studio\\jbr&& npx cap run android -l"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
     "@capacitor/cli": "^8.3.4",
     "@capacitor/core": "^8.3.4",
     "@capacitor/haptics": "^8.0.2",
+    "@capacitor/keyboard": "^8.0.3",
+    "@capacitor/preferences": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
     "@capgo/capacitor-navigation-bar": "^8.1.8",

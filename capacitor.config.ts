@@ -14,12 +14,16 @@ const config: CapacitorConfig = {
     captureInput: true,
   },
   plugins: {
-    SplashScreen: {
-      launchShowDuration: 1200,
-      backgroundColor: '#09090b',
-      showSpinner: false,
-      androidSplashResourceName: 'splash',
-    },
+   SplashScreen: {
+    launchShowDuration: 1200,
+    backgroundColor: '#09090b',      // ← must match your dark bg
+    showSpinner: false,
+    androidSplashResourceName: 'splash',
+    splashFullScreen: true,           // ← hides status bar during splash
+    splashImmersive: true,            // ← hides nav bar during splash
+    layoutName: 'launch_screen',
+    useDialog: false,
+  },
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#09090b',
