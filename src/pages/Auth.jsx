@@ -92,7 +92,7 @@ export default function AuthPage({ onAuthSuccess }) {
         {/* Conditional Registration Field */}
         {isRegister && (
           <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+            <label htmlFor="fullName" className="block text-xs font-medium text-zinc-400 mb-1.5">
               Full Name
             </label>
 
@@ -102,7 +102,10 @@ export default function AuthPage({ onAuthSuccess }) {
               </span>
 
               <input
+                id="fullName"
+                name="fullName"
                 type="text"
+                autoComplete="name"
                 required
                 placeholder="Somyo"
                 value={formData.fullName}
@@ -120,7 +123,7 @@ export default function AuthPage({ onAuthSuccess }) {
 
         {/* Email Address Input */}
         <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+          <label htmlFor="email" className="block text-xs font-medium text-zinc-400 mb-1.5">
             Email Address
           </label>
 
@@ -130,7 +133,10 @@ export default function AuthPage({ onAuthSuccess }) {
             </span>
 
             <input
+              id="email"
+              name="email"
               type="email"
+              autoComplete="username"
               required
               placeholder="somu@esspl.com"
               value={formData.email}
@@ -147,7 +153,7 @@ export default function AuthPage({ onAuthSuccess }) {
 
         {/* Password Input */}
         <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+          <label htmlFor="password" className="block text-xs font-medium text-zinc-400 mb-1.5">
             Password
           </label>
 
@@ -157,7 +163,10 @@ export default function AuthPage({ onAuthSuccess }) {
             </span>
 
             <input
+              id="password"
+              name="password"
               type="password"
+              autoComplete={isRegister ? "new-password" : "current-password"}
               required
               placeholder="••••••••"
               value={formData.password}

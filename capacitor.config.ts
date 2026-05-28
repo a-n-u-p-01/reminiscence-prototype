@@ -1,5 +1,3 @@
-// capacitor.config.ts
-
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
@@ -8,6 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
+    hostname: 'anupam.com', 
   },
   android: {
     allowMixedContent: true,

@@ -20,10 +20,25 @@ export default function ReviewScreen({
   const [showAnswer, setShowAnswer] = useState(false);
   const [submittingRating, setSubmittingRating] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   const headerRef = useRef(null);
 
   const activeCard = concepts[0];
+
+  // Monitor network activity to determine if the initial data fetch cycle has completed
+  useEffect(() => {
+    if (loading || concepts.length > 0) {
+      setInitialCheckDone(true);
+    } else {
+      // Small debounce fallback: if no loading starts within 180ms, assume the queue is genuinely empty
+      const timer = setTimeout(() => {
+        setInitialCheckDone(true);
+      }, 180);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, concepts.length]);
 
   useEffect(() => {
     if (activeCard && headerRef.current) {
@@ -34,26 +49,68 @@ export default function ReviewScreen({
     }
   }, [concepts[0]?.userConceptId]);
 
-  if (loading) {
-    return (
-      <div className="min-h-[350px] flex flex-col items-center justify-center text-zinc-500 font-mono text-xs gap-3 animate-pulse">
-        <span className="h-5 w-5 border-2 border-zinc-800 border-t-blue-500 rounded-full animate-spin" />
-        <span className="tracking-wider text-zinc-400">
-          Compiling active review queue...
-        </span>
+  // Premium Minimal Micro-Node Tracking Loader
+  const MinimalEngineLoader = () => (
+    <div className="min-h-[380px] flex flex-col items-center justify-center max-w-xl mx-auto px-6 select-none">
+      {/* High-Fidelity Sub-Pixel Keyframes */}
+      <style>{`
+        @keyframes microTrack {
+          0% { transform: scaleX(0.15); opacity: 0.2; }
+          40% { transform: scaleX(0.85); opacity: 0.8; }
+          70% { transform: scaleX(1); opacity: 0.4; }
+          100% { transform: scaleX(0.15); opacity: 0.2; }
+        }
+        @keyframes enginePulse {
+          0%, 100% { transform: scale(0.96); opacity: 0.4; }
+          50% { transform: scale(1.04); opacity: 1; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4)); }
+        }
+        .anim-micro-track { 
+          animation: microTrack 2.4s cubic-bezier(0.25, 1, 0.5, 1) infinite; 
+        }
+        .anim-engine-pulse { 
+          animation: enginePulse 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+        }
+      `}</style>
+
+      <div className="flex flex-col items-center w-full max-w-[200px] gap-5">
+        {/* Sleek Minimal Precision Gauge Line */}
+        <div className="w-full h-[2px] bg-zinc-800/60 rounded-full relative overflow-hidden">
+          <div className="absolute inset-y-0 left-0 right-0 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full origin-center anim-micro-track" />
+        </div>
+        
+        {/* Monospace Indicator Typography */}
+        <div className="text-center space-y-1">
+          <div className="flex items-center justify-center gap-1.5">
+            <span className="w-1 h-1 rounded-full bg-blue-500 anim-engine-pulse" />
+            <p className="text-[9px] font-mono tracking-[0.25em] text-zinc-400 uppercase">
+              Syncing Engine
+            </p>
+          </div>
+          <p className="text-[10px] text-zinc-600 font-sans tracking-wide">
+            Calibrating review matrices
+          </p>
+        </div>
       </div>
-    );
+    </div>
+  );
+
+  if (loading) {
+    return <MinimalEngineLoader />;
   }
 
   if (!concepts || concepts.length === 0) {
+    if (!initialCheckDone) {
+      return <MinimalEngineLoader />;
+    }
+
     return (
-      <div className="flex flex-col items-center justify-center text-center py-24 px-6 space-y-4 max-w-sm mx-auto animate-[fadeIn_0.2s_ease-out]">
+      <div className="flex flex-col items-center justify-center text-center py-24 px-6 space-y-4 max-w-sm mx-auto">
         <div className="p-4 bg-emerald-500/10 rounded-full border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
           <CheckCircle2 size={32} className="text-emerald-400" />
         </div>
 
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight text-zinc-100">
+          <h2 className="text-lg font-semibold tracking-tight text-zinc-110">
             Review Queue Cleared
           </h2>
 
@@ -118,7 +175,7 @@ export default function ReviewScreen({
   };
 
   return (
-    <div className="space-y-6 min-h-[350px] animate-[fadeIn_0.12s_ease-out] max-w-xl mx-auto pb-8">
+    <div className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-8">
 
       {/* Header */}
             <div headerRef={headerRef} className="flex justify-between items-start border-b border-zinc-800/60 pb-4">
@@ -126,7 +183,6 @@ export default function ReviewScreen({
         <div>
           <h1 className="text-xl font-bold tracking-tight text-zinc-500 flex items-center gap-2">
             <Layers size={18} className="text-blue-500" />
-
             <span className="text-zinc-100">
               Recall Active Engine
             </span>
@@ -276,22 +332,22 @@ export default function ReviewScreen({
                   </div>
 
                   {/* Animated Cue */}
-             <div className="flex justify-center pt-0.5">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-3 w-3 text-zinc-500 animate-bounce"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M19 9l-7 7-7-7"
-    />
-  </svg>
-</div>
+                  <div className="flex justify-center pt-0.5">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3 w-3 text-zinc-500 animate-bounce"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
                 </div>
 
                 {/* Buttons */}

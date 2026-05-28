@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, BookOpen, Settings, Home as HomeIcon } from 'lucide-react';
+import { Clock, BookOpen, Settings, Home as HomeIcon, RotateCw } from 'lucide-react';
 import AuthPage from './pages/Auth';
 import HomePage from './pages/Home';
 import { useAuth } from './context/AuthContext';
@@ -9,17 +9,13 @@ import DashboardScreen from './pages/DashboardScreen';
 import SettingsScreen from './pages/SettingsScreen';
 import PullToRefresh from 'react-simple-pull-to-refresh';
 
-
 export default function App() {
   const { isAuthenticated } = useAuth();
-
   const mainContentRef = useRef(null);
 
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
-    return ['home', 'dashboard', 'revision', 'settings'].includes(hash)
-      ? hash
-      : 'home';
+    return ['home', 'dashboard', 'revision', 'settings'].includes(hash) ? hash : 'home';
   });
 
   const [globalCount, setGlobalCount] = useState(0);
@@ -27,6 +23,7 @@ export default function App() {
   const [reviewConcepts, setReviewConcepts] = useState([]);
   const [isConceptsLoading, setIsConceptsLoading] = useState(false);
   const [hasFetchedRevision, setHasFetchedRevision] = useState(false);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
 
   // =========================
   // NAVIGATION
@@ -35,14 +32,11 @@ export default function App() {
     window.location.hash = tab;
     setCurrentTab(tab);
 
-    // Safe scroll reset (Capacitor friendly)
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: 'auto' });
     }
-
     window.scrollTo(0, 0);
   };
-
 
   // =========================
   // HASH ROUTING SYNC
@@ -50,14 +44,12 @@ export default function App() {
   useEffect(() => {
     const sanitizeAndRoute = () => {
       const rawHash = window.location.hash.replace('#', '');
-
       if (!rawHash) {
         setCurrentTab('home');
         return;
       }
 
       const validTabs = ['home', 'dashboard', 'revision', 'settings'];
-
       if (validTabs.includes(rawHash)) {
         setCurrentTab(rawHash);
       } else {
@@ -67,7 +59,6 @@ export default function App() {
     };
 
     sanitizeAndRoute();
-
     window.addEventListener('hashchange', sanitizeAndRoute);
     return () => window.removeEventListener('hashchange', sanitizeAndRoute);
   }, []);
@@ -96,15 +87,10 @@ export default function App() {
   // REVISION LAZY LOAD
   // =========================
   useEffect(() => {
-    if (
-      currentTab !== 'revision' ||
-      hasFetchedRevision ||
-      isConceptsLoading
-    ) return;
+    if (currentTab !== 'revision' || hasFetchedRevision || isConceptsLoading) return;
 
     const load = async () => {
       setIsConceptsLoading(true);
-
       try {
         const data = await noteService.getPendingConcepts();
         setReviewConcepts(data || []);
@@ -123,22 +109,28 @@ export default function App() {
   // REFRESH HANDLER
   // =========================
   const handleRefresh = async () => {
-    const count = await noteService.getPendingCount();
-    setGlobalCount(count);
-    setReviewConcepts([]);
-    setHasFetchedRevision(false);
+    setIsManualRefreshing(true);
+    try {
+      const count = await noteService.getPendingCount();
+      setGlobalCount(count);
+      setReviewConcepts([]);
+      setHasFetchedRevision(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      // Small timeout keeps the animation fluid instead of a sudden pop out
+      setTimeout(() => {
+        setIsManualRefreshing(false);
+      }, 600);
+    }
+    return Promise.resolve();
   };
 
   const handleCardReviewed = (userConceptId) => {
-    setReviewConcepts((prev) =>
-      prev.filter((card) => card.userConceptId !== userConceptId)
-    );
+    setReviewConcepts((prev) => prev.filter((card) => card.userConceptId !== userConceptId));
     setGlobalCount((prev) => Math.max(0, prev - 1));
   };
 
-  // =========================
-  // AUTH GATE
-  // =========================
   if (!isAuthenticated) {
     return <AuthPage onAuthSuccess={() => navigateTo('home')} />;
   }
@@ -151,33 +143,56 @@ export default function App() {
     );
   }
 
-  // =========================
-  // UI
-  // =========================
   return (
-    <div className="flex flex-col flex-1 h-full w-full relative text-zinc-200 antialiased font-sans">
+    <div className="flex flex-col flex-1 h-full w-full relative text-zinc-200 antialiased font-sans bg-[#09090b]">
+      
+      {/* Structural Library Override Styles */}
+      <style>{`
+        .ptr-element { display: none !important; }
+        .pull-to-refresh-material { overflow: visible !important; }
+      `}</style>
 
-    <PullToRefresh
-  onRefresh={handleRefresh}
-  resistance={2.2}
-  pullingContent={<div />}
-  
->
+      {/* Floating Modern iOS Capsule Loader with Notch/Camera Prevention Inline Styles */}
+      <div 
+        style={{
+          top: 'calc(0.35rem + env(safe-area-inset-top, 0px))' 
+        }}
+        className={`fixed left-1/2 -translate-x-1/2 z-[100] pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isManualRefreshing ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 scale-95'
+        }`}
+      >
+        <div className="bg-zinc-900/80 backdrop-blur-md border border-zinc-800/80 rounded-full px-3.5 py-1.5 flex items-center gap-2 shadow-2xl">
+          <RotateCw size={12} className="text-blue-400 animate-spin" />
+          <span className="text-[10px] font-mono font-medium tracking-wider text-zinc-300 uppercase">
+            Syncing
+          </span>
+        </div>
+      </div>
+
+      <PullToRefresh
+        onRefresh={handleRefresh}
+        resistance={2.6}
+        pullingContent={<div />}
+        refreshingContent={<div />}
+      >
         <main
           ref={mainContentRef}
-          className="flex-1 overflow-y-auto px-5 pt-6 pb-24 scroll-smooth"
+          className="flex-1 overflow-y-auto px-5 pt-6 pb-32 scroll-smooth min-h-screen relative"
         >
-          {currentTab === 'home' && (
+          {/* DOM Preservation Matrix Container - Prevents Component Destruction & Content Flashing */}
+          <div className={currentTab === 'home' ? 'contents' : 'hidden'}>
             <HomePage
               pendingCount={globalCount}
               onNavigateToReview={() => navigateTo('revision')}
               onNoteLogged={handleRefresh}
             />
-          )}
+          </div>
 
-          {currentTab === 'dashboard' && <DashboardScreen />}
+          <div className={currentTab === 'dashboard' ? 'contents' : 'hidden'}>
+            <DashboardScreen />
+          </div>
 
-          {currentTab === 'revision' && (
+          <div className={currentTab === 'revision' ? 'contents' : 'hidden'}>
             <ReviewScreen
               concepts={reviewConcepts}
               loading={isConceptsLoading}
@@ -187,37 +202,29 @@ export default function App() {
                 navigateTo('home');
               }}
             />
-          )}
+          </div>
 
-          {currentTab === 'settings' && <SettingsScreen />}
+          <div className={currentTab === 'settings' ? 'contents' : 'hidden'}>
+            <SettingsScreen />
+          </div>
         </main>
-
       </PullToRefresh>
-      {/* Styled Navigation Bar */}
-      <nav className="fixed bottom-0 w-full max-w-[inherit] bg-zinc-950/80 backdrop-blur-md border-t border-zinc-900 h-18 flex justify-around items-center z-50 px-4 shadow-xl pb-2">
-        <NavBtn
-          active={currentTab === 'home'}
-          onClick={() => navigateTo('home')}
-          icon={HomeIcon}
-          label="Home"
-        />
-        <NavBtn
-          active={currentTab === 'dashboard'}
-          onClick={() => navigateTo('dashboard')}
-          icon={Clock}
-          label="History"
-        />
 
-        {/* Custom badge logic button */}
+      {/* Styled Navigation Bar */}
+<nav className="fixed bottom-0 left-0 right-0 bg-zinc-950/80 backdrop-blur-md border-t border-zinc-900/80 h-[74px] flex justify-around items-center z-50 px-4 shadow-2xl pb-[env(safe-area-inset-bottom)]">        
+<NavBtn active={currentTab === 'home'} onClick={() => navigateTo('home')} icon={HomeIcon} label="Home" />
+        <NavBtn active={currentTab === 'dashboard'} onClick={() => navigateTo('dashboard')} icon={Clock} label="History" />
+
         <button
           onClick={() => navigateTo('revision')}
-          className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 relative ${currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
-            }`}
+          className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 relative ${
+            currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
+          }`}
         >
           <div className="relative p-1">
             <BookOpen size={20} />
             {globalCount > 0 && (
-              <span className="absolute top-0 -right-2 bg-blue-500 text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center border-2 border-[#09090b] shadow-md animate-bounce">
+              <span className="absolute top-0 -right-2 bg-blue-500 text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center border-2 border-[#09090b] shadow-md">
                 {globalCount}
               </span>
             )}
@@ -225,26 +232,19 @@ export default function App() {
           <span className="text-[10px] font-medium tracking-tight mt-0.5">Review</span>
         </button>
 
-        <NavBtn
-          active={currentTab === 'settings'}
-          onClick={() => navigateTo('settings')}
-          icon={Settings}
-          label="Settings"
-        />
+        <NavBtn active={currentTab === 'settings'} onClick={() => navigateTo('settings')} icon={Settings} label="Settings" />
       </nav>
     </div>
   );
 }
 
-// =========================
-// NAV BUTTON
-// =========================
 function NavBtn({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 ${active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
-        }`}
+      className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 ${
+        active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
+      }`}
     >
       <Icon size={20} className="p-0.5" />
       <span className="text-[10px] font-medium tracking-tight mt-0.5">{label}</span>

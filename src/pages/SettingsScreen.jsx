@@ -79,6 +79,9 @@ export default function SettingsScreen() {
 
   const [isDirty, setIsDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); 
+  
+  // Isolated button loading state
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   const markDirty = (updater) => {
     updater();
@@ -105,7 +108,23 @@ export default function SettingsScreen() {
     }, 800);
   };
 
-  // Dynamic Typography Scale Map (Standardized to Base, as scaling is now handled globally via REM)
+  // 🌟 NATIVE ANDROID LOGOUT PURGE INTERCEPTOR
+  const handleAndroidLogout = () => {
+    if (isDisconnecting) return;
+    
+    // 1. Trigger micro-animation state inside the disconnect button
+    setIsDisconnecting(true);
+
+    // 2. Short timeout to let the inline spinner render cleanly before clearing state trees
+    setTimeout(() => {
+      localStorage.clear();
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      window.location.hash = '';
+      logout();
+    }, 450);
+  };
+
+  // Dynamic Typography Scale Map
   const fontMatrix = {
     sm: { root: 'text-sm', label: 'text-xs', desc: 'text-[11px]', title: 'text-base' },
     base: { root: 'text-sm', label: 'text-xs', desc: 'text-[11px]', title: 'text-base' },
@@ -113,7 +132,6 @@ export default function SettingsScreen() {
     xl: { root: 'text-sm', label: 'text-xs', desc: 'text-[11px]', title: 'text-base' }
   };
 
-  // Plain-english explanations for standard users
   const algoMetadata = {
     fsrs: {
       title: "Smart Balance Model (FSRS)",
@@ -183,12 +201,22 @@ export default function SettingsScreen() {
           </div>
         </div>
         
+        {/* Isolated Disconnect Button Animation Trigger */}
         <button 
-          onClick={() => { window.location.hash = ''; logout(); }}
-          className="flex items-center gap-1.5 border border-zinc-800 bg-zinc-950 hover:bg-red-950/20 hover:border-red-900/40 text-[10px] font-mono uppercase font-bold text-zinc-400 hover:text-red-400 px-3 py-2 rounded-lg transition-all shrink-0 active:scale-[0.98]"
+          onClick={handleAndroidLogout}
+          disabled={isDisconnecting}
+          className={`flex items-center gap-2 border text-[10px] font-mono uppercase font-bold px-3 py-2 rounded-lg transition-all min-w-[105px] justify-center shrink-0 active:scale-[0.98] ${
+            isDisconnecting 
+              ? 'bg-red-950/20 border-red-900/30 text-red-400/80 opacity-90' 
+              : 'border-zinc-800 bg-zinc-950 hover:bg-red-950/20 hover:border-red-900/40 text-zinc-400 hover:text-red-400'
+          }`}
         >
-          <LogOut size={11} />
-          <span>Disconnect</span>
+          {isDisconnecting ? (
+            <span className="h-3 w-3 border-[1.5px] border-red-400/20 border-t-red-400 rounded-full animate-spin" />
+          ) : (
+            <LogOut size={11} className="shrink-0" />
+          )}
+          <span>{isDisconnecting ? 'Disconnecting...' : 'Disconnect'}</span>
         </button>
       </div>
 
