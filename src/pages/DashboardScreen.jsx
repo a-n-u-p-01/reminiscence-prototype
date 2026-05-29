@@ -44,12 +44,29 @@ export default function DashboardScreen() {
   }, [heatmapData]);
 
   // Handle auto-scroll positioning
+// Handle auto-scroll positioning
   useEffect(() => {
-    if (!heatmapScrollContainerRef.current || isLoadingHeatmap) return;
     const container = heatmapScrollContainerRef.current;
-    requestAnimationFrame(() => {
-      container.scrollTo({ left: container.scrollWidth, behavior: 'instant' });
+    if (!container || isLoadingHeatmap) return;
+
+    // Create a ResizeObserver to watch when the heatmap actually takes up space in the DOM
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(() => {
+        const maxScrollLeft = container.scrollWidth - container.clientWidth;
+        if (maxScrollLeft > 0) {
+          container.scrollTo({
+            left: maxScrollLeft + 40,
+            behavior: 'instant' // 'instant' ensures a fast, invisible snap on cold start
+          });
+        }
+      });
     });
+
+    // Start monitoring the container
+    resizeObserver.observe(container);
+
+    // Clean up observer when component unmounts
+    return () => resizeObserver.disconnect();
   }, [heatmapCells, isLoadingHeatmap]);
 
   const handleStepDate = (direction) => {
