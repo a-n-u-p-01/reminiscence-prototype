@@ -5,7 +5,7 @@ import HomePage from './pages/Home';
 import { useAuth } from './context/AuthContext';
 import { useReviewEngine } from './context/ReviewContext';
 import { useDashboard } from './context/DashboardContext'; 
-import { useHomeEngine } from './context/HomeContext'; // 🔑 Consuming the workspace note context hook
+import { useHomeEngine } from './context/HomeContext'; 
 import ReviewScreen from './pages/ReviewScreen';
 import DashboardScreen from './pages/DashboardScreen';
 import SettingsScreen from './pages/SettingsScreen';
@@ -14,10 +14,12 @@ import PullToRefresh from 'react-simple-pull-to-refresh';
 import { Keyboard } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
 import StatusCapsule from './components/StatusCapsule';
+import { useAppReset } from './hooks/useAppReset';
 
 export default function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated,isDisconnecting } = useAuth();
   const mainContentRef = useRef(null);
+  const clearAppContext = useAppReset();
 
   const { 
     globalCount, 
@@ -28,7 +30,7 @@ export default function App() {
   } = useReviewEngine();
 
   const { refreshDashboard } = useDashboard();
-  const { refreshHomeNote, statusMessage } = useHomeEngine(); // 🔑 Extracting statusMessage directly from the engine context layer
+  const { refreshHomeNote, statusMessage } = useHomeEngine(); 
 
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
@@ -99,27 +101,31 @@ export default function App() {
     }
   };
 
-  if (!isAuthenticated) {
+  // 🚪 Gating Shield: Force hard-mount the AuthPage immediately if authentication falls off.
+  // This blocks the nested sub-context loops below from evaluating any ghost properties.
+  if (!isDisconnecting && !isAuthenticated ) {
     return <AuthPage onAuthSuccess={() => navigateTo('home')} />;
   }
 
-  if (!isCountLoaded) {
-  return (
-    <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-14 px-6 select-none">
-      {/* 🌟 Shifted beautifully to the upper-middle third of the screen */}
-      <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse text-center">
-        Initializing system...
+  if (!isDisconnecting && !isCountLoaded) {
+    return (
+      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-16 px-6 select-none">
+        <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse text-center">
+          Initializing Engine...
+        </div>
+        <div className="text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
+          v1.0.0
+        </div>
       </div>
+    );
+  }
 
-      {/* Optional: Subtle, tiny version string or anchor at the very bottom to balance the negative space */}
-      <div className="text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
-        v1.0.0
-      </div>
-    </div>
-  );
-}
+  // if (isDisconnecting) {
+  //   return (
+  //    <SettingsScreen />
+  //   );
+  // }
 
-  // 🔑 Determine which system context owns the global layout visual frame right now
   const activeMessage = statusMessage || (isManualRefreshing ? "Syncing" : null);
   const activeType = statusMessage ? (statusMessage.type || 'success') : 'sync';
 
@@ -137,7 +143,6 @@ export default function App() {
         .pull-to-refresh-material { overflow: visible !important; }
       `}</style>
 
-      {/* 🔑 PLACED HERE: Global Root Notification Layer — Evaluates note actions & swipe refreshes dynamically */}
       <StatusCapsule 
         message={activeMessage} 
         type={activeType} 
@@ -153,21 +158,22 @@ export default function App() {
           ref={mainContentRef}
           className="flex-1 overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
         >
-          <div className={currentTab === 'home' ? 'contents' : 'hidden'}>
+          {/* Upgraded from hiding containers using hidden/contents class wrappers to clear logic switches. */}
+          {currentTab === 'home' && (
             <HomePage pendingCount={globalCount} onNavigateToReview={() => navigateTo('revision')} mainContentRef={mainContentRef} />
-          </div>
+          )}
 
-          <div className={currentTab === 'dashboard' ? 'contents' : 'hidden'}>
+          {currentTab === 'dashboard' && (
             <DashboardScreen />
-          </div>
+          )}
 
-          <div className={currentTab === 'revision' ? 'contents' : 'hidden'}>
+          {currentTab === 'revision' && (
             <ReviewScreen onBackToHome={() => navigateTo('home')} />
-          </div>
+          )}
 
-          <div className={currentTab === 'settings' ? 'contents' : 'hidden'}>
+          {currentTab === 'settings' && (
             <SettingsScreen />
-          </div>
+          )}
         </main>
       </PullToRefresh>
 

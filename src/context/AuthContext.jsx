@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return !!getCookie('authToken');
   });
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [user, setUser] = useState(() => {
     const savedUser = getCookie('authUser');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -51,9 +52,13 @@ export const AuthProvider = ({ children }) => {
   // Completely wipes cookies out of the browser
   const logout = () => {
     deleteCookie('authToken');
+    setIsAuthenticated(false);
+  };
+
+  const cleanAuthContext = () =>{
+    setIsAuthenticated(false);
     deleteCookie('authUser');
     setUser(null);
-    setIsAuthenticated(false);
   };
 
   if (loading) {
@@ -64,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout,isDisconnecting, setIsDisconnecting,cleanAuthContext }}>
       {children}
     </AuthContext.Provider>
   );

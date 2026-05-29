@@ -13,7 +13,7 @@
 }
 
 /* =========================
-   GLOBAL RESET
+   GLOBAL RESET (NATIVE MOBILE FOCUS)
 ========================= */
 html,
 body,
@@ -22,38 +22,40 @@ body,
   padding: 0;
 
   width: 100%;
+  /* Fixes native sub-pixel calculation bugs in Android Chromium WebViews */
   height: 100%;
-  min-height: 100dvh;
+  height: -webkit-fill-available;
+  max-height: 100%;
 
   background-color: var(--color-dark-bg);
+  
+  /* Lock the root shell container to block system-level view elastic rubber-banding */
+  overflow: hidden !important;
+  position: fixed;
 }
 
 /* =========================
-   HTML
+   HTML OVERRIDES
 ========================= */
 html {
   font-size: var(--app-font-size, 16px);
-
   background-color: var(--color-dark-bg);
-
-  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* =========================
-   BODY
+   BODY OVERRIDES
 ========================= */
 body {
   background-color: var(--color-dark-bg);
-
   color: #f4f4f5;
-
   font-family: ui-sans-serif, system-ui, sans-serif;
-
   -webkit-font-smoothing: antialiased;
-
-  overflow: hidden;
-
-  overscroll-behavior: none;
+  
+  overscroll-behavior-y: none;
+  -webkit-user-select: none;
+  user-select: none;
 
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -65,13 +67,7 @@ body {
 #root {
   display: flex;
   flex-direction: column;
-
-  width: 100%;
-  height: 100dvh;
-
   background-color: var(--color-dark-bg);
-
-  overflow: hidden;
 }
 
 /* =========================
@@ -196,15 +192,13 @@ html.theme-zinc {
 }
 
 /* =========================
-   MAIN LAYOUT
+   MAIN WORKING SCROLL LAYOUT
 ========================= */
 main {
   flex: 1;
-
-  overflow-y: auto;
-
+  overflow-y: auto !important;
+  /* Smooth native-feeling scrolling acceleration track for mobile views */
   -webkit-overflow-scrolling: touch;
-
   padding-bottom: calc(84px + env(safe-area-inset-bottom));
 }
 
@@ -219,25 +213,30 @@ main {
   bottom: 0;
 
   width: 100%;
-
   height: calc(64px + env(safe-area-inset-bottom));
-
   padding-bottom: env(safe-area-inset-bottom);
 
   z-index: 50;
 
   background-color: var(--color-dark-card);
-
   border-top: 1px solid var(--color-dark-border);
-
   backdrop-filter: blur(12px);
 }
 
 /* =========================
-   HIDE SCROLLBAR
+   BULLETPROOF ANDROID HIDE SCROLLBAR
 ========================= */
-::-webkit-scrollbar {
-  display: none;
+* {
+  scrollbar-width: none !important;          /* Firefox */
+  -ms-overflow-style: none !important;       /* IE/Edge */
+}
+
+/* Deep webkit engine override targeting the entire Android WebView DOM tree */
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 /* =========================
@@ -248,17 +247,14 @@ main {
     opacity: 0;
     transform: translateY(-24px) scale(0.96);
   }
-
   12% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-
   82% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-
   100% {
     opacity: 0;
     transform: translateY(-20px) scale(0.98);
@@ -276,7 +272,6 @@ main {
 /* =========================
    THEME REACTIVE UTILITIES
 ========================= */
-
 .bg-theme {
   background-color: var(--color-dark-bg) !important;
 }

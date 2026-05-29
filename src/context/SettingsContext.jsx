@@ -39,16 +39,15 @@ export const SettingsProvider = ({ children }) => {
   }, []);
 
   const resetSettings = async () => {
-    setThemeState(DEFAULTS.theme);
-    setTextScaleState(DEFAULTS.textScale);
     setReviewCapState(DEFAULTS.reviewCap);
     setAlgoEngineState(DEFAULTS.algoEngine);
     setDefaultSideState(DEFAULTS.defaultSide);
     setAutoRevealTimerState(DEFAULTS.autoRevealTimer);
 
-    const keys = ['appTheme', 'appTextScale', 'reviewCap', 'algoEngine', 'defaultSide', 'autoRevealTimer'];
+    // Use a clean removal system rather than setting keys to string "null"
+    const keys = ['reviewCap', 'algoEngine', 'defaultSide', 'autoRevealTimer', 'appTheme', 'appTextScale'];
     for (const key of keys) {
-      await setItem(key, null);
+      await setItem(key, ''); 
     }
   };
 

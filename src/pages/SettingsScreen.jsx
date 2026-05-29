@@ -1,4 +1,3 @@
-// src/screens/SettingsScreen.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Settings, User, LogOut, Sliders, BrainCircuit, 
@@ -7,8 +6,9 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { useAppReset } from '../hooks/useAppReset';
+import { Capacitor, CapacitorCookies } from '@capacitor/core';
 
-// --- Premium Custom Dropdown Component ---
+
 // --- Premium Custom Dropdown Component ---
 function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,10 +67,11 @@ function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false
     </div>
   );
 }
+
 // --- Main Screen ---
 export default function SettingsScreen() {
-  const { logout, user } = useAuth();
-  const resetApp = useAppReset();
+  const { logout, user,isDisconnecting, setIsDisconnecting } = useAuth();
+  const resetAppContext = useAppReset();
   
   // 🌟 Pull variables and dynamic setter pipelines cleanly from Context Hook
   const { 
@@ -102,7 +103,7 @@ export default function SettingsScreen() {
   
   const [isDirty, setIsDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); 
-  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  
 
   const markDirty = (updater) => {
     updater();
@@ -128,18 +129,42 @@ export default function SettingsScreen() {
     }, 800);
   };
 
-  const handleAndroidLogout = async () => {
+  const handleAndroidLogout = () => {
     if (isDisconnecting) return;
-    setIsDisconnecting(true);
-    
-    setTimeout(async () => {
-      localStorage.clear();
-      await resetApp();
-      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      window.location.hash = '';
-      logout();
-    }, 450);
+      setIsDisconnecting(true);
+      doLogoutOperation();
   };
+
+  const doLogoutOperation = async ()=>{
+     try {
+      localStorage.clear();
+      sessionStorage.clear();
+      logout();
+     
+      if (Capacitor.isNativePlatform()) {
+      // programmatically destroys all cookies in the native jar
+      await CapacitorCookies.clearAllCookies(); 
+    } else {
+      // Fallback clean clear for web development/browsers
+      document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax;";
+      document.cookie = "authUser=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax;";
+    }
+      
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      setTimeout(() => {
+        window.location.hash = '';
+        window.location.replace('/');
+      }, 400);
+       } catch (error) {
+      console.error("Android logout exception trace:", error);
+      logout();
+    } finally {
+      resetAppContext();
+      setIsDisconnecting(false);
+    }
+
+  }
 
   // Dynamic Typography Scale Map
   const fontMatrix = {
@@ -165,8 +190,6 @@ export default function SettingsScreen() {
   };
 
   const f = fontMatrix[draftTextScale] || fontMatrix.base;
-  
-  // 🌟 FIX: Safety fallback descriptor configuration assignment
   const activeAlgoInfo = algoMetadata[draftAlgoEngine] || algoMetadata.fsrs;
 
   return (

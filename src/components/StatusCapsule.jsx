@@ -9,11 +9,13 @@ export default function StatusCapsule({ message, type = 'success' }) {
     if (message) {
       // If message is a string object, pass it directly; otherwise parse it
       const text = typeof message === 'string' ? message : message.text;
-      setDisplayState({ text, type });
+      const activeType = typeof message === 'object' && message.type ? message.type : type;
+      
+      setDisplayState({ text, type: activeType });
     }
   }, [message, type]);
 
-  // Choose configurations dynamically based on type
+  // Choose configurations dynamically based on type cached in local state
   const config = {
     success: {
       border: 'border-emerald-500/30 text-emerald-400',

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Terminal, Mail, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
 import { authService } from '../api/authService';
 import { useAuth } from '../context/AuthContext';
+import { useAppReset } from '../hooks/useAppReset';
 
 export default function AuthPage({ onAuthSuccess }) {
   const { login } = useAuth();
@@ -13,9 +14,11 @@ export default function AuthPage({ onAuthSuccess }) {
     email: '',
     password: ''
   });
+  const resetAppContext = useAppReset();
 
   // Structural Fallback Safety: Sanitize address path parameters instantly on layout mount
   useEffect(() => {
+    resetAppContext();
     if (window.location.hash) {
       window.location.hash = '';
     }
