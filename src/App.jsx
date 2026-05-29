@@ -105,7 +105,7 @@ export default function App() {
 
   if (!isCountLoaded) {
   return (
-    <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-12 px-6 select-none">
+    <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-14 px-6 select-none">
       {/* 🌟 Shifted beautifully to the upper-middle third of the screen */}
       <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse text-center">
         Initializing system...

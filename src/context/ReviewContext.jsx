@@ -16,7 +16,6 @@ export function ReviewProvider({ children }) {
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
 
   // Core background network synchronization logic
-  // Core background network synchronization logic
   const handleSyncData = async (options = {}) => {
     const isSilent = options?.silent === true;
     if (!isSilent) setIsManualRefreshing(true);
@@ -82,6 +81,16 @@ export function ReviewProvider({ children }) {
     initializeDataSystem();
   }, [isAuthenticated]);
 
+  // 🌟 FIX: Function definition moved up here so it's initialized before usage!
+  const resetReviewState = () => {
+    setGlobalCount(0);
+    setIsCountLoaded(false);
+    setReviewConcepts([]);
+    setIsConceptsLoading(false);
+    setHasFetchedRevision(false);
+    setIsManualRefreshing(false);
+  };
+
   const value = {
     globalCount,
     isCountLoaded,
@@ -91,6 +100,7 @@ export function ReviewProvider({ children }) {
     handleSyncData,
     lazyLoadRevisionQueue,
     handleCardReviewed,
+    resetReviewState // Now safely accessible!
   };
 
   return (

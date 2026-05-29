@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { dashboardService } from '../api/dashboardService';
 import { useReviewEngine } from './ReviewContext';
+import { useAuth } from './AuthContext'; // 🔑 Import Auth context to guard endpoints
 
 const DashboardContext = createContext(null);
 
 export function DashboardProvider({ children }) {
   const { isManualRefreshing } = useReviewEngine();
+  const { isAuthenticated } = useAuth(); // 🔑 Extract authentication state to monitor access rights
 
   // Dynamic System Date Anchor
   const todayStr = useMemo(() => {
@@ -33,6 +35,7 @@ export function DashboardProvider({ children }) {
 
   // Core Data Fetcher: Heatmap Matrix & Numerical Aggregations
   const loadCoreDashboardData = async () => {
+    if (!isAuthenticated) return; // 🛡️ Guard against execution without a valid credentials layout session
     try {
        setIsLoadingHeatmap(true);
       const [heatmapRes, metricsRes] = await Promise.all([
@@ -50,6 +53,7 @@ export function DashboardProvider({ children }) {
 
   // Activity Fetcher: Specific ledger details for active date selection
   const loadDateDetails = async (date) => {
+    if (!isAuthenticated) return; // 🛡️ Guard against execution without a valid credentials layout session
     try {
       setIsLoadingActivity(true);
       const data = await dashboardService.getActivityDetails(date);
@@ -65,15 +69,34 @@ export function DashboardProvider({ children }) {
     }
   };
 
-  // 1. Component Mounting & Day Change: Only tracks todayStr initialization
+  // 1. Component Mounting & Day Change: tracks todayStr initialization with auth safety validation
   useEffect(() => {
-    loadCoreDashboardData();
-  }, [todayStr]);
+    if (isAuthenticated) {
+      loadCoreDashboardData();
+    }
+  }, [todayStr, isAuthenticated]); // 🔑 Re-run structural sync cleanly if session unlocks
 
-  // 2. Active Date Selection Change: Only tracks view transitions on target coordinate modification
+  // 2. Active Date Selection Change: tracks view transitions on target coordinate modification with auth safety validation
   useEffect(() => {
-    loadDateDetails(selectedDate);
-  }, [selectedDate]);
+    if (isAuthenticated) {
+      loadDateDetails(selectedDate);
+    }
+  }, [selectedDate, isAuthenticated]); // 🔑 Re-run matrix details tracking if user context switches dynamically
+
+  const resetDashboardState = () => {
+    setSelectedDate(todayStr); // Reset to current day
+    setHeatmapData({});
+    setMetrics({
+      currentStreak: 0,
+      totalConceptsCount: 0,
+      averageMasteryScore: 0,
+      dueTomorrowCount: 0,
+      dueNextWeekCount: 0
+    });
+    setActiveDayDetails({ dailyLog: null, revisionLogs: [] });
+    setIsLoadingHeatmap(false);
+    setIsLoadingActivity(false);
+  };
 
   const value = {
     todayStr,
@@ -85,7 +108,11 @@ export function DashboardProvider({ children }) {
     isLoadingHeatmap,
     isLoadingActivity,
     // 3. Centralized Refresh: Explicitly executes both fetches together cleanly
-    refreshDashboard: () => Promise.all([loadCoreDashboardData(), loadDateDetails(selectedDate)])
+    refreshDashboard: () => {
+      if (!isAuthenticated) return Promise.resolve([null, null]);
+      return Promise.all([loadCoreDashboardData(), loadDateDetails(selectedDate)]);
+    },
+    resetDashboardState
   };
 
   return (

@@ -1,61 +1,78 @@
-// src/context/SettingsContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getItem, setItem } from '../storage/storageService';
 
-// Default fallback values
 const DEFAULTS = {
-  theme: 'zinc', // matches your CSS theme class names
-  textScale: 'base', // 'sm' | 'base' | 'lg' | 'xl'
+  theme: 'zinc',
+  textScale: 'base',
+  reviewCap: 25,
+  algoEngine: 'fsrs',
+  defaultSide: 'front',
+  autoRevealTimer: 0,
 };
 
-// Context shape
-export const SettingsContext = createContext({
-  theme: DEFAULTS.theme,
-  setTheme: (t) => {},
-  textScale: DEFAULTS.textScale,
-  setTextScale: (s) => {},
-});
+export const SettingsContext = createContext({});
 
-// Provider component – wrap the whole app once (e.g., in src/main.jsx)
 export const SettingsProvider = ({ children }) => {
   const [theme, setThemeState] = useState(DEFAULTS.theme);
   const [textScale, setTextScaleState] = useState(DEFAULTS.textScale);
+  const [reviewCap, setReviewCapState] = useState(DEFAULTS.reviewCap);
+  const [algoEngine, setAlgoEngineState] = useState(DEFAULTS.algoEngine);
+  const [defaultSide, setDefaultSideState] = useState(DEFAULTS.defaultSide);
+  const [autoRevealTimer, setAutoRevealTimerState] = useState(DEFAULTS.autoRevealTimer);
 
-  // Load persisted values on mount
   useEffect(() => {
     (async () => {
       const savedTheme = await getItem('appTheme');
       const savedScale = await getItem('appTextScale');
+      const savedCap = await getItem('reviewCap');
+      const savedEngine = await getItem('algoEngine');
+      const savedSide = await getItem('defaultSide');
+      const savedTimer = await getItem('autoRevealTimer');
+
       if (savedTheme) setThemeState(savedTheme);
       if (savedScale) setTextScaleState(savedScale);
+      if (savedCap) setReviewCapState(Number(savedCap));
+      if (savedEngine) setAlgoEngineState(savedEngine);
+      if (savedSide) setDefaultSideState(savedSide);
+      if (savedTimer) setAutoRevealTimerState(Number(savedTimer));
     })();
   }, []);
 
-  // Apply side‑effects whenever a value changes
-  useEffect(() => {
-    // Theme class on <html>
-    document.documentElement.className = `theme-${theme}`;
-    // Text‑scale CSS variable (mapping to pixel size)
-    const scaleMap = { sm: '14px', base: '16px', lg: '18px', xl: '20px' };
-    document.documentElement.style.setProperty('--app-font-size', scaleMap[textScale] || '16px');
-  }, [theme, textScale]);
+  const resetSettings = async () => {
+    setThemeState(DEFAULTS.theme);
+    setTextScaleState(DEFAULTS.textScale);
+    setReviewCapState(DEFAULTS.reviewCap);
+    setAlgoEngineState(DEFAULTS.algoEngine);
+    setDefaultSideState(DEFAULTS.defaultSide);
+    setAutoRevealTimerState(DEFAULTS.autoRevealTimer);
 
-  // Persist helpers
-  const setTheme = async (newTheme) => {
-    setThemeState(newTheme);
-    await setItem('appTheme', newTheme);
+    const keys = ['appTheme', 'appTextScale', 'reviewCap', 'algoEngine', 'defaultSide', 'autoRevealTimer'];
+    for (const key of keys) {
+      await setItem(key, null);
+    }
   };
-  const setTextScale = async (newScale) => {
-    setTextScaleState(newScale);
-    await setItem('appTextScale', newScale);
+
+  const value = {
+    theme,
+    setTheme: async (v) => { setThemeState(v); await setItem('appTheme', v); },
+    textScale,
+    setTextScale: async (v) => { setTextScaleState(v); await setItem('appTextScale', v); },
+    reviewCap,
+    setReviewCap: async (v) => { setReviewCapState(Number(v)); await setItem('reviewCap', String(v)); },
+    algoEngine,
+    setAlgoEngine: async (v) => { setAlgoEngineState(v); await setItem('algoEngine', v); },
+    defaultSide,
+    setDefaultSide: async (v) => { setDefaultSideState(v); await setItem('defaultSide', v); },
+    autoRevealTimer,
+    setAutoRevealTimer: async (v) => { setAutoRevealTimerState(Number(v)); await setItem('autoRevealTimer', String(v)); },
+    resetSettings
   };
 
   return (
-    <SettingsContext.Provider value={{ theme, setTheme, textScale, setTextScale }}>
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   );
 };
 
-// Convenience hook
 export const useSettings = () => useContext(SettingsContext);

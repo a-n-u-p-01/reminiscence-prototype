@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Eye, CheckCircle2, ShieldAlert, Smile, Frown, Layers, ArrowLeft } from 'lucide-react';
 import { noteService } from '../api/noteService';
 import { useReviewEngine } from '../context/ReviewContext';
+import StatusCapsule from '../components/StatusCapsule'; // 🔑 Added import for capsule
 
 export default function ReviewScreen({ onBackToHome }) {
   // Pull isolated states dynamically from centralized engine hook
@@ -16,6 +17,9 @@ export default function ReviewScreen({ onBackToHome }) {
   const [submittingRating, setSubmittingRating] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
+  
+  // 🔑 Local state to manage the rating capsule notifications
+  const [reviewStatus, setReviewStatus] = useState(null);
 
   const containerRef = useRef(null);
   const activeCard = concepts[0];
@@ -28,16 +32,6 @@ export default function ReviewScreen({ onBackToHome }) {
       return () => clearTimeout(timer);
     }
   }, [loading, concepts.length]);
-
-  // REMOVED/COMMENTED: Prevents scrolling when a new card loads into view
-  useEffect(() => {
-    /* if (activeCard && containerRef.current) {
-      containerRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    } */
-  }, [activeCard?.userConceptId]);
 
   const MinimalEngineLoader = () => (
     <div className="min-h-[380px] flex flex-col items-center justify-center max-w-xl mx-auto px-6 select-none">
@@ -97,27 +91,37 @@ export default function ReviewScreen({ onBackToHome }) {
     );
   }
 
-  // MODIFIED: State transitions smoothly without executing any scroll overrides
   const handleRevealAnswer = () => {
     setShowAnswer(true);
-    /* setTimeout(() => {
-      containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 40); */
   };
 
-  // MODIFIED: State transitions smoothly without executing any scroll overrides
   const handleReturnToQuestion = () => {
     setShowAnswer(false);
-    /* setTimeout(() => {
-      containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 40); */
   };
 
   const handleRateCard = async (rating) => {
     if (submittingRating || isExiting) return;
     setSubmittingRating(true);
 
+    // 🔑 Set configuration variables mapped specifically to your StatusCapsule UI types
+    let messageText = "Concept Saved";
+    let capsuleType = "success";
+
+    if (rating === "HARD") {
+      messageText = "Review Scheduled Soon";
+      capsuleType = "error"; // red configuration
+    } else if (rating === "MEDIUM") {
+      messageText = "Interval Updated";
+      capsuleType = "warn"; // amber configuration
+    } else if (rating === "EASY") {
+      messageText = "Retention Locked";
+      capsuleType = "success"; // emerald configuration
+    }
+
     try {
+      // Show the capsule indicator instantly on click
+      setReviewStatus({ text: messageText, type: capsuleType });
+
       await noteService.submitReviewFeedback(activeCard.userConceptId, rating);
       setIsExiting(true);
 
@@ -125,6 +129,9 @@ export default function ReviewScreen({ onBackToHome }) {
         handleCardReviewed(activeCard.userConceptId);
         setShowAnswer(false);
         setIsExiting(false);
+        
+        // Hide capsule right as next card has loaded completely
+        setReviewStatus(null);
 
         if (concepts.length === 1) {
           handleSyncData();
@@ -133,6 +140,8 @@ export default function ReviewScreen({ onBackToHome }) {
       }, 250);
     } catch (err) {
       console.error(err);
+      setReviewStatus({ text: "Sync Failed", type: "warn" });
+      setTimeout(() => setReviewStatus(null), 1500);
     } finally {
       setSubmittingRating(false);
     }
@@ -140,6 +149,13 @@ export default function ReviewScreen({ onBackToHome }) {
 
   return (
     <div ref={containerRef} className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-8 text-theme-primary">
+      
+      {/* 🔑 Inject Standalone Status Capsule Controller */}
+      <StatusCapsule 
+        message={reviewStatus} 
+        type={reviewStatus?.type || 'success'} 
+      />
+
       {/* Header */}
       <div className="flex justify-between items-start border-b border-theme pb-4">
         <div>
@@ -229,9 +245,15 @@ export default function ReviewScreen({ onBackToHome }) {
             {/* Response Form Selection Grid */}
             <div className="pt-4 border-t border-zinc-800/40 mt-6">
               <div className="space-y-4">
-                <div className="text-center space-y-2">
-                  <span className="text-[10px] font-bold font-mono text-zinc-300 uppercase tracking-[0.2em] block">Rate your recall to advance queue</span>
-                </div>
+                <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold font-mono text-zinc-300 uppercase tracking-[0.2em] block">
+                      Rate your recall to advance queue
+                    </span>
+
+                    <span className="text-[10px] text-zinc-500 block leading-relaxed">
+                      Your selection recalibrates the spaced repetition schedule.
+                    </span>
+                  </div>
                 <div className="grid grid-cols-3 gap-2.5">
                   <button disabled={submittingRating || isExiting} onClick={() => handleRateCard('HARD')} className="bg-zinc-900 border border-red-500/20 text-red-400 py-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1.5 active:scale-[0.96] disabled:opacity-40">
                     <ShieldAlert size={15} /> <span>Forgot</span>

@@ -59,7 +59,6 @@ export const AuthProvider = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-500 font-mono text-xs">
-        Parsing security credentials...
       </div>
     );
   }

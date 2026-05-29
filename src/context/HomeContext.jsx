@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { dashboardService } from '../api/dashboardService';
 import { noteService } from '../api/noteService';
+import { useAuth } from './AuthContext'; // 🔑 Import Auth context to guard endpoints
 
 const HomeContext = createContext(null);
 
 export function HomeProvider({ children }) {
+  const { isAuthenticated } = useAuth(); // 🔑 Extract authentication state to monitor access rights
   const [noteText, setNoteText] = useState('');
   const [originalNoteText, setOriginalNoteText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,6 +25,7 @@ export function HomeProvider({ children }) {
   }, []);
 
   const fetchTodayExistingLog = async () => {
+    if (!isAuthenticated) return; // 🛡️ Guard against execution without a valid credentials layout session
     try {
       setIsInitialFetching(true);
       const data = await dashboardService.getActivityDetails(todayStr);
@@ -46,9 +49,12 @@ export function HomeProvider({ children }) {
     }
   };
 
+  // Component Mounting & Day Change: tracks todayStr initialization with auth safety validation
   useEffect(() => {
-    fetchTodayExistingLog();
-  }, [todayStr]);
+    if (isAuthenticated) {
+      fetchTodayExistingLog();
+    }
+  }, [todayStr, isAuthenticated]); // 🔑 Re-run structural sync cleanly if session unlocks
 
   const handleSaveNote = async (textToSave) => {
     if (!textToSave.trim() || loading || textToSave === originalNoteText) return;
@@ -80,6 +86,17 @@ export function HomeProvider({ children }) {
     }
   };
 
+ const resetHomeState = () => {
+    setNoteText('');
+    setOriginalNoteText('');
+    setLoading(false); // 🔑 Fixed: Changed from loading(false) to setLoading(false)
+    setIsInitialFetching(true);
+    setHasExistingEntry(false);
+    setIsEditing(false);
+    setStatusMessage(null);
+    setForceShowInput(false);
+  };
+
   const hasUnsavedChanges = noteText.trim() !== '' && noteText !== originalNoteText;
 
   return (
@@ -97,7 +114,8 @@ export function HomeProvider({ children }) {
       setForceShowInput,
       hasUnsavedChanges,
       refreshHomeNote: fetchTodayExistingLog,
-      handleSaveNote
+      handleSaveNote,
+      resetHomeState
     }}>
       {children}
     </HomeContext.Provider>

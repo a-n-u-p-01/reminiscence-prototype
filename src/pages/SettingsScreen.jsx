@@ -1,12 +1,14 @@
+// src/screens/SettingsScreen.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Settings, User, LogOut, Sliders, BrainCircuit, 
   Palette, Check, Save, ChevronDown, Type 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { setItem } from '../storage/storageService';
 import { useSettings } from '../context/SettingsContext';
+import { useAppReset } from '../hooks/useAppReset';
 
+// --- Premium Custom Dropdown Component ---
 // --- Premium Custom Dropdown Component ---
 function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +26,11 @@ function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false
 
   const selectedOption = options.find(opt => opt.value === value);
 
+  // 🔑 SAFE RENDER TEXT: Always convert numbers/fallbacks to strings explicitly
+  const displayText = selectedOption 
+    ? selectedOption.label 
+    : (value !== undefined && value !== null && !isNaN(value) ? String(value) : '');
+
   return (
     <div className="relative min-w-[140px]" ref={containerRef}>
       <button
@@ -31,7 +38,7 @@ function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full flex items-center justify-between gap-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 p-2 px-3 rounded-lg text-zinc-200 focus:outline-none focus:border-blue-500/50 transition-all text-left ${sizeClass}`}
       >
-        <span className="truncate">{selectedOption ? selectedOption.label : value}</span>
+        <span className="truncate">{displayText}</span>
         <ChevronDown size={14} className={`text-zinc-500 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
@@ -60,30 +67,41 @@ function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false
     </div>
   );
 }
-
 // --- Main Screen ---
 export default function SettingsScreen() {
   const { logout, user } = useAuth();
+  const resetApp = useAppReset();
   
-  const [reviewCap, setReviewCap] = useState(25);
-  const [algoEngine, setAlgoEngine] = useState('fsrs'); 
-  const [defaultSide, setDefaultSide] = useState('front');
-  const [autoRevealTimer, setAutoRevealTimer] = useState(0); 
+  // 🌟 Pull variables and dynamic setter pipelines cleanly from Context Hook
+  const { 
+    theme: contextTheme, setTheme, 
+    textScale: contextTextScale, setTextScale,
+    reviewCap: contextReviewCap, setReviewCap,
+    algoEngine: contextAlgoEngine, setAlgoEngine,
+    defaultSide: contextDefaultSide, setDefaultSide,
+    autoRevealTimer: contextAutoRevealTimer, setAutoRevealTimer
+  } = useSettings(); 
 
-  const { theme: contextTheme, setTheme, textScale: contextTextScale, setTextScale } = useSettings(); 
+  // 🌟 Local dynamic draft state architecture (fallback defaults prevent undefined states)
+  const [draftTheme, setDraftTheme] = useState(contextTheme || 'zinc');
+  const [draftTextScale, setDraftTextScale] = useState(contextTextScale || 'base');
+  const [draftReviewCap, setDraftReviewCap] = useState(contextReviewCap || 25);
+  const [draftAlgoEngine, setDraftAlgoEngine] = useState(contextAlgoEngine || 'fsrs');
+  const [draftDefaultSide, setDraftDefaultSide] = useState(contextDefaultSide || 'front');
+  const [draftAutoRevealTimer, setDraftAutoRevealTimer] = useState(contextAutoRevealTimer || 0);
 
-  // Local draft state – only committed to context on Save
-  const [draftTheme, setDraftTheme] = useState(contextTheme);
-  const [draftTextScale, setDraftTextScale] = useState(contextTextScale);
-
-  // Keep drafts in sync if context loads async from storage
-  useEffect(() => { setDraftTheme(contextTheme); }, [contextTheme]);
-  useEffect(() => { setDraftTextScale(contextTextScale); }, [contextTextScale]);
+  // Synchronize local UI draft tokens whenever underlying context resolves async storage calls
+  useEffect(() => { 
+    if (contextTheme) setDraftTheme(contextTheme); 
+    if (contextTextScale) setDraftTextScale(contextTextScale);
+    if (contextReviewCap !== undefined) setDraftReviewCap(contextReviewCap);
+    if (contextAlgoEngine) setDraftAlgoEngine(contextAlgoEngine);
+    if (contextDefaultSide) setDraftDefaultSide(contextDefaultSide);
+    if (contextAutoRevealTimer !== undefined) setDraftAutoRevealTimer(contextAutoRevealTimer);
+  }, [contextTheme, contextTextScale, contextReviewCap, contextAlgoEngine, contextDefaultSide, contextAutoRevealTimer]);
   
   const [isDirty, setIsDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); 
-  
-  // Isolated button loading state
   const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   const markDirty = (updater) => {
@@ -95,15 +113,13 @@ export default function SettingsScreen() {
   const handleSaveSettings = async () => {
     setSaveStatus('saving');
     
-    // Persist theme and text scale via SettingsContext (which updates DOM + storage)
+    // 🌟 Batch commit everything into context safely (which writes to permanent system storage)
     await setTheme(draftTheme);
     await setTextScale(draftTextScale);
-
-    // Persist other UI‑only settings (store‑only)
-    await setItem('reviewCap', String(reviewCap));
-    await setItem('algoEngine', algoEngine);
-    await setItem('defaultSide', defaultSide);
-    await setItem('autoRevealTimer', String(autoRevealTimer));
+    await setReviewCap(draftReviewCap);
+    await setAlgoEngine(draftAlgoEngine);
+    await setDefaultSide(draftDefaultSide);
+    await setAutoRevealTimer(draftAutoRevealTimer);
 
     setTimeout(() => {
       setSaveStatus('saved');
@@ -112,16 +128,13 @@ export default function SettingsScreen() {
     }, 800);
   };
 
-  // 🌟 NATIVE ANDROID LOGOUT PURGE INTERCEPTOR
-  const handleAndroidLogout = () => {
+  const handleAndroidLogout = async () => {
     if (isDisconnecting) return;
-    
-    // 1. Trigger micro-animation state inside the disconnect button
     setIsDisconnecting(true);
-
-    // 2. Short timeout to let the inline spinner render cleanly before clearing state trees
-    setTimeout(() => {
+    
+    setTimeout(async () => {
       localStorage.clear();
+      await resetApp();
       document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       window.location.hash = '';
       logout();
@@ -152,6 +165,9 @@ export default function SettingsScreen() {
   };
 
   const f = fontMatrix[draftTextScale] || fontMatrix.base;
+  
+  // 🌟 FIX: Safety fallback descriptor configuration assignment
+  const activeAlgoInfo = algoMetadata[draftAlgoEngine] || algoMetadata.fsrs;
 
   return (
     <div className={`text-zinc-100 pb-20 space-y-6 transition-all duration-150 ease-in-out ${f.root} animate-[fadeIn_0.2s_ease-out]`}>
@@ -205,7 +221,6 @@ export default function SettingsScreen() {
           </div>
         </div>
         
-        {/* Isolated Disconnect Button Animation Trigger */}
         <button 
           onClick={handleAndroidLogout}
           disabled={isDisconnecting}
@@ -246,8 +261,8 @@ export default function SettingsScreen() {
                   </p>
                 </div>
                 <CustomSelect
-                  value={algoEngine}
-                  onChange={(val) => markDirty(() => setAlgoEngine(val))}
+                  value={draftAlgoEngine}
+                  onChange={(val) => markDirty(() => setDraftAlgoEngine(val))}
                   sizeClass={f.label}
                   options={[
                     { value: 'fsrs', label: 'Smart Balance' },
@@ -258,12 +273,12 @@ export default function SettingsScreen() {
               </div>
 
               {/* Dynamic Info Explanation Panel */}
-              <div key={algoEngine} className="bg-zinc-950/40 border border-zinc-800/50 rounded-lg p-3 space-y-1 animate-[fadeIn_0.15s_ease-out]">
+              <div key={draftAlgoEngine} className="bg-zinc-950/40 border border-zinc-800/50 rounded-lg p-3 space-y-1 animate-[fadeIn_0.15s_ease-out]">
                 <div className={`text-blue-400 font-mono font-bold tracking-tight ${f.label}`}>
-                  {algoMetadata[algoEngine].title}
+                  {activeAlgoInfo.title}
                 </div>
                 <p className={`text-zinc-400 leading-normal ${f.desc}`}>
-                  {algoMetadata[algoEngine].desc}
+                  {activeAlgoInfo.desc}
                 </p>
               </div>
             </div>
@@ -277,8 +292,8 @@ export default function SettingsScreen() {
                 </p>
               </div>
               <CustomSelect
-                value={reviewCap}
-                onChange={(val) => markDirty(() => setReviewCap(val))}
+                value={draftReviewCap}
+                onChange={(val) => markDirty(() => setDraftReviewCap(val))}
                 sizeClass={f.label}
                 options={[
                   { value: 10, label: '10 Cards' },
@@ -309,8 +324,8 @@ export default function SettingsScreen() {
                 </p>
               </div>
               <CustomSelect
-                value={defaultSide}
-                onChange={(val) => markDirty(() => setDefaultSide(val))}
+                value={draftDefaultSide}
+                onChange={(val) => markDirty(() => setDraftDefaultSide(val))}
                 sizeClass={f.label}
                 options={[
                   { value: 'front', label: 'Question First' },
@@ -328,8 +343,8 @@ export default function SettingsScreen() {
                 </p>
               </div>
               <CustomSelect
-                value={autoRevealTimer}
-                onChange={(val) => markDirty(() => setAutoRevealTimer(val))}
+                value={draftAutoRevealTimer}
+                onChange={(val) => markDirty(() => setDraftAutoRevealTimer(val))}
                 sizeClass={f.label}
                 options={[
                   { value: 0, label: 'Off (Manual)' },
