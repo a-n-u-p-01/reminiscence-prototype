@@ -122,12 +122,18 @@ export default function ReviewScreen({ onBackToHome }) {
       await noteService.submitReviewFeedback(activeCard.userConceptId, rating);
       setIsExiting(true);
 
+      // 1. Snappy card transition
       setTimeout(() => {
         handleCardReviewed(activeCard.userConceptId);
         setShowAnswer(false);
         setIsExiting(false);
-        setReviewStatus(null); // The capsule will now animate out gracefully
       }, 250);
+
+      // 2. Longer capsule visibility
+      setTimeout(() => {
+        setReviewStatus(null);
+      }, 2000);
+
     } catch (err) {
       console.error(err);
       setReviewStatus({ text: "Sync Failed", type: "warn" });

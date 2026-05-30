@@ -60,7 +60,7 @@ function usePullToRefresh(scrollRef, onRefresh) {
 }
 
 export default function App() {
-  const { isAuthenticated, isDisconnecting,loading } = useAuth();
+  const { isAuthenticated, isDisconnecting, loading } = useAuth();
   const mainContentRef = useRef(null);
   const clearAppContext = useAppReset();
 
@@ -188,7 +188,7 @@ export default function App() {
     }
   };
 
-   // Add refs for tabs 2-4 (tab 1 already has mainContentRef)
+  // Add refs for tabs 2-4 (tab 1 already has mainContentRef)
   const dashboardRef = useRef(null);
   const revisionRef = useRef(null);
   const settingsRef = useRef(null);
@@ -198,7 +198,7 @@ export default function App() {
   const isDashRefreshing = usePullToRefresh(dashboardRef, handleGlobalRefresh);
   const isRevRefreshing = usePullToRefresh(revisionRef, handleGlobalRefresh);
   const isSetRefreshing = usePullToRefresh(settingsRef, handleGlobalRefresh);
-  
+
   const isAnyRefreshing = isHomeRefreshing || isDashRefreshing || isRevRefreshing || isSetRefreshing;
 
   // Real-time Drag-Tracking Engine Loops
@@ -289,7 +289,7 @@ export default function App() {
   // 3. If authenticated but data hasn't loaded yet, show Init state
   if (!isCountLoaded) {
     return (
-      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-14 px-6 select-none">
+      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-0 px-6 select-none">
         <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse text-center">
           Initializing Engine...
         </div>
@@ -387,56 +387,56 @@ export default function App() {
         </div>
       </div>
 
-     <nav 
-  className={`
+      <nav
+        className={`
     fixed bottom-0 left-0 right-0 bg-theme-card backdrop-blur-md border-t border-theme h-[74px] 
     justify-around items-center z-50 px-4 shadow-2xl pb-[env(safe-area-inset-bottom)] 
     will-change-transform transition-all duration-300 
     ${isKeyboardVisible ? 'hidden' : 'flex'}
     ${isAnyRefreshing ? 'pointer-events-none opacity-60' : 'opacity-100'}
   `}
->
-  <NavBtn 
-    active={currentTab === 'home'} 
-    onClick={() => navigateTo('home')} 
-    icon={HomeIcon} 
-    label="Home" 
-  />
-  <NavBtn 
-    active={currentTab === 'dashboard'} 
-    onClick={() => navigateTo('dashboard')} 
-    icon={Clock} 
-    label="History" 
-  />
+      >
+        <NavBtn
+          active={currentTab === 'home'}
+          onClick={() => navigateTo('home')}
+          icon={HomeIcon}
+          label="Home"
+        />
+        <NavBtn
+          active={currentTab === 'dashboard'}
+          onClick={() => navigateTo('dashboard')}
+          icon={Clock}
+          label="History"
+        />
 
-  {/* Review Button: Adding the disabled attribute */}
-  <button
-    disabled={isAnyRefreshing}
-    onClick={() => navigateTo('revision')}
-    className={`
+        {/* Review Button: Adding the disabled attribute */}
+        <button
+          disabled={isAnyRefreshing}
+          onClick={() => navigateTo('revision')}
+          className={`
       flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 relative
       ${currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'}
       ${isAnyRefreshing ? 'cursor-not-allowed' : ''}
     `}
-  >
-    <div className="relative p-1">
-      <BookOpen size={20} />
-      {globalCount > 0 && (
-        <span className="absolute top-0 -right-2 bg-blue-500 text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center border-2 border-theme shadow-md">
-          {globalCount}
-        </span>
-      )}
-    </div>
-    <span className="text-[10px] font-medium tracking-tight mt-0.5">Review</span>
-  </button>
+        >
+          <div className="relative p-1">
+            <BookOpen size={20} />
+            {globalCount > 0 && (
+              <span className="absolute top-0 -right-2 bg-blue-500 text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center border-2 border-theme shadow-md">
+                {globalCount}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] font-medium tracking-tight mt-0.5">Review</span>
+        </button>
 
-  <NavBtn 
-    active={currentTab === 'settings'} 
-    onClick={() => navigateTo('settings')} 
-    icon={Settings} 
-    label="Settings" 
-  />
-</nav>
+        <NavBtn
+          active={currentTab === 'settings'}
+          onClick={() => navigateTo('settings')}
+          icon={Settings}
+          label="Settings"
+        />
+      </nav>
     </div>
   );
 }
