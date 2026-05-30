@@ -61,7 +61,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
             <button
               onClick={onNavigateToReview}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 px-4 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 px-4 rounded-xl active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <BookOpen size={16} />
               Start Revision
@@ -143,7 +143,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   setForceShowInput(false);
                   setStatusMessage(null);
                 }}
-                className="w-full border border-theme hover:bg-theme-card text-theme-secondary text-xs py-2 rounded-xl transition-colors font-medium"
+                className="w-full border border-theme hover:bg-theme-card text-theme-secondary text-xs py-2 rounded-xl font-medium"
               >
                 &larr; Return to pending review panel ({pendingCount})
               </button>

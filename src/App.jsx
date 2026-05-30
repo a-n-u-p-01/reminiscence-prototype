@@ -109,7 +109,7 @@ export default function App() {
 
   if (!isDisconnecting && !isCountLoaded) {
     return (
-      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-16 px-6 select-none">
+      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-14 px-6 select-none">
         <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse text-center">
           Initializing Engine...
         </div>
