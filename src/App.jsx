@@ -20,6 +20,7 @@ const TAB_SEQUENCE = ['home', 'dashboard', 'revision', 'settings'];
 
 
 function usePullToRefresh(scrollRef, onRefresh) {
+  const [isRefreshing, setIsRefreshing] = useState(false); // 🔑 Added tracking state
   const startY = useRef(0);
   const isPulling = useRef(false);
 
@@ -39,7 +40,9 @@ function usePullToRefresh(scrollRef, onRefresh) {
       isPulling.current = false;
       const delta = e.changedTouches[0].clientY - startY.current;
       if (delta > 80) {
+        setIsRefreshing(true); // 🔑 Lock
         await onRefresh();
+        setIsRefreshing(false); // 🔑 Unlock
       }
     };
 
@@ -52,14 +55,14 @@ function usePullToRefresh(scrollRef, onRefresh) {
       el.removeEventListener('touchend', onTouchEnd);
     };
   }, [scrollRef, onRefresh]);
+
+  return isRefreshing; // 🔑 Return state
 }
 
 export default function App() {
   const { isAuthenticated, isDisconnecting } = useAuth();
   const mainContentRef = useRef(null);
   const clearAppContext = useAppReset();
-
- 
 
   const {
     globalCount,
@@ -190,14 +193,17 @@ export default function App() {
   const revisionRef = useRef(null);
   const settingsRef = useRef(null);
 
-  // Attach pull-to-refresh to each tab (passive listeners, no preventDefault)
-  usePullToRefresh(mainContentRef, handleGlobalRefresh);
-  usePullToRefresh(dashboardRef, handleGlobalRefresh);
-  usePullToRefresh(revisionRef, handleGlobalRefresh);
-  usePullToRefresh(settingsRef, handleGlobalRefresh);
+  // Attach pull-to-refresh to each tab 🔑 Captured refresh states
+  const isHomeRefreshing = usePullToRefresh(mainContentRef, handleGlobalRefresh);
+  const isDashRefreshing = usePullToRefresh(dashboardRef, handleGlobalRefresh);
+  const isRevRefreshing = usePullToRefresh(revisionRef, handleGlobalRefresh);
+  const isSetRefreshing = usePullToRefresh(settingsRef, handleGlobalRefresh);
+  
+  const isAnyRefreshing = isHomeRefreshing || isDashRefreshing || isRevRefreshing || isSetRefreshing;
 
   // Real-time Drag-Tracking Engine Loops
   const handleTouchStart = (e) => {
+    if (isAnyRefreshing) return; // 🔑 Lock
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     isDragging.current = true;
@@ -206,7 +212,7 @@ export default function App() {
   };
 
   const handleTouchMove = (e) => {
-    if (!isDragging.current) return;
+    if (isAnyRefreshing || !isDragging.current) return; // 🔑 Lock
 
     const currentX = e.touches[0].clientX;
     const currentY = e.touches[0].clientY;
@@ -237,11 +243,7 @@ export default function App() {
   };
 
   const handleTouchEnd = (e) => {
-    if (!isDragging.current && isHorizontalSwipe.current !== true) {
-      touchStartX.current = 0;
-      touchStartY.current = 0;
-      return;
-    }
+    if (isAnyRefreshing || (!isDragging.current && isHorizontalSwipe.current !== true)) return; // 🔑 Lock
 
     isDragging.current = false;
     setIsAnimating(true);
@@ -290,10 +292,11 @@ export default function App() {
 
   const activeTabOffsetIndex = TAB_SEQUENCE.indexOf(currentTab);
 
-  // 🔑 Optimized Transform Config: Swapped timing curve to clean layout-contained Apple-spec easing fluid physics
+  // 🔑 Optimized Transform Config: Uses filters for a professional, "locked" feel instead of fading opacity
   const dynamicSlideTransformStyle = {
     transform: `translateX(calc(-${activeTabOffsetIndex * 25}% + ${dragOffset}px))`,
-    transition: isAnimating ? 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+    transition: isAnimating ? 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 300ms ease' : 'none',
+    filter: isAnyRefreshing ? 'grayscale(0.6) brightness(0.9)' : 'grayscale(0) brightness(1)',
     contain: 'layout style'
   };
 
@@ -323,19 +326,20 @@ export default function App() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         className="flex-1 overflow-hidden relative"
-        style={{ touchAction: 'pan-y pinch-zoom' }}
-
+        style={{ touchAction: isAnyRefreshing ? 'none' : 'pan-y pinch-zoom' }} // 🔑 Disable default touch actions while refreshing
       >
         {/* SLIDING TRACK SLIDER */}
-        {/* 🔑 Fixed: Removed "select-none" style from the container to prevent first-render scroll lock on Android WebViews */}
         <div
-          style={dynamicSlideTransformStyle}
+          style={{
+            ...dynamicSlideTransformStyle,
+            pointerEvents: isAnyRefreshing ? 'none' : 'auto' // 🔑 Lock slider interaction
+          }}
           className="w-[400%] h-full flex items-start will-change-transform"
         >
           {/* Tab 1: Home */}
           <main
             ref={mainContentRef}
-            className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
+            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
           >
             <HomePage pendingCount={globalCount} onNavigateToReview={() => navigateTo('revision')} mainContentRef={mainContentRef} />
@@ -344,7 +348,7 @@ export default function App() {
           {/* Tab 2: Dashboard */}
           <main
             ref={dashboardRef}
-            className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
+            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
           >
             <DashboardScreen />
@@ -353,7 +357,7 @@ export default function App() {
           {/* Tab 3: Revision */}
           <main
             ref={revisionRef}
-            className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
+            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
           >
             <ReviewScreen onBackToHome={() => navigateTo('home')} />
@@ -362,7 +366,7 @@ export default function App() {
           {/* Tab 4: Settings */}
           <main
             ref={settingsRef}
-            className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
+            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
           >
             <SettingsScreen />
