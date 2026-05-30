@@ -286,17 +286,14 @@ export default function App() {
     return <AuthPage onAuthSuccess={() => navigateTo('home')} />;
   }
 
-// 3. If authenticated but data hasn't loaded yet, show Init state
+  // 3. If authenticated but data hasn't loaded yet, show Init state
   if (!isCountLoaded) {
     return (
-      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-center px-6 select-none relative">
-        {/* Centered Loading Message */}
+      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-14 px-6 select-none">
         <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse text-center">
           Initializing Engine...
         </div>
-
-        {/* Anchored to bottom, just above the navigation bar/safe area */}
-        <div className="absolute bottom-10 text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
+        <div className="text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
           v1.0.0
         </div>
       </div>

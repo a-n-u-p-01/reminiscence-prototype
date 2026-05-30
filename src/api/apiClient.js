@@ -14,7 +14,6 @@ const apiClient = axios.create({
 // Interceptor injects the perfect cookie token on-the-fly
 apiClient.interceptors.request.use(
   async (config) => {
-    debugger;
     const token = await getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

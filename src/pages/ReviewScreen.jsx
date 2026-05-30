@@ -6,7 +6,6 @@ import { useReviewEngine } from '../context/ReviewContext';
 import StatusCapsule from '../components/StatusCapsule';
 
 export default function ReviewScreen({ onBackToHome }) {
-  // Pull isolated states dynamically from centralized engine hook
   const { 
     reviewConcepts: concepts, 
     isConceptsLoading: loading, 
@@ -124,13 +123,10 @@ export default function ReviewScreen({ onBackToHome }) {
       setIsExiting(true);
 
       setTimeout(() => {
-        // This removes the card from the queue. If it's the last one, 
-        // the component will automatically render the "Queue Cleared" UI.
         handleCardReviewed(activeCard.userConceptId);
         setShowAnswer(false);
         setIsExiting(false);
-        
-        setReviewStatus(null);
+        setReviewStatus(null); // The capsule will now animate out gracefully
       }, 250);
     } catch (err) {
       console.error(err);
@@ -143,8 +139,8 @@ export default function ReviewScreen({ onBackToHome }) {
 
   return (
     <>
-      {/* THE PORTAL FIX: Teleports the capsule directly to the document.body */}
-      {reviewStatus && typeof document !== 'undefined' && createPortal(
+      {/* PERSISTENT PORTAL: We always render the Portal. StatusCapsule handles its own visibility. */}
+      {typeof document !== 'undefined' && createPortal(
         <div className="fixed top-6 right-6 z-[9999] pointer-events-none flex justify-end">
           <StatusCapsule 
             message={reviewStatus} 
