@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Settings, User, LogOut, Sliders, BrainCircuit, 
-  Palette, Check, Save, ChevronDown, Type 
+import {
+  Settings, User, LogOut, Sliders, BrainCircuit,
+  Palette, Check, Save, ChevronDown, Type
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
@@ -10,7 +10,7 @@ import { Capacitor, CapacitorCookies } from '@capacitor/core';
 
 
 // --- Premium Custom Dropdown Component ---
-function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false }) {
+function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false, disabled = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -25,24 +25,25 @@ function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false
   }, []);
 
   const selectedOption = options.find(opt => opt.value === value);
-
-  // 🔑 SAFE RENDER TEXT: Always convert numbers/fallbacks to strings explicitly
-  const displayText = selectedOption 
-    ? selectedOption.label 
+  const displayText = selectedOption
+    ? selectedOption.label
     : (value !== undefined && value !== null && !isNaN(value) ? String(value) : '');
 
   return (
     <div className="relative min-w-[140px]" ref={containerRef}>
       <button
         type="button"
+        disabled={disabled} // 1. Added disabled attribute
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between gap-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 p-2 px-3 rounded-lg text-zinc-200 focus:outline-none focus:border-blue-500/50 transition-all text-left ${sizeClass}`}
+        // 2. Added opacity styling for visual feedback
+        className={`w-full flex items-center justify-between gap-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 p-2 px-3 rounded-lg text-zinc-200 focus:outline-none focus:border-blue-500/50 transition-all text-left ${sizeClass} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <span className="truncate">{displayText}</span>
-        <ChevronDown size={14} className={`text-zinc-500 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
+        {!disabled && <ChevronDown size={14} className={`text-zinc-500 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />}
       </button>
 
-      {isOpen && (
+      {/* Dropdown menu logic remains the same */}
+      {isOpen && !disabled && (
         <div className={`absolute right-0 ${openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'} w-full min-w-[160px] bg-zinc-950 border border-zinc-800/80 rounded-lg shadow-2xl shadow-black/80 z-50 py-1 max-h-60 overflow-y-auto animate-[fadeIn_0.1s_ease-out]`}>
           {options.map((opt) => (
             <button
@@ -52,11 +53,10 @@ function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false
                 onChange(opt.value);
                 setIsOpen(false);
               }}
-              className={`w-full flex items-center justify-between text-left px-3 py-2 transition-colors ${sizeClass} ${
-                opt.value === value 
-                  ? 'bg-blue-600/10 text-blue-400 font-medium' 
+              className={`w-full flex items-center justify-between text-left px-3 py-2 transition-colors ${sizeClass} ${opt.value === value
+                  ? 'bg-blue-600/10 text-blue-400 font-medium'
                   : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
-              }`}
+                }`}
             >
               <span>{opt.label}</span>
               {opt.value === value && <Check size={12} className="text-blue-400 shrink-0" />}
@@ -70,18 +70,18 @@ function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false
 
 // --- Main Screen ---
 export default function SettingsScreen() {
-  const { logout, user,isDisconnecting, setIsDisconnecting } = useAuth();
+  const { logout, user, isDisconnecting, setIsDisconnecting } = useAuth();
   const resetAppContext = useAppReset();
-  
+
   // 🌟 Pull variables and dynamic setter pipelines cleanly from Context Hook
-  const { 
-    theme: contextTheme, setTheme, 
-    textScale: contextTextScale, setTextScale,
+  const {
+    theme: contextTheme, setTheme,setThemeTransient,
+    textScale: contextTextScale, setTextScale, setTextScaleTransient,
     reviewCap: contextReviewCap, setReviewCap,
     algoEngine: contextAlgoEngine, setAlgoEngine,
     defaultSide: contextDefaultSide, setDefaultSide,
     autoRevealTimer: contextAutoRevealTimer, setAutoRevealTimer
-  } = useSettings(); 
+  } = useSettings();
 
   // 🌟 Local dynamic draft state architecture (fallback defaults prevent undefined states)
   const [draftTheme, setDraftTheme] = useState(contextTheme || 'zinc');
@@ -92,18 +92,18 @@ export default function SettingsScreen() {
   const [draftAutoRevealTimer, setDraftAutoRevealTimer] = useState(contextAutoRevealTimer || 0);
 
   // Synchronize local UI draft tokens whenever underlying context resolves async storage calls
-  useEffect(() => { 
-    if (contextTheme) setDraftTheme(contextTheme); 
+  useEffect(() => {
+    if (contextTheme) setDraftTheme(contextTheme);
     if (contextTextScale) setDraftTextScale(contextTextScale);
     if (contextReviewCap !== undefined) setDraftReviewCap(contextReviewCap);
     if (contextAlgoEngine) setDraftAlgoEngine(contextAlgoEngine);
     if (contextDefaultSide) setDraftDefaultSide(contextDefaultSide);
     if (contextAutoRevealTimer !== undefined) setDraftAutoRevealTimer(contextAutoRevealTimer);
   }, [contextTheme, contextTextScale, contextReviewCap, contextAlgoEngine, contextDefaultSide, contextAutoRevealTimer]);
-  
+
   const [isDirty, setIsDirty] = useState(false);
-  const [saveStatus, setSaveStatus] = useState('idle'); 
-  
+  const [saveStatus, setSaveStatus] = useState('idle');
+
 
   const markDirty = (updater) => {
     updater();
@@ -113,7 +113,7 @@ export default function SettingsScreen() {
 
   const handleSaveSettings = async () => {
     setSaveStatus('saving');
-    
+
     // 🌟 Batch commit everything into context safely (which writes to permanent system storage)
     await setTheme(draftTheme);
     await setTextScale(draftTextScale);
@@ -131,32 +131,20 @@ export default function SettingsScreen() {
 
   const handleAndroidLogout = () => {
     if (isDisconnecting) return;
-      setIsDisconnecting(true);
-      doLogoutOperation();
+    setIsDisconnecting(true);
+    doLogoutOperation();
   };
 
-  const doLogoutOperation = async ()=>{
-     try {
-      localStorage.clear();
-      sessionStorage.clear();
+  const doLogoutOperation = async () => {
+    try {
       logout();
-     
-      if (Capacitor.isNativePlatform()) {
-      // programmatically destroys all cookies in the native jar
-      await CapacitorCookies.clearAllCookies(); 
-    } else {
-      // Fallback clean clear for web development/browsers
-      document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax;";
-      document.cookie = "authUser=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax;";
-    }
-      
       await new Promise(resolve => setTimeout(resolve, 400));
-      
+
       setTimeout(() => {
         window.location.hash = '';
         window.location.replace('/');
       }, 400);
-       } catch (error) {
+    } catch (error) {
       console.error("Android logout exception trace:", error);
       logout();
     } finally {
@@ -194,7 +182,7 @@ export default function SettingsScreen() {
 
   return (
     <div className={`text-zinc-100 pb-20 space-y-6 transition-all duration-150 ease-in-out ${f.root} animate-[fadeIn_0.2s_ease-out]`}>
-      
+
       {/* Structural Header */}
       <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px]">
         <div className="flex items-center gap-2">
@@ -243,15 +231,14 @@ export default function SettingsScreen() {
             </p>
           </div>
         </div>
-        
-        <button 
+
+        <button
           onClick={handleAndroidLogout}
           disabled={isDisconnecting}
-          className={`flex items-center gap-2 border text-[10px] font-mono uppercase font-bold px-3 py-2 rounded-lg transition-all min-w-[105px] justify-center shrink-0 active:scale-[0.98] ${
-            isDisconnecting 
-              ? 'bg-red-950/20 border-red-900/30 text-red-400/80 opacity-90' 
+          className={`flex items-center gap-2 border text-[10px] font-mono uppercase font-bold px-3 py-2 rounded-lg transition-all min-w-[105px] justify-center shrink-0 active:scale-[0.98] ${isDisconnecting
+              ? 'bg-red-950/20 border-red-900/30 text-red-400/80 opacity-90'
               : 'border-zinc-800 bg-zinc-950 hover:bg-red-950/20 hover:border-red-900/40 text-zinc-400 hover:text-red-400'
-          }`}
+            }`}
         >
           {isDisconnecting ? (
             <span className="h-3 w-3 border-[1.5px] border-red-400/20 border-t-red-400 rounded-full animate-spin" />
@@ -264,16 +251,16 @@ export default function SettingsScreen() {
 
       {/* Settings Sections Container */}
       <div className="space-y-6">
-        
+
         {/* Section 1: Algorithmic Core */}
         <div className="space-y-2.5">
           <div className="px-0.5 flex items-center gap-2 text-zinc-400">
             <BrainCircuit size={13} className="text-blue-500/80" />
             <h4 className="text-[10px] font-mono font-bold tracking-wider uppercase">Study Logic</h4>
           </div>
-          
+
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl divide-y divide-zinc-800/40 overflow-visible">
-            
+
             {/* Setting: Calculation Engine Selection */}
             <div className="p-4 space-y-3.5">
               <div className="flex items-start justify-between gap-6">
@@ -284,6 +271,7 @@ export default function SettingsScreen() {
                   </p>
                 </div>
                 <CustomSelect
+                  disabled={true}
                   value={draftAlgoEngine}
                   onChange={(val) => markDirty(() => setDraftAlgoEngine(val))}
                   sizeClass={f.label}
@@ -315,6 +303,7 @@ export default function SettingsScreen() {
                 </p>
               </div>
               <CustomSelect
+                disabled={true}
                 value={draftReviewCap}
                 onChange={(val) => markDirty(() => setDraftReviewCap(val))}
                 sizeClass={f.label}
@@ -337,7 +326,7 @@ export default function SettingsScreen() {
           </div>
 
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl divide-y divide-zinc-800/40 overflow-visible">
-            
+
             {/* Setting: Card Orientation */}
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
@@ -347,6 +336,7 @@ export default function SettingsScreen() {
                 </p>
               </div>
               <CustomSelect
+                disabled={true}
                 value={draftDefaultSide}
                 onChange={(val) => markDirty(() => setDraftDefaultSide(val))}
                 sizeClass={f.label}
@@ -366,6 +356,7 @@ export default function SettingsScreen() {
                 </p>
               </div>
               <CustomSelect
+                disabled={true}
                 value={draftAutoRevealTimer}
                 onChange={(val) => markDirty(() => setDraftAutoRevealTimer(val))}
                 sizeClass={f.label}
@@ -387,7 +378,7 @@ export default function SettingsScreen() {
           </div>
 
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl divide-y divide-zinc-800/40 overflow-visible">
-            
+
             {/* Setting: Segmented Text Size Scale Controller */}
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
@@ -399,18 +390,20 @@ export default function SettingsScreen() {
                   Changes the overall sizing configuration of the interface text to scale readability up or down.
                 </p>
               </div>
-              
+
               <div className="flex bg-zinc-950 border border-zinc-800 p-0.5 rounded-lg shrink-0 w-[140px]">
                 {['sm', 'base', 'lg', 'xl'].map((scale) => (
                   <button
                     key={scale}
                     type="button"
-                    onClick={() => markDirty(() => setDraftTextScale(scale))}
-                    className={`flex-1 text-center py-1 text-[10px] font-mono uppercase font-bold rounded-md transition-all ${
-                      draftTextScale === scale
+                    onClick={() => markDirty(() => {
+                      setDraftTextScale(scale);
+                      setTextScaleTransient(scale);
+                    })}
+                    className={`flex-1 text-center py-1 text-[10px] font-mono uppercase font-bold rounded-md transition-all ${draftTextScale === scale
                         ? 'bg-zinc-800 text-blue-400 shadow-sm'
                         : 'text-zinc-500 hover:text-zinc-300'
-                    }`}
+                      }`}
                   >
                     {scale}
                   </button>
@@ -428,8 +421,12 @@ export default function SettingsScreen() {
               </div>
               <CustomSelect
                 value={draftTheme}
-                onChange={(val) => markDirty(() => setDraftTheme(val))}
+                onChange={(val) => markDirty(() => {
+                  setThemeTransient(val);
+                  setDraftTheme(val);
+                })}
                 sizeClass={f.label}
+                
                 openUpwards={true}
                 options={[
                   { value: 'zinc', label: 'Midnight Zinc (Dark)' },

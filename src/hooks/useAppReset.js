@@ -6,7 +6,6 @@ import { useDashboard } from '../context/DashboardContext';
 import { useAuth } from '../context/AuthContext'; 
 
 export const useAppReset = () => {
-  const { resetSettings } = useSettings();
   const { resetReviewState } = useReviewEngine();
   const { resetHomeState } = useHomeEngine();
   const { resetDashboardState } = useDashboard();

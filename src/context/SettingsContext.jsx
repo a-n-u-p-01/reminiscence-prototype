@@ -4,7 +4,7 @@ import { getItem, setItem } from '../storage/storageService';
 const DEFAULTS = {
   theme: 'zinc',
   textScale: 'base',
-  reviewCap: 25,
+  reviewCap: 999,
   algoEngine: 'fsrs',
   defaultSide: 'front',
   autoRevealTimer: 0,
@@ -38,6 +38,28 @@ export const SettingsProvider = ({ children }) => {
     })();
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+
+    // 1. Handle Theme (Class swapping)
+    // Remove all possible theme classes first
+    const themes = ['theme-zinc', 'theme-slate', 'theme-ocean', 'theme-matte', 'theme-frost', 'theme-sand'];
+    root.classList.remove(...themes);
+    
+    // Add the active theme
+    root.classList.add(`theme-${theme}`);
+
+    // 2. Handle Text Scale (CSS Variable injection)
+    const scaleMap = {
+      sm: '14px',
+      base: '16px',
+      lg: '18px',
+      xl: '20px'
+    };
+    root.style.setProperty('--app-font-size', scaleMap[textScale] || '16px');
+
+  }, [theme, textScale]);
+
   const resetSettings = async () => {
     setReviewCapState(DEFAULTS.reviewCap);
     setAlgoEngineState(DEFAULTS.algoEngine);
@@ -51,21 +73,35 @@ export const SettingsProvider = ({ children }) => {
     }
   };
 
-  const value = {
-    theme,
-    setTheme: async (v) => { setThemeState(v); await setItem('appTheme', v); },
-    textScale,
-    setTextScale: async (v) => { setTextScaleState(v); await setItem('appTextScale', v); },
-    reviewCap,
-    setReviewCap: async (v) => { setReviewCapState(Number(v)); await setItem('reviewCap', String(v)); },
-    algoEngine,
-    setAlgoEngine: async (v) => { setAlgoEngineState(v); await setItem('algoEngine', v); },
-    defaultSide,
-    setDefaultSide: async (v) => { setDefaultSideState(v); await setItem('defaultSide', v); },
-    autoRevealTimer,
-    setAutoRevealTimer: async (v) => { setAutoRevealTimerState(Number(v)); await setItem('autoRevealTimer', String(v)); },
-    resetSettings
-  };
+ const value = {
+  theme,
+  // Transient: Updates UI immediately, but does NOT write to disk
+  setThemeTransient: (v) => setThemeState(v), 
+  // Permanent: Writes to disk
+  setTheme: async (v) => { setThemeState(v); await setItem('appTheme', v); },
+
+  textScale,
+  setTextScaleTransient: (v) => setTextScaleState(v),
+  setTextScale: async (v) => { setTextScaleState(v); await setItem('appTextScale', v); },
+
+  reviewCap,
+  setReviewCapTransient: (v) => setReviewCapState(Number(v)),
+  setReviewCap: async (v) => { setReviewCapState(Number(v)); await setItem('reviewCap', String(v)); },
+
+  algoEngine,
+  setAlgoEngineTransient: (v) => setAlgoEngineState(v),
+  setAlgoEngine: async (v) => { setAlgoEngineState(v); await setItem('algoEngine', v); },
+
+  defaultSide,
+  setDefaultSideTransient: (v) => setDefaultSideState(v),
+  setDefaultSide: async (v) => { setDefaultSideState(v); await setItem('defaultSide', v); },
+
+  autoRevealTimer,
+  setAutoRevealTimerTransient: (v) => setAutoRevealTimerState(Number(v)),
+  setAutoRevealTimer: async (v) => { setAutoRevealTimerState(Number(v)); await setItem('autoRevealTimer', String(v)); },
+  
+  resetSettings
+};
 
   return (
     <SettingsContext.Provider value={value}>

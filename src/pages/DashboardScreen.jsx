@@ -44,7 +44,7 @@ export default function DashboardScreen() {
   }, [heatmapData]);
 
   // Handle auto-scroll positioning
-// Handle auto-scroll positioning
+  // Handle auto-scroll positioning
   useEffect(() => {
     const container = heatmapScrollContainerRef.current;
     if (!container || isLoadingHeatmap) return;
@@ -162,16 +162,15 @@ export default function DashboardScreen() {
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-theme-card to-transparent z-10" />
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-theme-card to-transparent z-10" />
 
-         <div
-  ref={heatmapScrollContainerRef}
-  // 1. Stop the touch event from bubbling up to parent navigation handlers
-  onTouchStart={(e) => e.stopPropagation()}
-  // 2. CSS property to tell the browser this element exclusively handles panning/scrolling
-  style={{ touchAction: 'pan-x' }} 
-  className={`overflow-x-auto pb-2 pt-1 -mx-2 px-2 pr-2 scroll-smooth scrollbar-thin scrollbar-thumb-zinc-800 transition-all duration-500 ${
-    isLoadingHeatmap ? 'opacity-40 scale-[0.985]' : 'opacity-100 scale-100'
-  }`}
->
+          <div
+            ref={heatmapScrollContainerRef}
+            // 1. Stop the touch event from bubbling up to parent navigation handlers
+            onTouchStart={(e) => e.stopPropagation()}
+            // 2. CSS property to tell the browser this element exclusively handles panning/scrolling
+            style={{ touchAction: 'pan-x' }}
+            className={`overflow-x-auto pb-2 pt-1 -mx-2 px-2 pr-2 scroll-smooth scrollbar-thin scrollbar-thumb-zinc-800 transition-all duration-500 ${isLoadingHeatmap ? 'opacity-40 scale-[0.985]' : 'opacity-100 scale-100'
+              }`}
+          >
             {(() => {
               const weeks = [];
               for (let i = 0; i < heatmapCells.length; i += 7) {
@@ -214,11 +213,10 @@ export default function DashboardScreen() {
                               onClick={() => setSelectedDate(cell.date)}
                               className={`w-[10px] h-[10px] rounded-[2px] border transition-all duration-200 focus:outline-none ${getCellIntensityClass(
                                 cell.count
-                              )} ${
-                                selectedDate === cell.date
+                              )} ${selectedDate === cell.date
                                   ? 'ring-1 ring-offset-1 ring-offset-black ring-blue-400 scale-110 z-10'
                                   : 'hover:scale-105 active:scale-95'
-                              }`}
+                                }`}
                               title={`${cell.date}: ${cell.count} Actions`}
                             />
                           );
