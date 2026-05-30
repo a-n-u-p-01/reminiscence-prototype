@@ -4,12 +4,11 @@ import AuthPage from './pages/Auth';
 import HomePage from './pages/Home';
 import { useAuth } from './context/AuthContext';
 import { useReviewEngine } from './context/ReviewContext';
-import { useDashboard } from './context/DashboardContext'; 
-import { useHomeEngine } from './context/HomeContext'; 
+import { useDashboard } from './context/DashboardContext';
+import { useHomeEngine } from './context/HomeContext';
 import ReviewScreen from './pages/ReviewScreen';
 import DashboardScreen from './pages/DashboardScreen';
 import SettingsScreen from './pages/SettingsScreen';
-import PullToRefresh from 'react-simple-pull-to-refresh';
 
 import { Keyboard } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
@@ -19,17 +18,55 @@ import { useAppReset } from './hooks/useAppReset';
 
 const TAB_SEQUENCE = ['home', 'dashboard', 'revision', 'settings'];
 
+
+function usePullToRefresh(scrollRef, onRefresh) {
+  const startY = useRef(0);
+  const isPulling = useRef(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e) => {
+      if (el.scrollTop === 0) {
+        startY.current = e.touches[0].clientY;
+        isPulling.current = true;
+      }
+    };
+
+    const onTouchEnd = async (e) => {
+      if (!isPulling.current) return;
+      isPulling.current = false;
+      const delta = e.changedTouches[0].clientY - startY.current;
+      if (delta > 80) {
+        await onRefresh();
+      }
+    };
+
+    // passive: true is the critical fix — never blocks scroll
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [scrollRef, onRefresh]);
+}
+
 export default function App() {
   const { isAuthenticated, isDisconnecting } = useAuth();
   const mainContentRef = useRef(null);
   const clearAppContext = useAppReset();
 
-  const { 
-    globalCount, 
-    isCountLoaded, 
-    isManualRefreshing, 
-    handleSyncData, 
-    lazyLoadRevisionQueue 
+ 
+
+  const {
+    globalCount,
+    isCountLoaded,
+    isManualRefreshing,
+    handleSyncData,
+    lazyLoadRevisionQueue
   } = useReviewEngine();
 
   const { refreshDashboard } = useDashboard();
@@ -82,9 +119,9 @@ export default function App() {
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const isDragging = useRef(false);
-  const isHorizontalSwipe = useRef(null); 
-  const [dragOffset, setDragOffset] = useState(0); 
-  const [isAnimating, setIsAnimating] = useState(true); 
+  const isHorizontalSwipe = useRef(null);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(true);
 
   useEffect(() => {
     if (Capacitor.getPlatform() !== 'android') return;
@@ -148,13 +185,24 @@ export default function App() {
     }
   };
 
+   // Add refs for tabs 2-4 (tab 1 already has mainContentRef)
+  const dashboardRef = useRef(null);
+  const revisionRef = useRef(null);
+  const settingsRef = useRef(null);
+
+  // Attach pull-to-refresh to each tab (passive listeners, no preventDefault)
+  usePullToRefresh(mainContentRef, handleGlobalRefresh);
+  usePullToRefresh(dashboardRef, handleGlobalRefresh);
+  usePullToRefresh(revisionRef, handleGlobalRefresh);
+  usePullToRefresh(settingsRef, handleGlobalRefresh);
+
   // Real-time Drag-Tracking Engine Loops
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     isDragging.current = true;
-    isHorizontalSwipe.current = null; 
-    setIsAnimating(false); 
+    isHorizontalSwipe.current = null;
+    setIsAnimating(false);
   };
 
   const handleTouchMove = (e) => {
@@ -169,8 +217,8 @@ export default function App() {
     if (isHorizontalSwipe.current === null) {
       if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
         isHorizontalSwipe.current = false;
-        isDragging.current = false; 
-        return; 
+        isDragging.current = false;
+        return;
       }
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 5) {
         isHorizontalSwipe.current = true;
@@ -194,12 +242,12 @@ export default function App() {
       touchStartY.current = 0;
       return;
     }
-    
+
     isDragging.current = false;
-    setIsAnimating(true); 
+    setIsAnimating(true);
 
     const windowWidth = window.innerWidth;
-    const dragThreshold = windowWidth * 0.12; 
+    const dragThreshold = windowWidth * 0.12;
     const currentIdx = TAB_SEQUENCE.indexOf(currentTab);
 
     if (isHorizontalSwipe.current === true) {
@@ -241,7 +289,7 @@ export default function App() {
   const activeType = statusMessage ? (statusMessage.type || 'success') : 'sync';
 
   const activeTabOffsetIndex = TAB_SEQUENCE.indexOf(currentTab);
-  
+
   // 🔑 Optimized Transform Config: Swapped timing curve to clean layout-contained Apple-spec easing fluid physics
   const dynamicSlideTransformStyle = {
     transform: `translateX(calc(-${activeTabOffsetIndex * 25}% + ${dragOffset}px))`,
@@ -250,87 +298,87 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme">
-      
+    <div className="flex flex-col flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
+
       {/* Safe Area Spacer Layout Shield */}
       <div
         style={{ height: 'env(safe-area-inset-top, 24px)' }}
         className="fixed top-0 left-0 right-0 bg-theme z-[90] w-full"
       />
-      
+
       <style>{`
         .ptr-element { display: none !important; }
         .pull-to-refresh-material { overflow: visible !important; height: auto !important; min-height: 100% !important; }
         .pull-to-refresh-material__control { z-index: 100 !important; top: 32px !important; }
       `}</style>
 
-      <StatusCapsule 
-        message={activeMessage} 
-        type={activeType} 
+      <StatusCapsule
+        message={activeMessage}
+        type={activeType}
       />
 
       {/* Real-time Tracking View Window Wrapper */}
-      <div 
+      <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className="flex-1 overflow-hidden relative touch-pan-y"
+        className="flex-1 overflow-hidden relative"
+        style={{ touchAction: 'pan-y pinch-zoom' }}
+
       >
         {/* SLIDING TRACK SLIDER */}
         {/* 🔑 Fixed: Removed "select-none" style from the container to prevent first-render scroll lock on Android WebViews */}
-        <div 
+        <div
           style={dynamicSlideTransformStyle}
           className="w-[400%] h-full flex items-start will-change-transform"
         >
           {/* Tab 1: Home */}
-          <main ref={mainContentRef} className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative">
-            <PullToRefresh onRefresh={handleGlobalRefresh} resistance={2.6} pullingContent={<div />} refreshingContent={<div />}>
-              <div>
-                <HomePage pendingCount={globalCount} onNavigateToReview={() => navigateTo('revision')} mainContentRef={mainContentRef} />
-              </div>
-            </PullToRefresh>
+          <main
+            ref={mainContentRef}
+            className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
+            style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+          >
+            <HomePage pendingCount={globalCount} onNavigateToReview={() => navigateTo('revision')} mainContentRef={mainContentRef} />
           </main>
 
           {/* Tab 2: Dashboard */}
-          <main className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative">
-            <PullToRefresh onRefresh={handleGlobalRefresh} resistance={2.6} pullingContent={<div />} refreshingContent={<div />}>
-              <div>
-                <DashboardScreen />
-              </div>
-            </PullToRefresh>
+          <main
+            ref={dashboardRef}
+            className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
+            style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+          >
+            <DashboardScreen />
           </main>
 
           {/* Tab 3: Revision */}
-          <main className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative">
-            <PullToRefresh onRefresh={handleGlobalRefresh} resistance={2.6} pullingContent={<div />} refreshingContent={<div />}>
-              <div>
-                <ReviewScreen onBackToHome={() => navigateTo('home')} />
-              </div>
-            </PullToRefresh>
+          <main
+            ref={revisionRef}
+            className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
+            style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+          >
+            <ReviewScreen onBackToHome={() => navigateTo('home')} />
           </main>
 
           {/* Tab 4: Settings */}
-          <main className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative">
-            <PullToRefresh onRefresh={handleGlobalRefresh} resistance={2.6} pullingContent={<div />} refreshingContent={<div />}>
-              <div>
-                <SettingsScreen />
-              </div>
-            </PullToRefresh>
+          <main
+            ref={settingsRef}
+            className="w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative"
+            style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+          >
+            <SettingsScreen />
           </main>
         </div>
       </div>
 
-      <nav className={`fixed bottom-0 left-0 right-0 bg-theme-card backdrop-blur-md border-t border-theme h-[74px] justify-around items-center z-50 px-4 shadow-2xl pb-[env(safe-area-inset-bottom)] will-change-transform transition-transform duration-150 ${
-        isKeyboardVisible ? 'hidden' : 'flex'
-      }`}>
+      <nav className={`fixed bottom-0 left-0 right-0 bg-theme-card backdrop-blur-md border-t border-theme h-[74px] justify-around items-center z-50 px-4 shadow-2xl pb-[env(safe-area-inset-bottom)] will-change-transform transition-transform duration-150 ${isKeyboardVisible ? 'hidden' : 'flex'
+        }`}>
         <NavBtn active={currentTab === 'home'} onClick={() => navigateTo('home')} icon={HomeIcon} label="Home" />
         <NavBtn active={currentTab === 'dashboard'} onClick={() => navigateTo('dashboard')} icon={Clock} label="History" />
 
         <button
           onClick={() => navigateTo('revision')}
-          className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 relative ${
-            currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
-          }`}
+          className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 relative ${currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
+            }`}
         >
           <div className="relative p-1">
             <BookOpen size={20} />
@@ -353,9 +401,8 @@ function NavBtn({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 ${
-        active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
-      }`}
+      className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 ${active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
+        }`}
     >
       <Icon size={20} className="p-0.5" />
       <span className="text-[10px] font-medium tracking-tight mt-0.5">{label}</span>

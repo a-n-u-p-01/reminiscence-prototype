@@ -25,7 +25,7 @@ body,
   height: -webkit-fill-available;
   max-height: 100%;
   background-color: var(--color-dark-bg);
-  overflow: hidden !important;
+  overflow: hidden;
 }
 
 /* =========================
@@ -48,8 +48,8 @@ body {
   -webkit-font-smoothing: antialiased;
   
   overscroll-behavior-y: none;
-  -webkit-user-select: none;
-  user-select: none;
+  /* -webkit-user-select: none;
+  user-select: none; */
 
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -59,6 +59,8 @@ body {
    ROOT APP CONTAINER
 ========================= */
 #root {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   background-color: var(--color-dark-bg);
