@@ -60,7 +60,7 @@ function usePullToRefresh(scrollRef, onRefresh) {
 }
 
 export default function App() {
-  const { isAuthenticated, isDisconnecting } = useAuth();
+  const { isAuthenticated, isDisconnecting,loading } = useAuth();
   const mainContentRef = useRef(null);
   const clearAppContext = useAppReset();
 
@@ -270,17 +270,33 @@ export default function App() {
     touchStartY.current = 0;
   };
 
+  // 1. If AuthContext is still checking cookies, show a loading state
+  if (loading) {
+    return (
+      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-center">
+        <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse">
+          Verifying Session...
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Once loading is false, if NOT authenticated, show AuthPage
   if (!isDisconnecting && !isAuthenticated) {
     return <AuthPage onAuthSuccess={() => navigateTo('home')} />;
   }
 
-  if (!isDisconnecting && !isCountLoaded) {
+// 3. If authenticated but data hasn't loaded yet, show Init state
+  if (!isCountLoaded) {
     return (
-      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-14 px-6 select-none">
+      <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-center px-6 select-none relative">
+        {/* Centered Loading Message */}
         <div className="text-theme-muted font-mono text-xs tracking-wider animate-pulse text-center">
           Initializing Engine...
         </div>
-        <div className="text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
+
+        {/* Anchored to bottom, just above the navigation bar/safe area */}
+        <div className="absolute bottom-10 text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
           v1.0.0
         </div>
       </div>

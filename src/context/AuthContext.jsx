@@ -1,63 +1,68 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Preferences } from '@capacitor/preferences';
 
 const AuthContext = createContext(null);
 
-// --- Foolproof Cookie Utilities (Handles special characters & '=' signs perfectly) ---
-const setCookie = (name, value, days = 7) => {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+// --- Native Storage Utilities (Survives app kill on Android) ---
+const setItem = async (key, value) => {
+  await Preferences.set({ key, value: JSON.stringify(value) });
 };
 
-const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return decodeURIComponent(parts.pop().split(';').shift());
-  }
-  return '';
+const getItem = async (key) => {
+  const { value } = await Preferences.get({ key });
+  if (!value) return null;
+  try { return JSON.parse(value); } catch { return value; }
 };
 
-const deleteCookie = (name) => {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+const removeItem = async (key) => {
+  await Preferences.remove({ key });
 };
 
 export const AuthProvider = ({ children }) => {
-  // Pull credentials directly from the cookie strings on bootup
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!getCookie('authToken');
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const [user, setUser] = useState(() => {
-    const savedUser = getCookie('authUser');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Always start true — wait for async read
 
+  // On boot: read from native storage (async, so loading guards the UI)
   useEffect(() => {
-    const token = getCookie('authToken');
-    if (token) {
-      setIsAuthenticated(true);
-    }
-    setLoading(false);
+    const restoreSession = async () => {
+      try {
+        const token = await getItem('authToken');
+        if (token) {
+          const savedUser = await getItem('authUser');
+          setIsAuthenticated(true);
+          setUser(savedUser);
+        }
+      } catch (err) {
+        console.warn('Session restore failed:', err);
+      } finally {
+        setLoading(false); // Always unblock UI
+      }
+    };
+
+    restoreSession();
   }, []);
 
-  // Saves data cleanly into separate, dedicated cookies
-  const login = (userData, token) => {
-    setCookie('authToken', token, 7); 
-    setCookie('authUser', JSON.stringify(userData), 7);
+  const login = async (userData, token) => {
+    // Write to native storage first, THEN update state
+    await setItem('authToken', token);
+    await setItem('authUser', userData);
     setUser(userData);
     setIsAuthenticated(true);
   };
 
-  // Completely wipes cookies out of the browser
-  const logout = () => {
-    deleteCookie('authToken');
+  const logout = async () => {
+    await removeItem('authToken');
+    await removeItem('authUser');
     setIsAuthenticated(false);
+    setUser(null);
   };
 
-  const cleanAuthContext = () =>{
+  const cleanAuthContext = async () => {
+    await removeItem('authToken');
+    await removeItem('authUser');
     setIsAuthenticated(false);
-    deleteCookie('authUser');
     setUser(null);
   };
 
@@ -69,7 +74,10 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout,isDisconnecting, setIsDisconnecting,cleanAuthContext }}>
+    <AuthContext.Provider value={{
+      isAuthenticated, user, login, logout,
+      isDisconnecting, setIsDisconnecting, cleanAuthContext
+    }}>
       {children}
     </AuthContext.Provider>
   );
