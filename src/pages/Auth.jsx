@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAppReset } from '../hooks/useAppReset';
 
 export default function AuthPage({ onAuthSuccess }) {
-  const { login, loading: authLoading,getCookie } = useAuth();
+  const { login, loading: authLoading, getCookie } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -61,7 +61,7 @@ export default function AuthPage({ onAuthSuccess }) {
   };
 
   return (
-    <div className="min-h-dvh w-full bg-dark-bg flex flex-col justify-center px-6 pb-12 -translate-y-8">
+    <div className="min-h-dvh w-full bg-dark-bg flex flex-col justify-center px-6 pb-12 -translate-y-20">
 
       {/* Brand Header */}
       <div className="flex items-center gap-2 mb-8 justify-center">

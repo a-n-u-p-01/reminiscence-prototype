@@ -8,7 +8,7 @@ const setItem = async (key, value) => {
   await Preferences.set({ key, value: JSON.stringify(value) });
 };
 
-const getItem = async (key) => {
+export const getItem = async (key) => {
   const { value } = await Preferences.get({ key });
   if (!value) return null;
   try { return JSON.parse(value); } catch { return value; }
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{
       isAuthenticated, user, login, logout,
-      isDisconnecting, setIsDisconnecting, cleanAuthContext
+      isDisconnecting, setIsDisconnecting, cleanAuthContext,getItem
     }}>
       {children}
     </AuthContext.Provider>

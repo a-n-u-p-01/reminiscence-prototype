@@ -1,14 +1,7 @@
 import axios from 'axios';
+import { getItem } from '../context/AuthContext';
 
-// Foolproof cookie extractor for background network calls
-const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return decodeURIComponent(parts.pop().split(';').shift());
-  }
-  return '';
-};
+
 
 const apiClient = axios.create({
   baseURL: 'https://reminiscence-spring-boot.onrender.com/api/v1', // Your exact network IP
@@ -20,8 +13,9 @@ const apiClient = axios.create({
 
 // Interceptor injects the perfect cookie token on-the-fly
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = getCookie('authToken');
+  async (config) => {
+    debugger;
+    const token = await getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     config.headers['X-Timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
