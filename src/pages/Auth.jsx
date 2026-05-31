@@ -10,7 +10,7 @@ export default function AuthPage({ onAuthSuccess }) {
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showPassword, setShowPassword] = useState(false); // State for toggling visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
   const resetAppContext = useAppReset();
 
@@ -18,7 +18,6 @@ export default function AuthPage({ onAuthSuccess }) {
     if (!authLoading) resetAppContext();
   }, []);
 
-  // Auto-dismiss error logic
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
@@ -44,8 +43,6 @@ export default function AuthPage({ onAuthSuccess }) {
 
       if (responseData?.token) {
         const { token, ...userMetadata } = responseData;
-        
-        // Success: Clear form and proceed
         resetForm();
         await login(userMetadata, token);
         onAuthSuccess?.();
@@ -60,6 +57,19 @@ export default function AuthPage({ onAuthSuccess }) {
   return (
     <div className="h-dvh w-full bg-[var(--color-dark-bg)] flex flex-col items-center pt-24 px-6 overflow-hidden transition-colors duration-300">
       
+      {/* Autofill CSS Fix */}
+      <style>
+        {`
+          input:-webkit-autofill,
+          input:-webkit-autofill:hover,
+          input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px var(--color-dark-bg) inset !important;
+            -webkit-text-fill-color: var(--color-zinc-100) !important;
+            transition: background-color 5000s ease-in-out 0s;
+          }
+        `}
+      </style>
+
       <StatusCapsule 
         message={error ? { text: error, type: 'error' } : null} 
       />
@@ -99,7 +109,6 @@ export default function AuthPage({ onAuthSuccess }) {
             className="w-full bg-transparent border-b border-[var(--color-dark-border)] py-2 text-sm text-[var(--color-zinc-100)] placeholder-[var(--color-zinc-600)] focus:outline-none focus:border-[var(--color-zinc-300)] transition-colors"
           />
 
-          {/* Password Input with Toggle */}
           <div className="relative w-full">
             <input
               type={showPassword ? 'text' : 'password'}

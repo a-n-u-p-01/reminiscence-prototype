@@ -13,15 +13,18 @@ const DEFAULTS = {
 export const SettingsContext = createContext({});
 
 export const SettingsProvider = ({ children }) => {
-  const [theme, setThemeState] = useState(DEFAULTS.theme);
-  const [textScale, setTextScaleState] = useState(DEFAULTS.textScale);
-  const [reviewCap, setReviewCapState] = useState(DEFAULTS.reviewCap);
-  const [algoEngine, setAlgoEngineState] = useState(DEFAULTS.algoEngine);
-  const [defaultSide, setDefaultSideState] = useState(DEFAULTS.defaultSide);
-  const [autoRevealTimer, setAutoRevealTimerState] = useState(DEFAULTS.autoRevealTimer);
+  // Synchronous initialization to prevent "blink"
+  const [theme, setThemeState] = useState(() => localStorage.getItem('appTheme') || DEFAULTS.theme);
+  const [textScale, setTextScaleState] = useState(() => localStorage.getItem('appTextScale') || DEFAULTS.textScale);
+  const [reviewCap, setReviewCapState] = useState(() => Number(localStorage.getItem('reviewCap') || DEFAULTS.reviewCap));
+  const [algoEngine, setAlgoEngineState] = useState(() => localStorage.getItem('algoEngine') || DEFAULTS.algoEngine);
+  const [defaultSide, setDefaultSideState] = useState(() => localStorage.getItem('defaultSide') || DEFAULTS.defaultSide);
+  const [autoRevealTimer, setAutoRevealTimerState] = useState(() => Number(localStorage.getItem('autoRevealTimer') || DEFAULTS.autoRevealTimer));
 
   useEffect(() => {
     (async () => {
+      // Optional: keep this if you need to fetch updates from external storage 
+      // or verify consistency, but the UI is already hydrated by the synchronous init above.
       const savedTheme = await getItem('appTheme');
       const savedScale = await getItem('appTextScale');
       const savedCap = await getItem('reviewCap');
@@ -42,7 +45,6 @@ export const SettingsProvider = ({ children }) => {
     const root = document.documentElement;
 
     // 1. Handle Theme (Class swapping)
-    // Remove all possible theme classes first
     const themes = ['theme-zinc', 'theme-slate', 'theme-ocean', 'theme-matte', 'theme-frost', 'theme-sand'];
     root.classList.remove(...themes);
     
@@ -66,7 +68,6 @@ export const SettingsProvider = ({ children }) => {
     setDefaultSideState(DEFAULTS.defaultSide);
     setAutoRevealTimerState(DEFAULTS.autoRevealTimer);
 
-    // Use a clean removal system rather than setting keys to string "null"
     const keys = ['reviewCap', 'algoEngine', 'defaultSide', 'autoRevealTimer', 'appTheme', 'appTextScale'];
     for (const key of keys) {
       await setItem(key, ''); 
@@ -75,9 +76,7 @@ export const SettingsProvider = ({ children }) => {
 
  const value = {
   theme,
-  // Transient: Updates UI immediately, but does NOT write to disk
   setThemeTransient: (v) => setThemeState(v), 
-  // Permanent: Writes to disk
   setTheme: async (v) => { setThemeState(v); await setItem('appTheme', v); },
 
   textScale,
