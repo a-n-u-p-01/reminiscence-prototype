@@ -19,50 +19,97 @@ import { useAppReset } from './hooks/useAppReset';
 const TAB_SEQUENCE = ['home', 'dashboard', 'revision', 'settings'];
 
 
-function usePullToRefresh(scrollRef, onRefresh) {
-  const [isRefreshing, setIsRefreshing] = useState(false); // 🔑 Added tracking state
+function usePullToRefresh(
+  scrollRef,
+  onRefresh,
+  pullDistance,
+  setPullDistance,
+  setPullMessage
+) {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const startY = useRef(0);
   const isPulling = useRef(false);
+  const refreshTriggered = useRef(false);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
+    const THRESHOLD = 52;
+
     const onTouchStart = (e) => {
-      if (el.scrollTop === 0) {
+      if (el.scrollTop === 0 && !isRefreshing) {
         startY.current = e.touches[0].clientY;
         isPulling.current = true;
+        refreshTriggered.current = false;
       }
     };
 
-    const onTouchEnd = async (e) => {
-      if (!isPulling.current) return;
+    const onTouchMove = async (e) => {
+      if (!isPulling.current || isRefreshing) return;
+
+      const delta = Math.max(
+        0,
+        e.touches[0].clientY - startY.current
+      );
+
+      const damped = Math.min(
+        55 * (1 - Math.exp(-delta / 55)),
+        55
+      );
+
+      setPullDistance(damped);
+
+      if (damped > THRESHOLD) {
+        setPullMessage('Release to refresh');
+      } else if (damped > 18) {
+        setPullMessage('Pull to refresh');
+      } else {
+        setPullMessage('');
+      }
+    };
+
+    const onTouchEnd = async () => {
       isPulling.current = false;
-      const delta = e.changedTouches[0].clientY - startY.current;
-      if (delta > 80) {
-        setIsRefreshing(true); // 🔑 Lock
-        await onRefresh();
-        setIsRefreshing(false); // 🔑 Unlock
+
+      if (pullDistance >= THRESHOLD && !isRefreshing) {
+        setIsRefreshing(true);
+        setPullMessage('');
+ setPullDistance(0);
+        try {
+          await onRefresh();
+        } finally {
+          setTimeout(() => {
+           
+            setIsRefreshing(false);
+          }, 120);
+        }
+      } else {
+        setPullDistance(0);
+        setPullMessage('');
       }
     };
 
-    // passive: true is the critical fix — never blocks scroll
     el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: true });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
 
     return () => {
       el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('touchend', onTouchEnd);
     };
   }, [scrollRef, onRefresh]);
 
-  return isRefreshing; // 🔑 Return state
+  return isRefreshing;
 }
-
 export default function App() {
   const { isAuthenticated, isDisconnecting, loading } = useAuth();
   const mainContentRef = useRef(null);
   const clearAppContext = useAppReset();
+  const [pullDistance, setPullDistance] = useState(0);
+  const [pullMessage, setPullMessage] = useState('');
 
   const {
     globalCount,
@@ -194,10 +241,37 @@ export default function App() {
   const settingsRef = useRef(null);
 
   // Attach pull-to-refresh to each tab 🔑 Captured refresh states
-  const isHomeRefreshing = usePullToRefresh(mainContentRef, handleGlobalRefresh);
-  const isDashRefreshing = usePullToRefresh(dashboardRef, handleGlobalRefresh);
-  const isRevRefreshing = usePullToRefresh(revisionRef, handleGlobalRefresh);
-  const isSetRefreshing = usePullToRefresh(settingsRef, handleGlobalRefresh);
+  const isHomeRefreshing = usePullToRefresh(
+    mainContentRef,
+    handleGlobalRefresh,
+    pullDistance,
+    setPullDistance,
+    setPullMessage
+  );
+
+  const isDashRefreshing = usePullToRefresh(
+    dashboardRef,
+    handleGlobalRefresh,
+    pullDistance,
+    setPullDistance,
+    setPullMessage
+  );
+
+  const isRevRefreshing = usePullToRefresh(
+    revisionRef,
+    handleGlobalRefresh,
+    pullDistance,
+    setPullDistance,
+    setPullMessage
+  );
+
+  const isSetRefreshing = usePullToRefresh(
+    settingsRef,
+    handleGlobalRefresh,
+    pullDistance,
+    setPullDistance,
+    setPullMessage
+  );
 
   const isAnyRefreshing = isHomeRefreshing || isDashRefreshing || isRevRefreshing || isSetRefreshing;
 
@@ -374,20 +448,46 @@ export default function App() {
       />
 
       {/* Real-time Tracking View Window Wrapper */}
-     <div
-  onTouchStart={handleTouchStart}
-  onTouchMove={handleTouchMove}
-  onTouchEnd={handleTouchEnd}
-  className="flex-1 overflow-hidden relative"
-  style={{ touchAction: isAnyRefreshing ? 'none' : 'pan-y pinch-zoom' }}
->
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="flex-1 overflow-hidden relative"
+        style={{ touchAction: isAnyRefreshing ? 'none' : 'pan-y pinch-zoom' }}
+      >
 
-
+        <div
+          className="absolute top-0 left-0 right-0 z-20 flex justify-center pointer-events-none"
+          style={{
+            transform: `translateY(${Math.min(pullDistance * 0.3, 12)}px)`,
+            transition: isAnyRefreshing
+              ? 'transform 0.2s ease'
+              : 'none'
+          }}
+        >
+          {pullMessage && (
+            <div className="
+  mt-2
+  text-[10px]
+  font-medium
+  tracking-wide
+  text-theme-muted
+  transition-opacity
+  duration-150
+">
+              {pullMessage}
+            </div>
+          )}
+        </div>
         {/* SLIDING TRACK SLIDER */}
         <div
           style={{
             ...dynamicSlideTransformStyle,
-            pointerEvents: isAnyRefreshing ? 'none' : 'auto' // 🔑 Lock slider interaction
+            transform: `
+    translateY(${pullDistance}px)
+    translateX(calc(-${activeTabOffsetIndex * 25}% + ${dragOffset}px))
+  `,
+            pointerEvents: isAnyRefreshing ? 'none' : 'auto'
           }}
           className="w-[400%] h-full flex items-start will-change-transform"
         >
@@ -480,9 +580,9 @@ export default function App() {
         />
       </nav>
 
-        {isAnyRefreshing && (
-    <div className="refresh-lock-overlay" />
-  )}
+      {isAnyRefreshing && (
+        <div className="refresh-lock-overlay" />
+      )}
     </div>
   );
 }
