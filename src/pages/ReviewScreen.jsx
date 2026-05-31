@@ -156,25 +156,25 @@ export default function ReviewScreen({ onBackToHome }) {
         document.body
       )}
 
-      <div ref={containerRef} className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-8 text-theme-primary">
+      <div ref={containerRef} className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-8 text-theme-primary select-none">
         
         {/* Header */}
-        <div className="flex justify-between items-start border-b border-theme pb-4">
+        <div className="flex justify-between items-start border-b border-zinc-900 pb-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-zinc-500 flex items-center gap-2">
-              <Layers size={18} className="text-blue-500" />
-              <span className="text-theme-primary">Recall Active Engine</span>
+            <h1 className="text-lg font-semibold tracking-tight text-zinc-400 flex items-center gap-2">
+              <Layers size={16} className="text-blue-500/80 stroke-[2]" />
+              <span className="text-zinc-200">Recall Active Engine</span>
             </h1>
-            <p className="text-xs text-theme-secondary mt-0.5">Active retention tracking loop.</p>
+            <p className="text-xs text-zinc-500 mt-0.5">Active retention tracking loop.</p>
           </div>
-          <span className="text-xs font-mono bg-theme-card text-theme-accent font-semibold px-2.5 py-1 rounded-full border border-theme shadow-sm">
+          <span className="text-xs font-mono bg-zinc-900/50 text-zinc-400 font-medium px-2.5 py-1 rounded-full border border-zinc-800 shadow-sm">
             Queue: {concepts.length}
           </span>
         </div>
 
         {/* Card Container Structure */}
         <div
-          className={`w-full transition-all duration-300 ${isExiting ? 'opacity-0 scale-95 blur-[2px]' : 'opacity-100 scale-100'}`}
+          className={`w-full transition-all duration-300 ${isExiting ? 'opacity-0 scale-98 blur-[1px]' : 'opacity-100 scale-100'}`}
           style={{ perspective: '1200px' }}
         >
           <div
@@ -187,84 +187,108 @@ export default function ReviewScreen({ onBackToHome }) {
           >
             {/* FRONT CONTAINER VIEW */}
             <div
-              className={`w-full bg-theme-card border border-theme rounded-2xl p-6 flex flex-col justify-start shadow-2xl transition-all duration-300 ${
+              className={`w-full bg-theme-card border border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-start shadow-xl transition-all duration-300 ${
                 showAnswer ? 'pointer-events-none absolute opacity-0 invisible h-0 overflow-hidden' : 'opacity-100 visible h-auto'
               }`}
-              style={{ backfaceVisibility: 'hidden' }}
             >
-              <div className="space-y-2">
-                <span className="text-[10px] font-bold tracking-widest font-mono text-theme-muted uppercase block">Active Inquiry Challenge</span>
-                <p className="text-base text-theme-primary leading-relaxed font-medium">{activeCard?.questionText}</p>
+              {/* Question Text Area */}
+              <div className="space-y-3">
+                <span className="text-[10px] font-bold tracking-[0.15em] font-mono text-zinc-500 uppercase block">Active Inquiry Challenge</span>
+                <p className="text-[15px] text-zinc-100 leading-relaxed font-normal tracking-wide min-h-[60px]">
+                  {activeCard?.questionText}
+                </p>
               </div>
-              <div className="border-t border-zinc-800/40 pt-4 mt-5 w-full">
+              
+              {/* Calm, Deep Dark Reveal Trigger */}
+              <div className="border-t border-zinc-900 pt-5 mt-6 w-full">
                 <button
                   onClick={handleRevealAnswer}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs py-3 rounded-xl transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
+                  className="w-full bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800/80 text-zinc-400 hover:text-zinc-200 font-medium text-xs py-3 rounded-xl transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 tracking-wide shadow-sm"
                 >
-                  <Eye size={15} /> Reveal Resolution Map
+                  <Eye size={14} className="opacity-70 stroke-[2]" /> 
+                  <span>Reveal Resolution Map</span>
                 </button>
               </div>
             </div>
 
             {/* BACK CONTAINER VIEW */}
             <div
-              className={`w-full bg-theme-card border border-theme rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 ${
+              className={`w-full bg-theme-card border border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 ${
                 showAnswer ? 'opacity-100 visible h-auto' : 'pointer-events-none absolute opacity-0 invisible h-0 overflow-hidden'
               }`}
-              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+              style={{ transform: 'rotateY(180deg)' }}
             >
-              <div className="space-y-4 flex-1">
-                <div className="flex justify-between items-center bg-zinc-950/30 border border-zinc-800/50 p-2 rounded-xl">
+              <div className="space-y-5 flex-1">
+                {/* Meta Header */}
+                <div className="flex justify-between items-center bg-zinc-950/20 border border-zinc-900/60 p-2 rounded-xl">
                   <div className="flex items-center gap-2">
-                    <button onClick={handleReturnToQuestion} className="p-1 text-theme-secondary hover:text-zinc-200 transition-colors">
+                    <button onClick={handleReturnToQuestion} className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors">
                       <ArrowLeft size={14} />
                     </button>
-                    <span className="text-[10px] font-bold tracking-widest font-mono text-emerald-400 uppercase block">• Verified Answer</span>
+                    <span className="text-[10px] font-bold tracking-widest font-mono text-zinc-400 uppercase block">• Verified Answer</span>
                   </div>
-                  <span className={`text-[9px] px-2.5 py-1 rounded-lg font-semibold border tracking-wide uppercase ${
-                    activeCard?.difficulty === 'HARD' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                    activeCard?.difficulty === 'MEDIUM' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                    'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                  <span className={`text-[9px] px-2.5 py-0.5 rounded-lg font-medium border tracking-wide font-mono uppercase ${
+                    activeCard?.difficulty === 'HARD' ? 'bg-red-500/5 text-red-400/90 border-red-500/10' :
+                    activeCard?.difficulty === 'MEDIUM' ? 'bg-amber-500/5 text-amber-400/90 border-amber-500/10' :
+                    'bg-emerald-500/5 text-emerald-400/90 border-emerald-500/10'
                   }`}>
                     {activeCard?.difficulty || 'NORMAL'}
                   </span>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="bg-zinc-950 p-4 rounded-xl border border-theme">
-                    <p className="text-sm text-theme-primary leading-relaxed whitespace-pre-wrap font-mono">{activeCard?.answerText}</p>
-                  </div>
+                {/* Premium Calm Answer Block (Optimized Typography Structure) */}
+                <div className="pt-2 px-1 min-h-[100px]">
+                  <p className="text-[15px] text-zinc-200 leading-relaxed font-normal tracking-wide whitespace-pre-wrap font-sans">
+                    {activeCard?.answerText}
+                  </p>
                 </div>
 
                 {activeCard?.keyNotes && (
-                  <div className="space-y-1.5 bg-theme-card border border-theme p-3 rounded-xl">
-                    <span className="text-[10px] font-bold tracking-widest font-mono text-zinc-500 uppercase block">Contextual Key Notes</span>
-                    <p className="text-xs text-theme-secondary leading-relaxed italic">{activeCard.keyNotes}</p>
+                  <div className="space-y-1.5 pt-4 border-t border-zinc-900/40">
+                    <span className="text-[9px] font-bold tracking-widest font-mono text-zinc-500 uppercase block">Contextual Key Notes</span>
+                    <p className="text-xs text-zinc-400 leading-relaxed italic font-sans">{activeCard.keyNotes}</p>
                   </div>
                 )}
               </div>
 
               {/* Response Form Selection Grid */}
-              <div className="pt-4 border-t border-zinc-800/40 mt-6">
+              <div className="pt-4 border-t border-zinc-900/60 mt-6">
                 <div className="space-y-4">
                   <div className="space-y-0.5">
-                      <span className="text-[10px] font-bold font-mono text-zinc-300 uppercase tracking-[0.2em] block">
-                        Rate your recall to advance queue
-                      </span>
-
-                      <span className="text-[10px] text-zinc-500 block leading-relaxed">
-                        Your selection recalibrates the spaced repetition schedule.
-                      </span>
-                    </div>
+                    <span className="text-[10px] font-semibold font-mono text-zinc-400 uppercase tracking-wider block">
+                      Rate your recall to advance queue
+                    </span>
+                    <span className="text-[10px] text-zinc-500 block leading-relaxed">
+                      Your selection recalibrates the spaced repetition schedule.
+                    </span>
+                  </div>
+                  
                   <div className="grid grid-cols-3 gap-2.5">
-                    <button disabled={submittingRating || isExiting} onClick={() => handleRateCard('HARD')} className="bg-zinc-900 border border-red-500/20 text-red-400 py-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1.5 active:scale-[0.96] disabled:opacity-40">
-                      <ShieldAlert size={15} /> <span>Forgot</span>
+                    <button 
+                      disabled={submittingRating || isExiting} 
+                      onClick={() => handleRateCard('HARD')} 
+                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-red-900/40 text-zinc-400 hover:text-red-400 py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1.5 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                    >
+                      <ShieldAlert size={15} className="text-red-500/70" /> 
+                      <span className="font-medium tracking-wide">Forgot</span>
                     </button>
-                    <button disabled={submittingRating || isExiting} onClick={() => handleRateCard('MEDIUM')} className="bg-zinc-900 border border-amber-500/20 text-amber-400 py-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1.5 active:scale-[0.96] disabled:opacity-40">
-                      <Frown size={15} /> <span>Hesitant</span>
+                    
+                    <button 
+                      disabled={submittingRating || isExiting} 
+                      onClick={() => handleRateCard('MEDIUM')} 
+                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-amber-900/40 text-zinc-400 hover:text-amber-400 py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1.5 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                    >
+                      <Frown size={15} className="text-amber-500/70" /> 
+                      <span className="font-medium tracking-wide">Hesitant</span>
                     </button>
-                    <button disabled={submittingRating || isExiting} onClick={() => handleRateCard('EASY')} className="bg-zinc-900 border border-emerald-500/20 text-emerald-400 py-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1.5 active:scale-[0.96] disabled:opacity-40">
-                      <Smile size={15} /> <span>Got It</span>
+                    
+                    <button 
+                      disabled={submittingRating || isExiting} 
+                      onClick={() => handleRateCard('EASY')} 
+                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-emerald-900/40 text-zinc-400 hover:text-emerald-400 py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1.5 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                    >
+                      <Smile size={15} className="text-emerald-500/70" /> 
+                      <span className="font-medium tracking-wide">Got It</span>
                     </button>
                   </div>
                 </div>
