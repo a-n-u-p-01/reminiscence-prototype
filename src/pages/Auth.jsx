@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Terminal, ArrowRight } from 'lucide-react';
+import { Terminal, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { authService } from '../api/authService';
 import { useAuth } from '../context/AuthContext';
 import { useAppReset } from '../hooks/useAppReset';
@@ -10,6 +10,7 @@ export default function AuthPage({ onAuthSuccess }) {
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // State for toggling visibility
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
   const resetAppContext = useAppReset();
 
@@ -51,7 +52,6 @@ export default function AuthPage({ onAuthSuccess }) {
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Authentication failed.');
-      // Error: We no longer clear the password here as per your request
     } finally {
       setLoading(false);
     }
@@ -99,14 +99,25 @@ export default function AuthPage({ onAuthSuccess }) {
             className="w-full bg-transparent border-b border-[var(--color-dark-border)] py-2 text-sm text-[var(--color-zinc-100)] placeholder-[var(--color-zinc-600)] focus:outline-none focus:border-[var(--color-zinc-300)] transition-colors"
           />
 
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            className="w-full bg-transparent border-b border-[var(--color-dark-border)] py-2 text-sm text-[var(--color-zinc-100)] placeholder-[var(--color-zinc-600)] focus:outline-none focus:border-[var(--color-zinc-300)] transition-colors"
-          />
+          {/* Password Input with Toggle */}
+          <div className="relative w-full">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              required
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              className="w-full bg-transparent border-b border-[var(--color-dark-border)] py-2 pr-8 text-sm text-[var(--color-zinc-100)] placeholder-[var(--color-zinc-600)] focus:outline-none focus:border-[var(--color-zinc-300)] transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-[var(--color-zinc-600)] hover:text-[var(--color-zinc-400)] transition-colors"
+              aria-label="Toggle password visibility"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
 
           <button
             type="submit"
