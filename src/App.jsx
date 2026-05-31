@@ -308,8 +308,14 @@ export default function App() {
   // 🔑 Optimized Transform Config: Uses filters for a professional, "locked" feel instead of fading opacity
   const dynamicSlideTransformStyle = {
     transform: `translateX(calc(-${activeTabOffsetIndex * 25}% + ${dragOffset}px))`,
-    transition: isAnimating ? 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 300ms ease' : 'none',
-    filter: isAnyRefreshing ? 'grayscale(0.6) brightness(0.9)' : 'grayscale(0) brightness(1)',
+    transition: isAnimating
+      ? 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 250ms ease'
+      : 'none',
+
+    filter: isAnyRefreshing
+      ? 'blur(1px) saturate(0.95)'
+      : 'blur(0px) saturate(1)',
+
     contain: 'layout style'
   };
 
@@ -323,6 +329,40 @@ export default function App() {
       />
 
       <style>{`
+    .refresh-lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+
+  backdrop-filter:
+    blur(1.5px)
+    saturate(70%);
+
+  -webkit-backdrop-filter:
+    blur(1.5px)
+    saturate(70%);
+
+  background:
+    color-mix(in srgb, var(--theme-bg, #000) 8%, transparent);
+
+  animation: refreshOverlayIn 180ms ease;
+}
+
+.refresh-lock-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      rgba(255,255,255,0.015) 1px,
+      transparent 1px
+    );
+
+  background-size: 3px 3px;
+  opacity: 0.4;
+}
         .ptr-element { display: none !important; }
         .pull-to-refresh-material { overflow: visible !important; height: auto !important; min-height: 100% !important; }
         .pull-to-refresh-material__control { z-index: 100 !important; top: 32px !important; }
@@ -334,13 +374,15 @@ export default function App() {
       />
 
       {/* Real-time Tracking View Window Wrapper */}
-      <div
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        className="flex-1 overflow-hidden relative"
-        style={{ touchAction: isAnyRefreshing ? 'none' : 'pan-y pinch-zoom' }} // 🔑 Disable default touch actions while refreshing
-      >
+     <div
+  onTouchStart={handleTouchStart}
+  onTouchMove={handleTouchMove}
+  onTouchEnd={handleTouchEnd}
+  className="flex-1 overflow-hidden relative"
+  style={{ touchAction: isAnyRefreshing ? 'none' : 'pan-y pinch-zoom' }}
+>
+
+
         {/* SLIDING TRACK SLIDER */}
         <div
           style={{
@@ -393,7 +435,7 @@ export default function App() {
     justify-around items-center z-50 px-4 shadow-2xl pb-[env(safe-area-inset-bottom)] 
     will-change-transform transition-all duration-300 
     ${isKeyboardVisible ? 'hidden' : 'flex'}
-    ${isAnyRefreshing ? 'pointer-events-none opacity-60' : 'opacity-100'}
+    ${isAnyRefreshing ? 'pointer-events-none' : ''}
   `}
       >
         <NavBtn
@@ -437,6 +479,10 @@ export default function App() {
           label="Settings"
         />
       </nav>
+
+        {isAnyRefreshing && (
+    <div className="refresh-lock-overlay" />
+  )}
     </div>
   );
 }

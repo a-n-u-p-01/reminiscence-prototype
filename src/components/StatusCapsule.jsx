@@ -42,7 +42,7 @@ export default function StatusCapsule({ message, type = 'success' }) {
     /* 🔑 Centering Wrapper: Stays statically aligned perfectly in the center at all times */
     <div
       style={{ top: 'calc(0.35rem + env(safe-area-inset-top, 0px))' }}
-      className="fixed left-1/2 -translate-x-1/2 z-[100] pointer-events-none flex justify-center w-full max-w-xs"
+      className="fixed left-1/2 -translate-x-1/2 z-[100] pointer-events-none flex justify-center w-full max-w-xs z-[1001]"
     >
       {/* 🔑 Animation Target: Handles only opacity, y-axis travel, and scaling changes */}
       <div
