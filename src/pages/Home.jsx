@@ -83,7 +83,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         </div>
       ) : (
         <div className="space-y-8 animate-[fadeIn_0.15s_ease-out]">
-       
+        
 
           <div className="space-y-4 pt-4 border-t border-zinc-900/60">
             {/* 🔑 MODIFIED BLOCK: Old inline container stripped out for your explicit component call */}
@@ -93,8 +93,9 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
             />
 
             <form onSubmit={handleSave} className="space-y-4">
-              <div className="bg-theme-card border border-theme rounded-2xl p-4 focus-within:border-blue-500/50 transition-colors relative">
-                <div className="flex justify-between items-center mb-2">
+              {/* 🔑 Added select-text to isolate input fields from global app select-none wrappers */}
+              <div className="bg-theme-card border border-theme rounded-2xl p-4 focus-within:border-blue-500/50 transition-colors relative select-text">
+                <div className="flex justify-between items-center mb-2 select-none">
                   <label className="block text-[10px] font-mono tracking-wider text-theme-muted uppercase">
                     Input Workspace Note
                   </label>
@@ -117,7 +118,14 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   disabled={isInputDisabled}
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder={isInitialFetching ? "Syncing baseline..." : "Type anything you learned, read, or want to remember today..."}
-                  className="w-full bg-transparent text-sm text-theme-primary placeholder-zinc-600 resize-none focus:outline-none leading-relaxed disabled:opacity-50"
+                  
+                  // 🔑 CORE FIXES: Explicit native inputs to trigger the Android Keyboard suggestions bar
+                inputMode="text"
+  autoComplete="on"
+  autoCorrect="on"
+  spellCheck={true}
+                  
+                  className="w-full bg-transparent text-sm text-theme-primary placeholder-zinc-600 resize-none focus:outline-none leading-relaxed disabled:opacity-50 select-text"
                 />
               </div>
 

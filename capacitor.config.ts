@@ -6,24 +6,24 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    hostname: 'anupam.com', 
+    hostname: 'anupam.com',
   },
   android: {
     allowMixedContent: true,
     backgroundColor: '#09090b',
-    captureInput: true,
+    captureInput: false, // 🔑 Was true — this was blocking the IME suggestion bar
   },
   plugins: {
-   "SplashScreen": {
-      "launchShowDuration": 800,
-      "launchAutoHide": true,
-      "launchFadeOutDuration": 200,
-      "backgroundColor": "#09090b",
-      "androidSplashResourceName": "splash",
-      "androidScaleType": "CENTER_CROP"
+    SplashScreen: {
+      launchShowDuration: 800,
+      launchAutoHide: true,
+      launchFadeOutDuration: 200,
+      backgroundColor: '#09090b',
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP"
     },
     StatusBar: {
-      style: 'DARK',
+      style: 'ANDROID_DARK',
       backgroundColor: '#09090b',
       overlaysWebView: true,
     },
