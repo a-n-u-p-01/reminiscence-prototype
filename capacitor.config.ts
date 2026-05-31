@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    hostname: 'anupam.com',
+    hostname: 'reminiscence.com',
   },
   android: {
     allowMixedContent: true,

@@ -15,5 +15,12 @@ export const authService = {
   async register(fullName, email, password) {
     const response = await apiClient.post('/auth/register', { fullName, email, password });
     return response.data;
+  },
+
+  
+  async verifyOtp(email, otp) {
+    // Make sure this matches your backend @RequestBody expected structure
+    const response = await apiClient.post('/auth/verify-otp', { email, otp });
+    return response.data;
   }
 };

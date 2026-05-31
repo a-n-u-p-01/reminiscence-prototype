@@ -560,7 +560,7 @@ export default function App() {
           active={currentTab === 'dashboard'}
           onClick={() => navigateTo('dashboard')}
           icon={Clock}
-          label="History"
+          label="Dashboard"
         />
 
         {/* Review Button: Adding the disabled attribute */}
