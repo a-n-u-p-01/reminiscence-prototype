@@ -18,7 +18,6 @@ import { useAppReset } from './hooks/useAppReset';
 
 const TAB_SEQUENCE = ['home', 'dashboard', 'revision', 'settings'];
 
-
 function usePullToRefresh(
   scrollRef,
   onRefresh,
@@ -30,7 +29,13 @@ function usePullToRefresh(
 
   const startY = useRef(0);
   const isPulling = useRef(false);
-  const refreshTriggered = useRef(false);
+  const currentDistanceRef = useRef(0);
+
+  // Keep a mutable reference of the distance state updated in touch handlers
+  // to avoid clearing/re-binding touch handlers on every coordinate change.
+  useEffect(() => {
+    currentDistanceRef.current = pullDistance;
+  }, [pullDistance]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -42,22 +47,16 @@ function usePullToRefresh(
       if (el.scrollTop === 0 && !isRefreshing) {
         startY.current = e.touches[0].clientY;
         isPulling.current = true;
-        refreshTriggered.current = false;
       }
     };
 
-    const onTouchMove = async (e) => {
+    const onTouchMove = (e) => {
       if (!isPulling.current || isRefreshing) return;
 
-      const delta = Math.max(
-        0,
-        e.touches[0].clientY - startY.current
-      );
-
-      const damped = Math.min(
-        55 * (1 - Math.exp(-delta / 55)),
-        55
-      );
+      const delta = Math.max(0, e.touches[0].clientY - startY.current);
+      
+      // Fluid logarithmic tracking curve
+      const damped = Math.min(55 * (1 - Math.exp(-delta / 55)), 55);
 
       setPullDistance(damped);
 
@@ -71,19 +70,24 @@ function usePullToRefresh(
     };
 
     const onTouchEnd = async () => {
+      if (!isPulling.current) return;
       isPulling.current = false;
 
-      if (pullDistance >= THRESHOLD && !isRefreshing) {
+      const finalDistance = currentDistanceRef.current;
+
+      if (finalDistance >= THRESHOLD && !isRefreshing) {
         setIsRefreshing(true);
         setPullMessage('');
- setPullDistance(0);
+        setPullDistance(0); // Trigger immediate smooth glide back
+        
         try {
           await onRefresh();
+        } catch (error) {
+          console.error(error);
         } finally {
           setTimeout(() => {
-           
             setIsRefreshing(false);
-          }, 120);
+          }, 150);
         }
       } else {
         setPullDistance(0);
@@ -100,10 +104,11 @@ function usePullToRefresh(
       el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('touchend', onTouchEnd);
     };
-  }, [scrollRef, onRefresh]);
+  }, [scrollRef, onRefresh, isRefreshing, setPullDistance, setPullMessage]);
 
   return isRefreshing;
 }
+
 export default function App() {
   const { isAuthenticated, isDisconnecting, loading } = useAuth();
   const mainContentRef = useRef(null);
@@ -381,13 +386,13 @@ export default function App() {
 
   // 🔑 Optimized Transform Config: Uses filters for a professional, "locked" feel instead of fading opacity
   const dynamicSlideTransformStyle = {
-    transform: `translateX(calc(-${activeTabOffsetIndex * 25}% + ${dragOffset}px))`,
-    transition: isAnimating
-      ? 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 250ms ease'
+    transform: `translateY(${pullDistance}px) translateX(calc(-${activeTabOffsetIndex * 25}% + ${dragOffset}px))`,
+    transition: isAnimating || pullDistance === 0
+      ? 'transform 330ms cubic-bezier(0.19, 1, 0.22, 1), filter 250ms ease'
       : 'none',
 
     filter: isAnyRefreshing
-      ? 'blur(1px) saturate(0.95)'
+      ? 'blur(0.5px) saturate(0.98)'
       : 'blur(0px) saturate(1)',
 
     contain: 'layout style'
@@ -403,40 +408,25 @@ export default function App() {
       />
 
       <style>{`
-    .refresh-lock-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  pointer-events: none;
+        .refresh-lock-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 999;
+          pointer-events: none;
+          backdrop-filter: blur(1.5px) saturate(70%);
+          -webkit-backdrop-filter: blur(1.5px) saturate(70%);
+          background: color-mix(in srgb, var(--theme-bg, #000) 8%, transparent);
+          animation: refreshOverlayIn 180ms ease;
+        }
 
-  backdrop-filter:
-    blur(1.5px)
-    saturate(70%);
-
-  -webkit-backdrop-filter:
-    blur(1.5px)
-    saturate(70%);
-
-  background:
-    color-mix(in srgb, var(--theme-bg, #000) 8%, transparent);
-
-  animation: refreshOverlayIn 180ms ease;
-}
-
-.refresh-lock-overlay::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background:
-    radial-gradient(
-      rgba(255,255,255,0.015) 1px,
-      transparent 1px
-    );
-
-  background-size: 3px 3px;
-  opacity: 0.4;
-}
+        .refresh-lock-overlay::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+          background-size: 3px 3px;
+          opacity: 0.4;
+        }
         .ptr-element { display: none !important; }
         .pull-to-refresh-material { overflow: visible !important; height: auto !important; min-height: 100% !important; }
         .pull-to-refresh-material__control { z-index: 100 !important; top: 32px !important; }
@@ -460,21 +450,11 @@ export default function App() {
           className="absolute top-0 left-0 right-0 z-20 flex justify-center pointer-events-none"
           style={{
             transform: `translateY(${Math.min(pullDistance * 0.3, 12)}px)`,
-            transition: isAnyRefreshing
-              ? 'transform 0.2s ease'
-              : 'none'
+            transition: isAnyRefreshing ? 'transform 0.2s ease' : 'none'
           }}
         >
           {pullMessage && (
-            <div className="
-  mt-2
-  text-[10px]
-  font-medium
-  tracking-wide
-  text-theme-muted
-  transition-opacity
-  duration-150
-">
+            <div className="mt-2 text-[10px] font-medium tracking-wide text-theme-muted transition-opacity duration-150">
               {pullMessage}
             </div>
           )}
@@ -483,10 +463,6 @@ export default function App() {
         <div
           style={{
             ...dynamicSlideTransformStyle,
-            transform: `
-    translateY(${pullDistance}px)
-    translateX(calc(-${activeTabOffsetIndex * 25}% + ${dragOffset}px))
-  `,
             pointerEvents: isAnyRefreshing ? 'none' : 'auto'
           }}
           className="w-[400%] h-full flex items-start will-change-transform"
@@ -531,12 +507,12 @@ export default function App() {
 
       <nav
         className={`
-    fixed bottom-0 left-0 right-0 bg-theme-card backdrop-blur-md border-t border-theme h-[74px] 
-    justify-around items-center z-50 px-4 shadow-2xl pb-[env(safe-area-inset-bottom)] 
-    will-change-transform transition-all duration-300 
-    ${isKeyboardVisible ? 'hidden' : 'flex'}
-    ${isAnyRefreshing ? 'pointer-events-none' : ''}
-  `}
+          fixed bottom-0 left-0 right-0 bg-theme-card backdrop-blur-md border-t border-theme h-[74px] 
+          justify-around items-center z-50 px-4 shadow-2xl pb-[env(safe-area-inset-bottom)] 
+          will-change-transform transition-all duration-300 
+          ${isKeyboardVisible ? 'hidden' : 'flex'}
+          ${isAnyRefreshing ? 'pointer-events-none' : ''}
+        `}
       >
         <NavBtn
           active={currentTab === 'home'}
@@ -556,10 +532,10 @@ export default function App() {
           disabled={isAnyRefreshing}
           onClick={() => navigateTo('revision')}
           className={`
-      flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 relative
-      ${currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'}
-      ${isAnyRefreshing ? 'cursor-not-allowed' : ''}
-    `}
+            flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 relative
+            ${currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'}
+            ${isAnyRefreshing ? 'cursor-not-allowed' : ''}
+          `}
         >
           <div className="relative p-1">
             <BookOpen size={20} />
@@ -591,8 +567,9 @@ function NavBtn({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 ${active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
-        }`}
+      className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 ${
+        active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
+      }`}
     >
       <Icon size={20} className="p-0.5" />
       <span className="text-[10px] font-medium tracking-tight mt-0.5">{label}</span>
