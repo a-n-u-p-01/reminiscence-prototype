@@ -38,21 +38,22 @@ export default function AuthPage({ onAuthSuccess }) {
   };
 
   return (
-    <div className="min-h-dvh w-full bg-[#09090b] flex flex-col items-center justify-center px-6">
+    /* Removed 'justify-center', added 'pt-24' to anchor the content higher */
+    <div className="min-h-dvh w-full bg-[var(--color-dark-bg)] flex flex-col items-center pt-24 px-6 transition-colors duration-300">
       <div className="w-full max-w-[320px]">
         
-        {/* Logo Container (Matches image_a5bc03.png) */}
+        {/* Logo Container */}
         <div className="flex justify-start mb-10">
-          <div className="flex items-center gap-2 bg-[#18181b] px-3 py-1.5 rounded-lg border border-white/5">
-            <Terminal className="text-white" size={16} />
-            <span className="text-white font-medium text-sm tracking-tight">reminiscence</span>
+          <div className="flex items-center gap-2 bg-[var(--color-dark-card)] px-3 py-1.5 rounded-lg border border-[var(--color-dark-border)]">
+            <Terminal className="text-[var(--color-blue-500)]" size={16} />
+            <span className="text-[var(--color-zinc-100)] font-medium text-sm tracking-tight">reminiscence</span>
           </div>
         </div>
 
         {/* Heading Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-white mb-2">Welcome back</h1>
-          <p className="text-zinc-500 text-sm">Sign in to access your dashboard.</p>
+          <h1 className="text-3xl font-semibold text-[var(--color-zinc-100)] mb-2">Welcome back</h1>
+          <p className="text-[var(--color-zinc-500)] text-sm">Sign in to access your dashboard.</p>
         </div>
 
         {/* Error Display */}
@@ -66,7 +67,7 @@ export default function AuthPage({ onAuthSuccess }) {
               required
               value={formData.fullName}
               onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-              className="w-full bg-transparent border-b border-white/10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-colors"
+              className="w-full bg-transparent border-b border-[var(--color-dark-border)] py-2 text-sm text-[var(--color-zinc-100)] placeholder-[var(--color-zinc-600)] focus:outline-none focus:border-[var(--color-zinc-300)] transition-colors"
             />
           )}
 
@@ -76,7 +77,7 @@ export default function AuthPage({ onAuthSuccess }) {
             required
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="w-full bg-transparent border-b border-white/10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-colors"
+            className="w-full bg-transparent border-b border-[var(--color-dark-border)] py-2 text-sm text-[var(--color-zinc-100)] placeholder-[var(--color-zinc-600)] focus:outline-none focus:border-[var(--color-zinc-300)] transition-colors"
           />
 
           <input
@@ -85,13 +86,13 @@ export default function AuthPage({ onAuthSuccess }) {
             required
             value={formData.password}
             onChange={(e) => setFormData({...formData, password: e.target.value})}
-            className="w-full bg-transparent border-b border-white/10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-colors"
+            className="w-full bg-transparent border-b border-[var(--color-dark-border)] py-2 text-sm text-[var(--color-zinc-100)] placeholder-[var(--color-zinc-600)] focus:outline-none focus:border-[var(--color-zinc-300)] transition-colors"
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-white text-black text-sm font-medium py-3 rounded-md flex items-center justify-center gap-2 hover:bg-zinc-200 transition-colors disabled:opacity-50"
+            className="w-full bg-[var(--color-blue-600)] text-[var(--color-zinc-100)] text-sm font-medium py-3 rounded-md flex items-center justify-center gap-2 hover:bg-[var(--color-blue-500)] transition-colors disabled:opacity-50"
           >
             {loading ? 'Signing in...' : (isRegister ? 'Register' : 'Sign in')}
             {!loading && <ArrowRight size={16} />}
@@ -100,7 +101,7 @@ export default function AuthPage({ onAuthSuccess }) {
 
         <button
           onClick={() => { setIsRegister(!isRegister); setError(null); }}
-          className="w-full mt-6 text-xs text-zinc-600 hover:text-zinc-400 transition-colors text-center"
+          className="w-full mt-6 text-xs text-[var(--color-zinc-500)] hover:text-[var(--color-zinc-400)] transition-colors text-center"
         >
           {isRegister ? 'Already have an account? Log in' : 'Don\'t have an account? Register'}
         </button>
