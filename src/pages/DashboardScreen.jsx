@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import { Calendar, Flame, Layers, Trophy, Activity, ChevronLeft, ChevronRight, Eye, Cpu, Terminal, Loader2 } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext'; // Use the new context hook
+import { useDashboard } from '../context/DashboardContext';
 
 export default function DashboardScreen() {
   const heatmapScrollContainerRef = useRef(null);
@@ -17,17 +17,28 @@ export default function DashboardScreen() {
     isLoadingActivity
   } = useDashboard();
 
-  // Build GitHub-style Heatmap Cells
+  // Build GitHub-style Heatmap Cells (True 365-Day Rolling Window)
   const heatmapCells = useMemo(() => {
     const cells = [];
+    
+    // 1. Get today at exactly midnight
     const today = new Date();
-    const startDate = new Date();
-    startDate.setMonth(today.getMonth() - 11);
-    startDate.setDate(1);
-    startDate.setDate(startDate.getDate() - startDate.getDay());
-    const current = new Date(startDate);
+    today.setHours(0, 0, 0, 0); 
 
-    while (current <= new Date(today.getFullYear(), today.getMonth() + 1, 0)) {
+    // 2. Set the end date to exactly TODAY (not the end of the month)
+    const endDate = new Date(today);
+
+    // 3. Set the start date to exactly 1 year ago today
+    const startDate = new Date(today);
+    startDate.setFullYear(today.getFullYear() - 1);
+    
+    // 4. Pull the start date back to the nearest Sunday so the grid aligns perfectly
+    startDate.setDate(startDate.getDate() - startDate.getDay());
+    
+    const current = new Date(startDate);
+    
+    // 5. Generate cells day-by-day. This perfectly rolls forward 1 day at a time.
+    while (current <= endDate) {
       const yyyy = current.getFullYear();
       const mm = String(current.getMonth() + 1).padStart(2, '0');
       const dd = String(current.getDate()).padStart(2, '0');
@@ -44,29 +55,23 @@ export default function DashboardScreen() {
   }, [heatmapData]);
 
   // Handle auto-scroll positioning
-  // Handle auto-scroll positioning
   useEffect(() => {
     const container = heatmapScrollContainerRef.current;
     if (!container || isLoadingHeatmap) return;
 
-    // Create a ResizeObserver to watch when the heatmap actually takes up space in the DOM
-    const resizeObserver = new ResizeObserver(() => {
+    const scrollTimer = setTimeout(() => {
       requestAnimationFrame(() => {
         const maxScrollLeft = container.scrollWidth - container.clientWidth;
         if (maxScrollLeft > 0) {
           container.scrollTo({
-            left: maxScrollLeft + 40,
-            behavior: 'instant' // 'instant' ensures a fast, invisible snap on cold start
+            left: maxScrollLeft + 100, 
+            behavior: 'instant' 
           });
         }
       });
-    });
+    }, 100);
 
-    // Start monitoring the container
-    resizeObserver.observe(container);
-
-    // Clean up observer when component unmounts
-    return () => resizeObserver.disconnect();
+    return () => clearTimeout(scrollTimer);
   }, [heatmapCells, isLoadingHeatmap]);
 
   const handleStepDate = (direction) => {
@@ -164,12 +169,11 @@ export default function DashboardScreen() {
 
           <div
             ref={heatmapScrollContainerRef}
-            // 1. Stop the touch event from bubbling up to parent navigation handlers
             onTouchStart={(e) => e.stopPropagation()}
-            // 2. CSS property to tell the browser this element exclusively handles panning/scrolling
             style={{ touchAction: 'pan-x' }}
-            className={`overflow-x-auto pb-2 pt-1 -mx-2 px-2 pr-2 scroll-smooth scrollbar-thin scrollbar-thumb-zinc-800 transition-all duration-500 ${isLoadingHeatmap ? 'opacity-40 scale-[0.985]' : 'opacity-100 scale-100'
-              }`}
+            className={`overflow-x-auto pb-2 pt-1 -mx-2 px-2 pr-2 scroll-smooth scrollbar-thin scrollbar-thumb-zinc-800 transition-all duration-500 ${
+              isLoadingHeatmap ? 'opacity-40 scale-[0.985]' : 'opacity-100 scale-100'
+            }`}
           >
             {(() => {
               const weeks = [];
@@ -177,27 +181,44 @@ export default function DashboardScreen() {
                 weeks.push(heatmapCells.slice(i, i + 7));
               }
 
+              // SMART LABEL GENERATOR (Fixes overlaps by enforcing minimum spacing)
+              const monthLabels = [];
+              for (let i = 0; i < weeks.length; i++) {
+                const week = weeks[i];
+                if (!week[0]) continue;
+                
+                const currentMonth = new Date(week[0].date).getMonth();
+                const prevMonth = i > 0 ? new Date(weeks[i - 1][0].date).getMonth() : null;
+                
+                if (currentMonth !== prevMonth) {
+                  // If labels are too close (less than 3 columns/weeks apart), 
+                  // replace the old stub label with this new full month.
+                  if (monthLabels.length > 0 && (i - monthLabels[monthLabels.length - 1].index < 3)) {
+                    monthLabels[monthLabels.length - 1] = {
+                      index: i,
+                      label: new Date(week[0].date).toLocaleDateString('en-US', { month: 'short' })
+                    };
+                  } else {
+                    monthLabels.push({
+                      index: i,
+                      label: new Date(week[0].date).toLocaleDateString('en-US', { month: 'short' })
+                    });
+                  }
+                }
+              }
+
               return (
                 <div className="w-max space-y-1.5">
                   <div className="relative h-4 mb-1">
-                    {weeks.map((week, index) => {
-                      const firstCell = week[0];
-                      if (!firstCell) return null;
-                      const currentDate = new Date(firstCell.date);
-                      const currentMonth = currentDate.getMonth();
-                      const prevMonth = index > 0 ? new Date(weeks[index - 1][0].date).getMonth() : null;
-                      if (currentMonth === prevMonth) return null;
-
-                      return (
-                        <span
-                          key={index}
-                          className="absolute text-[9px] text-theme-secondary font-medium whitespace-nowrap select-none"
-                          style={{ left: `${index * 12}px` }}
-                        >
-                          {currentDate.toLocaleDateString('en-US', { month: 'short' })}
-                        </span>
-                      );
-                    })}
+                    {monthLabels.map(({ index, label }) => (
+                      <span
+                        key={index}
+                        className="absolute text-[9px] text-theme-secondary font-medium whitespace-nowrap select-none"
+                        style={{ left: `${index * 12}px` }}
+                      >
+                        {label}
+                      </span>
+                    ))}
                   </div>
 
                   <div className="flex gap-[2px]">
