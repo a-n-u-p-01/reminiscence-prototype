@@ -14,7 +14,6 @@ export const useAppReset = () => {
 
   return async () => {
     cleanAuthContext();
-    await resetSettings();
     resetReviewState();
     resetHomeState();
     resetDashboardState();

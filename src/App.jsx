@@ -16,6 +16,11 @@ import { App as CapacitorApp } from '@capacitor/app'; // 🔑 Added App import f
 import StatusCapsule from './components/StatusCapsule';
 import { useAppReset } from './hooks/useAppReset';
 
+// 🔑 Import storage wrappers and WelcomeSheet component
+
+import { getItem, setItem } from '../src/storage/storageService';
+import WelcomeSheet from './components/WelcomeSheet';
+
 const TAB_SEQUENCE = ['home', 'dashboard', 'revision', 'settings'];
 
 function usePullToRefresh(
@@ -116,6 +121,9 @@ export default function App() {
   const [pullDistance, setPullDistance] = useState(0);
   const [pullMessage, setPullMessage] = useState('');
 
+  // 🔑 Guard flag for onboarding visualization
+  const [showWelcome, setShowWelcome] = useState(false);
+
   const {
     globalCount,
     isCountLoaded,
@@ -134,6 +142,34 @@ export default function App() {
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [backPressExitFlag, setBackPressExitFlag] = useState(false); // 🔑 Tracking flag for back button double tap confirmation
+
+  // 🔑 Query Cap Preferences context state when workspace validation passes
+  useEffect(() => {
+    async function initOnboardingCheck() {
+      try {
+        const storedValue = await getItem('reminiscence_onboarding_acknowledged');
+        if (storedValue !== 'true') {
+          setShowWelcome(true);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    if (isAuthenticated && isCountLoaded) {
+      initOnboardingCheck();
+    }
+  }, [isAuthenticated, isCountLoaded]);
+
+  // 🔑 Storage mutator handler logic passed down to sheet callback
+  const handleWelcomeComplete = async () => {
+    try {
+      await setItem('reminiscence_onboarding_acknowledged', 'true');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setShowWelcome(false);
+    }
+  };
 
   // Hardware Back Button Handler Loop
   useEffect(() => {
@@ -558,6 +594,11 @@ export default function App() {
 
       {isAnyRefreshing && (
         <div className="refresh-lock-overlay" />
+      )}
+
+      {/* 🔑 Onboarding context rendering engine gate wrapper */}
+      {showWelcome && (
+        <WelcomeSheet onComplete={handleWelcomeComplete} />
       )}
     </div>
   );
