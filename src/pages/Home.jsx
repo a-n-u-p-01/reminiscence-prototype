@@ -1,7 +1,7 @@
 import React from 'react';
-import { BookOpen, CheckCircle, Flame, Plus, Sparkles, AlertCircle, Brain, Target, CalendarDays, Edit2 } from 'lucide-react';
+import { BookOpen, Flame, Plus, Sparkles, Brain, Target, CalendarDays, Edit2 } from 'lucide-react';
 import { useHomeEngine } from '../context/HomeContext';
-import StatusCapsule from '../components/StatusCapsule'; // 🔑 Added import for your standalone capsule
+import StatusCapsule from '../components/StatusCapsule';
 
 export default function HomePage({ pendingCount, onNavigateToReview, mainContentRef }) {
   const {
@@ -29,71 +29,97 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   const isInputDisabled = loading || isInitialFetching || !isEditing;
 
   return (
-    <div className="space-y-6 min-h-[350px] animate-[fadeIn_0.12s_ease-out] max-w-xl mx-auto pb-12 text-theme-primary select-none">
+    <div className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-12 text-theme-primary select-none transition-all duration-300 ease-in-out">
+      
+      {/* 🔮 Ultra-Minimal Loading Accent Tint Keyframes */}
+      <style>{`
+        @keyframes mini-accent-pulse {
+          0%, 100% { background-color: var(--bg-theme-card, #1c1c1e); opacity: 0.95; }
+          50% { background-color: var(--bg-theme, #2c2c2e); opacity: 1; }
+        }
+        .ai-loading-btn {
+          animation: mini-accent-pulse 2.5s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* Header Blocks */}
-      <div className="border-b border-theme pb-5">
-        <h1 className="text-base font-semibold tracking-tight text-theme-primary">
+      <div className="border-b border-theme pb-5 transition-all duration-300">
+        <h1 className="text-base font-semibold tracking-tight text-theme-primary transition-opacity duration-200">
           {showDashboardMode ? 'Workspace Dashboard' : 'Knowledge Logging'}
         </h1>
-        <p className="text-xs text-theme-muted font-sans tracking-wide mt-1">
+        <p className="text-xs text-theme-muted font-sans tracking-wide mt-1 transition-opacity duration-200">
           {showDashboardMode
             ? 'Knowledge baseline status update.'
             : 'Convert natural language daily logs into review anchors.'}
         </p>
       </div>
 
-      {/* Core Dynamic Screen Modes */}
-      {showDashboardMode ? (
-        <div className="space-y-6">
-          <div className="bg-theme-card border border-theme rounded-2xl p-6 text-center space-y-5 shadow-xl">
+      {/* Universal Single Status Capsule Container at the absolute layout root */}
+      {statusMessage && (
+        <div className="w-full animate-[fadeIn_0.1s_ease-out]">
+          <StatusCapsule message={statusMessage} type={statusMessage?.type || 'success'} />
+        </div>
+      )}
+
+      {/* Core Dynamic Screen Modes Layout Container */}
+      <div className="relative transition-all duration-300 ease-in-out grid grid-cols-1">
+        
+        {/* Branch A: Dashboard View */}
+        <div 
+          className={`col-start-1 row-start-1 space-y-6 transition-all duration-300 transform origin-top ${
+            showDashboardMode 
+              ? 'opacity-100 scale-100 pointer-events-auto' 
+              : 'opacity-0 scale-[0.98] pointer-events-none absolute w-full'
+          }`}
+        >
+          <div className="bg-theme-card border border-theme rounded-2xl p-6 text-center space-y-5 shadow-sm">
             <div className="mx-auto w-11 h-11 rounded-xl bg-theme border border-theme flex items-center justify-center text-theme-accent">
-              <Flame size={20} className="animate-pulse" />
+              <Flame size={18} className="animate-pulse" />
             </div>
 
             <div className="space-y-1.5">
-              <h2 className="text-[15px] font-medium tracking-tight text-theme-primary">
+              <h2 className="text-[14px] font-medium tracking-tight text-theme-primary">
                 {pendingCount} Revisions Pending
               </h2>
-              <p className="text-xs text-theme-secondary font-sans tracking-wide max-w-xs mx-auto leading-relaxed">
+              <p className="text-xs text-theme-muted font-sans tracking-wide max-w-xs mx-auto leading-relaxed">
                 Spaced repetition anchors require review to lock into your long-term developer memory.
               </p>
             </div>
 
-            {/* Premium CTA High Contrast Focus */}
             <button
               onClick={onNavigateToReview}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 px-4 rounded-xl active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full bg-theme-accent hover:opacity-90 text-theme-card font-medium text-xs py-3 px-4 rounded-xl active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm transition-all duration-200"
             >
-              <BookOpen size={14} className="opacity-90" />
+              <BookOpen size={13} className="opacity-90" />
               <span>Start Revision</span>
             </button>
           </div>
 
-          <div className="text-center pt-2">
+          <div className="text-center pt-1">
             <button
+              type="button"
               onClick={() => {
                 setStatusMessage(null);
                 setForceShowInput(true);
               }}
-              className="text-[11px] font-mono text-theme-muted hover:text-theme-accent transition-colors flex items-center justify-center gap-1.5 mx-auto tracking-wide"
+              className="text-[11px] font-mono text-theme-muted hover:text-theme-accent transition-colors flex items-center justify-center gap-1.5 mx-auto tracking-wide py-1 px-3 rounded-lg hover:bg-theme-card/30"
             >
-              <Plus size={13} />
-              <span>Or log today's new study note anyway</span>
+              <Plus size={12} />
+              <span>Log today's new note anyway</span>
             </button>
           </div>
         </div>
-      ) : (
-        <div className="space-y-6 animate-[fadeIn_0.15s_ease-out]">
-          
-          <div className="space-y-4 pt-2">
-            {/* 🔑 MODIFIED BLOCK: Old inline container stripped out for your explicit component call */}
-            <StatusCapsule
-              message={statusMessage}
-              type={statusMessage?.type || 'success'}
-            />
 
+        {/* Branch B: Input Note View */}
+        <div 
+          className={`col-start-1 row-start-1 space-y-6 transition-all duration-300 transform origin-top ${
+            !showDashboardMode 
+              ? 'opacity-100 scale-100 pointer-events-auto' 
+              : 'opacity-0 scale-[0.98] pointer-events-none absolute w-full'
+          }`}
+        >
+          <div className="space-y-4">
             <form onSubmit={handleSave} className="space-y-4">
-              {/* 🔑 Added select-text to isolate input fields from global app select-none wrappers */}
               <div className="bg-theme-card border border-theme rounded-2xl p-5 focus-within:border-theme transition-colors relative select-text shadow-sm">
                 <div className="flex justify-between items-center mb-3 select-none">
                   <label className="block text-[10px] font-mono tracking-wider text-theme-muted uppercase">
@@ -118,40 +144,46 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   disabled={isInputDisabled}
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder={isInitialFetching ? "Syncing baseline..." : "Type anything you learned, read, or want to remember today..."}
-                  
-                  // 🔑 CORE FIXES: Explicit native inputs to trigger the Android Keyboard suggestions bar
                   inputMode="text"
                   autoComplete="on"
                   autoCorrect="on"
                   spellCheck={true}
-                  
-                  className="w-full bg-transparent text-[14px] text-theme-primary placeholder-zinc-600 resize-none focus:outline-none leading-relaxed tracking-wide disabled:opacity-50 select-text font-sans"
+                  className="w-full bg-transparent text-[14px] text-theme-primary placeholder-theme-muted/50 resize-none focus:outline-none leading-relaxed tracking-wide disabled:opacity-50 select-text font-sans"
                 />
               </div>
 
+              {/* 🎯 Minimal Button Layer with Static Text */}
               <button
                 type="submit"
                 disabled={isInputDisabled || !hasUnsavedChanges}
-                className="w-full bg-theme-card hover:bg-theme border border-theme text-theme-secondary hover:text-theme-primary font-medium text-xs py-3 rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm"
+                className={`w-full border border-theme text-theme-secondary hover:text-theme-primary font-medium text-xs py-3 rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm ${
+                  loading 
+                    ? 'ai-loading-btn border-theme-accent/20 text-theme-accent' 
+                    : 'bg-theme-card hover:bg-theme'
+                }`}
               >
-                {loading ? (
-                  <span className="h-4 w-4 border-2 border-theme-muted border-t-theme-primary rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Sparkles size={14} className="opacity-70" />
-                    <span>Save Note</span>
-                  </>
-                )}
+                <Sparkles 
+                  size={13} 
+                  className={`transition-colors duration-300 ${
+                    loading 
+                      ? 'text-theme-accent animate-spin [animation-duration:3s]' 
+                      : hasUnsavedChanges 
+                        ? 'text-theme-accent' 
+                        : 'text-theme-muted'
+                  }`} 
+                />
+                <span>Save Note</span>
               </button>
             </form>
 
             {pendingCount > 0 && (
               <button
+                type="button"
                 onClick={() => {
                   setForceShowInput(false);
                   setStatusMessage(null);
                 }}
-                className="w-full bg-transparent hover:bg-theme-card/40 border border-theme text-theme-muted hover:text-theme-secondary text-[11px] py-2.5 rounded-xl font-mono tracking-wide"
+                className="w-full bg-transparent hover:bg-theme-card/50 border border-theme text-theme-muted hover:text-theme-secondary text-[11px] py-2.5 rounded-xl font-mono tracking-wide transition-colors"
               >
                 &larr; Return to pending review panel ({pendingCount})
               </button>
@@ -159,19 +191,18 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
           </div>
 
           {/* Timeline Flow Container */}
-          <div className="bg-theme-card border border-theme rounded-2xl p-5 space-y-5 shadow-inner">
+          <div className="bg-theme-card border border-theme rounded-2xl p-5 space-y-5 shadow-inner transition-all duration-300">
             <div className="flex items-center justify-between border-b border-theme pb-3">
               <span className="text-[10px] font-mono tracking-wider uppercase text-theme-secondary flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-theme-accent animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-theme-accent" />
                 Active Memory Engine
               </span>
               <span className="text-[10px] text-theme-muted font-mono tracking-wide">How it works</span>
             </div>
 
             <div className="relative pl-2 space-y-5 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-theme">
-              
               {/* Step 1 */}
-              <div className="relative flex items-start gap-4 group">
+              <div className="relative flex items-start gap-4">
                 <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-[10px] font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   1
                 </div>
@@ -187,7 +218,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
               </div>
 
               {/* Step 2 */}
-              <div className="relative flex items-start gap-4 group">
+              <div className="relative flex items-start gap-4">
                 <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-[10px] font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   2
                 </div>
@@ -203,7 +234,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
               </div>
 
               {/* Step 3 */}
-              <div className="relative flex items-start gap-4 group">
+              <div className="relative flex items-start gap-4">
                 <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-[10px] font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   3
                 </div>
@@ -217,11 +248,11 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   </p>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
-      )}
+
+      </div>
     </div>
   );
 }
