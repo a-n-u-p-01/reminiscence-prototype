@@ -3,6 +3,7 @@ import { Terminal, ArrowRight } from 'lucide-react';
 import { authService } from '../api/authService';
 import { useAuth } from '../context/AuthContext';
 import { useAppReset } from '../hooks/useAppReset';
+import StatusCapsule from '../components/StatusCapsule';
 
 export default function AuthPage({ onAuthSuccess }) {
   const { login, loading: authLoading } = useAuth();
@@ -16,10 +17,25 @@ export default function AuthPage({ onAuthSuccess }) {
     if (!authLoading) resetAppContext();
   }, []);
 
+  // Auto-dismiss error logic
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 3000); 
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  const resetForm = () => {
+    setFormData({ fullName: '', email: '', password: '' });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    
     try {
       let responseData = isRegister 
         ? await authService.register(formData.fullName, formData.email, formData.password)
@@ -27,22 +43,29 @@ export default function AuthPage({ onAuthSuccess }) {
 
       if (responseData?.token) {
         const { token, ...userMetadata } = responseData;
+        
+        // Success: Clear form and proceed
+        resetForm();
         await login(userMetadata, token);
         onAuthSuccess?.();
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Authentication failed.');
+      // Error: We no longer clear the password here as per your request
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    /* Removed 'justify-center', added 'pt-24' to anchor the content higher */
-    <div className="min-h-dvh w-full bg-[var(--color-dark-bg)] flex flex-col items-center pt-24 px-6 transition-colors duration-300">
+    <div className="h-dvh w-full bg-[var(--color-dark-bg)] flex flex-col items-center pt-24 px-6 overflow-hidden transition-colors duration-300">
+      
+      <StatusCapsule 
+        message={error ? { text: error, type: 'error' } : null} 
+      />
+
       <div className="w-full max-w-[320px]">
         
-        {/* Logo Container */}
         <div className="flex justify-start mb-10">
           <div className="flex items-center gap-2 bg-[var(--color-dark-card)] px-3 py-1.5 rounded-lg border border-[var(--color-dark-border)]">
             <Terminal className="text-[var(--color-blue-500)]" size={16} />
@@ -50,14 +73,10 @@ export default function AuthPage({ onAuthSuccess }) {
           </div>
         </div>
 
-        {/* Heading Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-[var(--color-zinc-100)] mb-2">Welcome back</h1>
           <p className="text-[var(--color-zinc-500)] text-sm">Sign in to access your dashboard.</p>
         </div>
-
-        {/* Error Display */}
-        {error && <p className="mb-4 text-xs text-red-500">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {isRegister && (
@@ -100,7 +119,7 @@ export default function AuthPage({ onAuthSuccess }) {
         </form>
 
         <button
-          onClick={() => { setIsRegister(!isRegister); setError(null); }}
+          onClick={() => { setIsRegister(!isRegister); setError(null); resetForm(); }}
           className="w-full mt-6 text-xs text-[var(--color-zinc-500)] hover:text-[var(--color-zinc-400)] transition-colors text-center"
         >
           {isRegister ? 'Already have an account? Log in' : 'Don\'t have an account? Register'}
