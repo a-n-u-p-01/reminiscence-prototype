@@ -1,6 +1,5 @@
 import apiClient from './apiClient';
 
-
 export const noteService = {
   async saveDailyEntry(text) {
     const response = await apiClient.post('/entry', { text });
@@ -28,6 +27,17 @@ export const noteService = {
       { rating }
     );
 
+    return response.data;
+  },
+
+  /**
+   * Synchronizes the customized topic array to the backend data pipeline.
+   * Maps precisely onto the @PostMapping("/save/extracted-topic") endpoint.
+   * 
+   * @param {string[]} topics - The modified list of extracted topic strings.
+   */
+  async updateExtractedTopics(topics) {
+    const response = await apiClient.post('/save/extracted-topic', { topics });
     return response.data;
   }
 };
