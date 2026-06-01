@@ -20,6 +20,7 @@ export default function DashboardScreen() {
 
   // Premium Management State for Topic Customization
   const [localTopics, setLocalTopics] = useState([]);
+  const [localDeletedTopics, setLocalDeletedTopics] = useState([]);
   const [newTopicInput, setNewTopicInput] = useState('');
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'sync' | 'success' | 'error' | 'restricted'
 
@@ -30,6 +31,7 @@ export default function DashboardScreen() {
     } else {
       setLocalTopics([]);
     }
+    setLocalDeletedTopics([]); // Reset deleted nodes stack on date/ledger transition
     setNewTopicInput('');
     setSaveStatus('idle');
   }, [activeDayDetails]);
@@ -53,14 +55,32 @@ export default function DashboardScreen() {
       setNewTopicInput('');
       return;
     }
+    
+    // If it was in deleted queue, remove it from there
+    if (localDeletedTopics.includes(sanitized)) {
+      setLocalDeletedTopics(prev => prev.filter(t => t !== sanitized));
+    }
+
     setLocalTopics(prev => [...prev, sanitized]);
     setNewTopicInput('');
     if (saveStatus !== 'idle') setSaveStatus('idle');
   };
 
-  // Handle local state exclusion
+  // Handle local state exclusion (move to deleted topics pipeline)
   const handleRemoveTopic = (targetTopic) => {
     setLocalTopics(prev => prev.filter(topic => topic !== targetTopic));
+    if (!localDeletedTopics.includes(targetTopic)) {
+      setLocalDeletedTopics(prev => [...prev, targetTopic]);
+    }
+    if (saveStatus !== 'idle') setSaveStatus('idle');
+  };
+
+  // Handle restoring a previously excluded topic node
+  const handleRestoreTopic = (targetTopic) => {
+    setLocalDeletedTopics(prev => prev.filter(topic => topic !== targetTopic));
+    if (!localTopics.includes(targetTopic)) {
+      setLocalTopics(prev => [...prev, targetTopic]);
+    }
     if (saveStatus !== 'idle') setSaveStatus('idle');
   };
 
@@ -458,6 +478,33 @@ export default function DashboardScreen() {
                     )}
                   </div>
 
+                  {/* Excluded/Deleted Topics Section */}
+                  <div className="space-y-2 pt-1 border-t border-zinc-900/40">
+                    <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">Topics Excluded:</span>
+                    <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
+                      {localDeletedTopics.length > 0 ? (
+                        localDeletedTopics.map((topic, index) => (
+                          <div 
+                            key={index} 
+                            className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-700/60 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                          >
+                            <span>{topic}</span>
+                            <button 
+                              type="button"
+                              onClick={() => handleRestoreTopic(topic)}
+                              className="p-0.5 text-red-400/50 hover:text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors"
+                              title={`Restore ${topic}`}
+                            >
+                              <Plus size={10} />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">No excluded study nodes.</span>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-zinc-900/60">
                     <form onSubmit={handleAddTopicSubmit} className="flex items-center gap-1.5 flex-1 max-w-sm">
                       <input 
@@ -492,7 +539,7 @@ export default function DashboardScreen() {
 
             {activeDayDetails.revisionLogs.length > 0 && (
               <div className="flex items-center gap-2 px-1 pt-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                <div className="h-1.5 w-full bg-blue-500 max-w-[6px] rounded-full" />
                 <h3 className="text-[11px] font-semibold tracking-wide uppercase text-theme-muted">Concepts Revised</h3>
               </div>
             )}
