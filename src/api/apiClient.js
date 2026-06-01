@@ -4,7 +4,7 @@ import { getItem } from '../context/AuthContext';
 
 
 const apiClient = axios.create({
-  baseURL: 'https://reminiscence-spring-boot.onrender.com/api/v1', // Your exact network IP
+  baseURL: 'https://reminiscence-spring-boot.fly.dev/api/v1', // Your exact network IP
   headers: {
     'Content-Type': 'application/json',
     'Accept': '*/*',
