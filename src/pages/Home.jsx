@@ -54,12 +54,6 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         </p>
       </div>
 
-      {/* Universal Single Status Capsule Container at the absolute layout root */}
-      {statusMessage && (
-        <div className="w-full animate-[fadeIn_0.1s_ease-out]">
-          <StatusCapsule message={statusMessage} type={statusMessage?.type || 'success'} />
-        </div>
-      )}
 
       {/* Core Dynamic Screen Modes Layout Container */}
       <div className="relative transition-all duration-300 ease-in-out grid grid-cols-1">

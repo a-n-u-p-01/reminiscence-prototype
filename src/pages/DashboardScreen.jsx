@@ -504,6 +504,8 @@ export default function DashboardScreen() {
                               <button 
                                 type="button"
                                 onClick={() => handleRemoveTopic(topic)}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onTouchStart={(e) => e.preventDefault()}
                                 className="p-0.5 text-blue-400/50 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
                                 title={`Remove ${topic}`}
                               >
@@ -534,6 +536,8 @@ export default function DashboardScreen() {
                                 <button 
                                   type="button"
                                   onClick={() => handleRestoreTopic(topic)}
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  onTouchStart={(e) => e.preventDefault()}
                                   className="p-0.5 text-red-400/50 hover:text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors"
                                   title={`Restore ${topic}`}
                                 >
@@ -628,7 +632,7 @@ export default function DashboardScreen() {
           </div>
         ) : (
           <div className="text-center py-12 border border-dashed border-theme rounded-xl bg-theme-card transition-all">
-            <p className="text-xs text-theme-muted font-mono">No raw data input logs or revisions recorded on this calendar matrix coordinate.</p>
+            <p className="text-xs text-theme-muted font-mono">No raw data input logs or revisions recorded on this calendar calendar matrix coordinate.</p>
           </div>
         )}
       </div>
