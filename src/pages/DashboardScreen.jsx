@@ -76,30 +76,35 @@ export default function DashboardScreen() {
   };
 
   // Handle local state exclusion (move to deleted topics pipeline)
-  const handleRemoveTopic = (targetTopic) => {
-    setLocalTopics(prev => prev.filter(topic => topic !== targetTopic));
-    if (!localDeletedTopics.includes(targetTopic)) {
-      setLocalDeletedTopics(prev => [...prev, targetTopic]);
-    }
-    if (saveStatus !== 'idle') setSaveStatus('idle');
-  };
+const handleRemoveTopic = (targetTopic) => {
+  setLocalTopics(prev => prev.filter(topic => topic !== targetTopic));
+  if (!localDeletedTopics.includes(targetTopic)) {
+    setLocalDeletedTopics(prev => [...prev, targetTopic]);
+  }
+  if (saveStatus !== 'idle') setSaveStatus('idle');
+};
 
   // Handle restoring a previously excluded topic node
-  const handleRestoreTopic = (targetTopic) => {
-    setLocalDeletedTopics(prev => prev.filter(topic => topic !== targetTopic));
-    if (!localTopics.includes(targetTopic)) {
-      setLocalTopics(prev => [...prev, targetTopic]);
-    }
-    if (saveStatus !== 'idle') setSaveStatus('idle');
-  };
+
+
+const handleRestoreTopic = (targetTopic) => {
+  setLocalDeletedTopics(prev => prev.filter(topic => topic !== targetTopic));
+  if (!localTopics.includes(targetTopic)) { // Note: changed 'topic' to 'targetTopic' here
+    setLocalTopics(prev => [...prev, targetTopic]);
+  }
+  if (saveStatus !== 'idle') setSaveStatus('idle');
+};
 
   // Inline adaptive save pipeline 
-  const handleSaveChanges = async () => {
-    if (selectedDate !== todayStr || !activeDayDetails?.dailyLog) {
-      setSaveStatus('restricted');
-      setTimeout(() => setSaveStatus('idle'), 3000);
-      return;
-    }
+ const handleSaveChanges = async () => {
+  // Ensure we keep focus even if we trigger an async action
+  topicInputRef.current?.focus(); 
+  
+  if (selectedDate !== todayStr || !activeDayDetails?.dailyLog) {
+    setSaveStatus('restricted');
+    setTimeout(() => setSaveStatus('idle'), 3000);
+    return;
+  }
 
     try {
       setSaveStatus('sync');
@@ -370,9 +375,9 @@ export default function DashboardScreen() {
                               className={`w-[10px] h-[10px] rounded-[2px] border transition-all duration-200 focus:outline-none ${getCellIntensityClass(
                                 cell.count
                               )} ${selectedDate === cell.date
-                                  ? 'ring-1 ring-offset-1 ring-offset-black ring-blue-400 scale-110 z-10'
-                                  : 'hover:scale-105 active:scale-95'
-                                }`}
+                                ? 'ring-1 ring-offset-1 ring-offset-black ring-blue-400 scale-110 z-10'
+                                : 'hover:scale-105 active:scale-95'
+                              }`}
                               title={`${cell.date}: ${cell.count} Actions`}
                             />
                           );
@@ -497,19 +502,20 @@ export default function DashboardScreen() {
                       <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
                         {localTopics.length > 0 ? (
                           localTopics.map((topic, index) => (
-                            <button 
-                              type="button"
-                              key={index} 
-                              onClick={() => handleRemoveTopic(topic)}
-                              className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
-                              title={`Remove ${topic}`}
-                            >
-                              <span>{topic}</span>
-                              <div className="p-0.5 text-blue-400/50 group-hover:text-red-400 rounded transition-colors">
-                                <X size={10} />
-                              </div>
-                            </button>
-                          ))
+  <button 
+    type="button"
+    key={index} 
+    // CHANGE THIS:
+    onMouseDown={(e) => { e.preventDefault(); handleRemoveTopic(topic); }}
+    className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+    title={`Remove ${topic}`}
+  >
+    <span>{topic}</span>
+    <div className="p-0.5 text-blue-400/50 group-hover:text-red-400 rounded transition-colors">
+      <X size={10} />
+    </div>
+  </button>
+))
                         ) : (
                           <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
                             No structural study topics mapped yet.
@@ -518,33 +524,34 @@ export default function DashboardScreen() {
                       </div>
 
                       {/* Excluded/Deleted Topics Section */}
-                      <div className="space-y-2 pt-1 border-t border-zinc-900/40">
-                        <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
-                          Topics Excluded:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
-                          {localDeletedTopics.length > 0 ? (
-                            localDeletedTopics.map((topic, index) => (
-                              <button 
-                                type="button"
-                                key={index} 
-                                onClick={() => handleRestoreTopic(topic)}
-                                className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
-                                title={`Restore ${topic}`}
-                              >
-                                <span>{topic}</span>
-                                <div className="p-0.5 text-red-400/50 group-hover:text-emerald-400 rounded transition-colors">
-                                  <Plus size={10} />
-                                </div>
-                              </button>
-                            ))
-                          ) : (
-                            <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
-                              No excluded study nodes.
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                   <div className="space-y-2 pt-1 border-t border-zinc-900/40">
+  <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
+    Topics Excluded:
+  </span>
+  <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
+    {localDeletedTopics.length > 0 ? (
+      localDeletedTopics.map((topic, index) => (
+        <button 
+          type="button"
+          key={index} 
+          // Updated to onMouseDown to preserve input focus
+          onMouseDown={(e) => { e.preventDefault(); handleRestoreTopic(topic); }}
+          className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+          title={`Restore ${topic}`}
+        >
+          <span>{topic}</span>
+          <div className="p-0.5 text-red-400/50 group-hover:text-emerald-400 rounded transition-colors">
+            <Plus size={10} />
+          </div>
+        </button>
+      ))
+    ) : (
+      <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
+        No excluded study nodes.
+      </span>
+    )}
+  </div>
+</div>
 
                       {/* Interactive Action Forms Block */}
                       <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-zinc-900/60">
@@ -568,7 +575,7 @@ export default function DashboardScreen() {
 
                         <button
                           type="button"
-                          onClick={handleSaveChanges}
+                          onClick={(e) => { e.preventDefault(); handleSaveChanges(); }}
                           disabled={!isSaveActiveAndValid}
                           className={`flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border transition-all duration-200 shrink-0 select-none ${saveButtonConfig.style}`}
                         >
