@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Calendar, Flame, Layers, Trophy, Activity, ChevronLeft, ChevronRight, Eye, Cpu, Terminal, Loader2, Plus, X, Save, Check, AlertCircle } from 'lucide-react';
 import { useDashboard } from '../context/DashboardContext';
-import { noteService } from '../api/noteService'; 
+import { noteService } from '../api/noteService';
 
 export default function DashboardScreen() {
   const heatmapScrollContainerRef = useRef(null);
@@ -40,11 +40,11 @@ export default function DashboardScreen() {
   // Track deep differences to control the Save action button state cleanly
   const hasChanges = useMemo(() => {
     const originalTopics = activeDayDetails?.dailyLog?.extractedTopics || [];
-    
+
     // If there are left over excluded topics waiting to be completely purged on save
     if (localDeletedTopics.length > 0) return true;
     if (originalTopics.length !== localTopics.length) return true;
-    
+
     const sortedOriginal = [...originalTopics].sort();
     const sortedLocal = [...localTopics].sort();
     return sortedOriginal.some((val, i) => val !== sortedLocal[i]);
@@ -53,69 +53,80 @@ export default function DashboardScreen() {
   // Handle local state addition (optimized to retain mobile keypad anchor layout)
   const handleAddTopicSubmit = (e) => {
     e.preventDefault();
-    
+
     // Synchronously lock focus onto the input element BEFORE manipulating state to prevent mobile OS from hiding the keyboard
     topicInputRef.current?.focus();
 
     const sanitized = newTopicInput.trim();
     if (!sanitized) return;
-    
+
     if (localTopics.includes(sanitized)) {
       setNewTopicInput('');
       return;
     }
-    
+
     // If it was in deleted queue, remove it from there
     if (localDeletedTopics.includes(sanitized)) {
       setLocalDeletedTopics(prev => prev.filter(t => t !== sanitized));
     }
 
-    setLocalTopics(prev => [...prev, sanitized]);
+    setLocalTopics(prev => {
+  const next = [...prev, sanitized];
+
+  requestAnimationFrame(() => {
+    topicInputRef.current?.focus();
+  });
+
+  return next;
+});
     setNewTopicInput('');
     if (saveStatus !== 'idle') setSaveStatus('idle');
   };
 
   // Handle local state exclusion (move to deleted topics pipeline)
-const handleRemoveTopic = (targetTopic) => {
-  setLocalTopics(prev => prev.filter(topic => topic !== targetTopic));
-  if (!localDeletedTopics.includes(targetTopic)) {
-    setLocalDeletedTopics(prev => [...prev, targetTopic]);
-  }
-  if (saveStatus !== 'idle') setSaveStatus('idle');
-};
+  const handleRemoveTopic = (targetTopic) => {
+    setLocalTopics(prev => prev.filter(topic => topic !== targetTopic));
+    requestAnimationFrame(() => {
+  topicInputRef.current?.focus();
+});
+    if (!localDeletedTopics.includes(targetTopic)) {
+      setLocalDeletedTopics(prev => [...prev, targetTopic]);
+    }
+    if (saveStatus !== 'idle') setSaveStatus('idle');
+  };
 
   // Handle restoring a previously excluded topic node
 
 
-const handleRestoreTopic = (targetTopic) => {
-  setLocalDeletedTopics(prev => prev.filter(topic => topic !== targetTopic));
-  if (!localTopics.includes(targetTopic)) { // Note: changed 'topic' to 'targetTopic' here
-    setLocalTopics(prev => [...prev, targetTopic]);
-  }
-  if (saveStatus !== 'idle') setSaveStatus('idle');
-};
+  const handleRestoreTopic = (targetTopic) => {
+    setLocalDeletedTopics(prev => prev.filter(topic => topic !== targetTopic));
+    if (!localTopics.includes(targetTopic)) { // Note: changed 'topic' to 'targetTopic' here
+      setLocalTopics(prev => [...prev, targetTopic]);
+    }
+    if (saveStatus !== 'idle') setSaveStatus('idle');
+  };
 
   // Inline adaptive save pipeline 
- const handleSaveChanges = async () => {
-  // Ensure we keep focus even if we trigger an async action
-  topicInputRef.current?.focus(); 
-  
-  if (selectedDate !== todayStr || !activeDayDetails?.dailyLog) {
-    setSaveStatus('restricted');
-    setTimeout(() => setSaveStatus('idle'), 3000);
-    return;
-  }
+  const handleSaveChanges = async () => {
+    // Ensure we keep focus even if we trigger an async action
+    topicInputRef.current?.focus();
+
+    if (selectedDate !== todayStr || !activeDayDetails?.dailyLog) {
+      setSaveStatus('restricted');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+      return;
+    }
 
     try {
       setSaveStatus('sync');
       await noteService.updateExtractedTopics(localTopics);
-      
+
       // Clear out deleted tracking records completely and update global active details baseline if necessary
       if (activeDayDetails?.dailyLog) {
         activeDayDetails.dailyLog.extractedTopics = [...localTopics];
       }
       setLocalDeletedTopics([]);
-      
+
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
@@ -129,15 +140,15 @@ const handleRestoreTopic = (targetTopic) => {
   const heatmapCells = useMemo(() => {
     const cells = [];
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
+    today.setHours(0, 0, 0, 0);
 
     const endDate = new Date(today);
     const startDate = new Date(today);
     startDate.setFullYear(today.getFullYear() - 1);
     startDate.setDate(startDate.getDate() - startDate.getDay());
-    
+
     const current = new Date(startDate);
-    
+
     while (current <= endDate) {
       const yyyy = current.getFullYear();
       const mm = String(current.getMonth() + 1).padStart(2, '0');
@@ -164,8 +175,8 @@ const handleRestoreTopic = (targetTopic) => {
         const maxScrollLeft = container.scrollWidth - container.clientWidth;
         if (maxScrollLeft > 0) {
           container.scrollTo({
-            left: maxScrollLeft + 100, 
-            behavior: 'instant' 
+            left: maxScrollLeft + 100,
+            behavior: 'instant'
           });
         }
       });
@@ -246,7 +257,7 @@ const handleRestoreTopic = (targetTopic) => {
 
   return (
     <div className="space-y-6 animate-[fadeIn_0.15s_ease-out] pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out pt-4">
-      
+
       {/* Visual Header */}
       <div className="border-b border-theme pb-4">
         <h1 className="text-xl font-bold tracking-tight text-theme-primary flex items-center gap-2">
@@ -314,9 +325,8 @@ const handleRestoreTopic = (targetTopic) => {
             ref={heatmapScrollContainerRef}
             onTouchStart={(e) => e.stopPropagation()}
             style={{ touchAction: 'pan-x' }}
-            className={`overflow-x-auto pb-2 pt-1 -mx-2 px-2 pr-2 scroll-smooth scrollbar-thin scrollbar-thumb-zinc-800 transition-all duration-500 ${
-              isLoadingHeatmap ? 'opacity-40 scale-[0.985]' : 'opacity-100 scale-100'
-            }`}
+            className={`overflow-x-auto pb-2 pt-1 -mx-2 px-2 pr-2 scroll-smooth scrollbar-thin scrollbar-thumb-zinc-800 transition-all duration-500 ${isLoadingHeatmap ? 'opacity-40 scale-[0.985]' : 'opacity-100 scale-100'
+              }`}
           >
             {(() => {
               const weeks = [];
@@ -328,10 +338,10 @@ const handleRestoreTopic = (targetTopic) => {
               for (let i = 0; i < weeks.length; i++) {
                 const week = weeks[i];
                 if (!week[0]) continue;
-                
+
                 const currentMonth = new Date(week[0].date).getMonth();
                 const prevMonth = i > 0 ? new Date(weeks[i - 1][0].date).getMonth() : null;
-                
+
                 if (currentMonth !== prevMonth) {
                   if (monthLabels.length > 0 && (i - monthLabels[monthLabels.length - 1].index < 3)) {
                     monthLabels[monthLabels.length - 1] = {
@@ -377,7 +387,7 @@ const handleRestoreTopic = (targetTopic) => {
                               )} ${selectedDate === cell.date
                                 ? 'ring-1 ring-offset-1 ring-offset-black ring-blue-400 scale-110 z-10'
                                 : 'hover:scale-105 active:scale-95'
-                              }`}
+                                }`}
                               title={`${cell.date}: ${cell.count} Actions`}
                             />
                           );
@@ -471,20 +481,20 @@ const handleRestoreTopic = (targetTopic) => {
                   </div>
                   <span className="text-[10px] font-mono text-zinc-200 font-medium">{activeDayDetails.dailyLog.status}</span>
                 </div>
-                
+
                 {/* Concept Interactive Workspace */}
                 <div className="space-y-3 pt-1">
                   <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
                     Topics Extracted:
                   </span>
-                  
+
                   {!isTodayActive ? (
                     /* Premium Minimal Read-Only Mode for Past Days */
                     <div className="flex flex-wrap gap-1.5 min-h-[28px] animate-[fadeIn_0.15s_ease-out]">
                       {activeDayDetails.dailyLog.extractedTopics && activeDayDetails.dailyLog.extractedTopics.length > 0 ? (
                         activeDayDetails.dailyLog.extractedTopics.map((topic, index) => (
-                          <div 
-                            key={index} 
+                          <div
+                            key={index}
                             className="text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 px-2.5 py-1 rounded-md shadow-sm select-text transition-all hover:border-blue-700/50 hover:bg-blue-900/30"
                           >
                             {topic}
@@ -499,23 +509,28 @@ const handleRestoreTopic = (targetTopic) => {
                   ) : (
                     /* Full Interactive Editorial Pipeline for Current Day Only */
                     <>
-                      <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
+                      <div
+                        className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300"
+                        style={{
+                          contain: 'layout',
+                        }}
+                      >
                         {localTopics.length > 0 ? (
                           localTopics.map((topic, index) => (
-  <button 
-    type="button"
-    key={index} 
-    // CHANGE THIS:
-    onMouseDown={(e) => { e.preventDefault(); handleRemoveTopic(topic); }}
-    className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
-    title={`Remove ${topic}`}
-  >
-    <span>{topic}</span>
-    <div className="p-0.5 text-blue-400/50 group-hover:text-red-400 rounded transition-colors">
-      <X size={10} />
-    </div>
-  </button>
-))
+                            <button
+                              type="button"
+                              key={index}
+                              // CHANGE THIS:
+                              onMouseDown={(e) => { e.preventDefault(); handleRemoveTopic(topic); }}
+                              className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                              title={`Remove ${topic}`}
+                            >
+                              <span>{topic}</span>
+                              <div className="p-0.5 text-blue-400/50 group-hover:text-red-400 rounded transition-colors">
+                                <X size={10} />
+                              </div>
+                            </button>
+                          ))
                         ) : (
                           <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
                             No structural study topics mapped yet.
@@ -524,40 +539,49 @@ const handleRestoreTopic = (targetTopic) => {
                       </div>
 
                       {/* Excluded/Deleted Topics Section */}
-                   <div className="space-y-2 pt-1 border-t border-zinc-900/40">
-  <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
-    Topics Excluded:
-  </span>
-  <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
-    {localDeletedTopics.length > 0 ? (
-      localDeletedTopics.map((topic, index) => (
-        <button 
-          type="button"
-          key={index} 
-          // Updated to onMouseDown to preserve input focus
-          onMouseDown={(e) => { e.preventDefault(); handleRestoreTopic(topic); }}
-          className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
-          title={`Restore ${topic}`}
-        >
-          <span>{topic}</span>
-          <div className="p-0.5 text-red-400/50 group-hover:text-emerald-400 rounded transition-colors">
-            <Plus size={10} />
-          </div>
-        </button>
-      ))
-    ) : (
-      <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
-        No excluded study nodes.
-      </span>
-    )}
-  </div>
-</div>
+                      <div className="space-y-2 pt-1 border-t border-zinc-900/40">
+                        <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
+                          Topics Excluded:
+                        </span>
+                        <div
+                          className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300"
+                          style={{
+                            contain: 'layout',
+                          }}
+                        >
+                          {localDeletedTopics.length > 0 ? (
+                            localDeletedTopics.map((topic, index) => (
+                              <button
+                                type="button"
+                                key={index}
+                                // Updated to onMouseDown to preserve input focus
+                                onMouseDown={(e) => { e.preventDefault(); handleRestoreTopic(topic); }}
+                                className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                                title={`Restore ${topic}`}
+                              >
+                                <span>{topic}</span>
+                                <div className="p-0.5 text-red-400/50 group-hover:text-emerald-400 rounded transition-colors">
+                                  <Plus size={10} />
+                                </div>
+                              </button>
+                            ))
+                          ) : (
+                            <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
+                              No excluded study nodes.
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
                       {/* Interactive Action Forms Block */}
                       <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-zinc-900/60">
                         <form onSubmit={handleAddTopicSubmit} className="flex items-center gap-1.5 flex-1 max-w-sm">
-                          <input 
+                          <input
                             ref={topicInputRef}
+                            autoComplete="off"
+                            autoCorrect="off"
+                            autoCapitalize="none"
+                            spellCheck={false}
                             type="text"
                             value={newTopicInput}
                             onChange={(e) => setNewTopicInput(e.target.value)}

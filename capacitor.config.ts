@@ -4,24 +4,28 @@ const config: CapacitorConfig = {
   appId: 'com.anupam.reminiscence',
   appName: 'Reminiscence',
   webDir: 'dist',
+
   server: {
     androidScheme: 'https',
     hostname: 'reminiscence.com',
   },
+
   android: {
     allowMixedContent: true,
     backgroundColor: '#09090b',
-    captureInput: false, // 🔑 Was true — this was blocking the IME suggestion bar
+    captureInput: false,
   },
+
   plugins: {
     SplashScreen: {
       launchShowDuration: 800,
       launchAutoHide: true,
       launchFadeOutDuration: 200,
       backgroundColor: '#09090b',
-      androidSplashResourceName: "splash",
-      androidScaleType: "CENTER_CROP"
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP',
     },
+
     StatusBar: {
       style: 'ANDROID_DARK',
       backgroundColor: '#09090b',

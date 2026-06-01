@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutDashboard, BookOpen, Settings, Home as HomeIcon } from 'lucide-react';
+import { Clock, BookOpen, Settings, Home as HomeIcon, LayoutDashboard } from 'lucide-react';
 import AuthPage from './pages/Auth';
 import HomePage from './pages/Home';
 import { useAuth } from './context/AuthContext';
@@ -12,11 +12,9 @@ import SettingsScreen from './pages/SettingsScreen';
 
 import { Keyboard } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
-import { App as CapacitorApp } from '@capacitor/app'; // 🔑 Added App import for hardware back event handling
+import { App as CapacitorApp } from '@capacitor/app';
 import StatusCapsule from './components/StatusCapsule';
 import { useAppReset } from './hooks/useAppReset';
-
-// 🔑 Import storage wrappers and WelcomeSheet component
 
 import { getItem, setItem } from '../src/storage/storageService';
 import WelcomeSheet from './components/WelcomeSheet';
@@ -36,8 +34,6 @@ function usePullToRefresh(
   const isPulling = useRef(false);
   const currentDistanceRef = useRef(0);
 
-  // Keep a mutable reference of the distance state updated in touch handlers
-  // to avoid clearing/re-binding touch handlers on every coordinate change.
   useEffect(() => {
     currentDistanceRef.current = pullDistance;
   }, [pullDistance]);
@@ -60,7 +56,6 @@ function usePullToRefresh(
 
       const delta = Math.max(0, e.touches[0].clientY - startY.current);
       
-      // Fluid logarithmic tracking curve
       const damped = Math.min(55 * (1 - Math.exp(-delta / 55)), 55);
 
       setPullDistance(damped);
@@ -83,7 +78,7 @@ function usePullToRefresh(
       if (finalDistance >= THRESHOLD && !isRefreshing) {
         setIsRefreshing(true);
         setPullMessage('');
-        setPullDistance(0); // Trigger immediate smooth glide back
+        setPullDistance(0); 
         
         try {
           await onRefresh();
@@ -121,7 +116,6 @@ export default function App() {
   const [pullDistance, setPullDistance] = useState(0);
   const [pullMessage, setPullMessage] = useState('');
 
-  // 🔑 Guard flag for onboarding visualization
   const [showWelcome, setShowWelcome] = useState(false);
 
   const {
@@ -133,7 +127,7 @@ export default function App() {
   } = useReviewEngine();
 
   const { refreshDashboard } = useDashboard();
-  const { refreshHomeNote, statusMessage, setStatusMessage } = useHomeEngine(); // 🔑 Added setStatusMessage destructor to trigger exit warnings
+  const { refreshHomeNote, statusMessage, setStatusMessage } = useHomeEngine(); 
 
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
@@ -141,9 +135,8 @@ export default function App() {
   });
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [backPressExitFlag, setBackPressExitFlag] = useState(false); // 🔑 Tracking flag for back button double tap confirmation
+  const [backPressExitFlag, setBackPressExitFlag] = useState(false); 
 
-  // 🔑 Query Cap Preferences context state when workspace validation passes
   useEffect(() => {
     async function initOnboardingCheck() {
       try {
@@ -160,7 +153,6 @@ export default function App() {
     }
   }, [isAuthenticated, isCountLoaded]);
 
-  // 🔑 Storage mutator handler logic passed down to sheet callback
   const handleWelcomeComplete = async () => {
     try {
       await setItem('reminiscence_onboarding_acknowledged', 'true');
@@ -171,17 +163,14 @@ export default function App() {
     }
   };
 
-  // Hardware Back Button Handler Loop
   useEffect(() => {
     if (Capacitor.getPlatform() !== 'android') return;
 
     const setupBackButtonLogic = async () => {
       const backListener = await CapacitorApp.addListener('backButton', () => {
         if (currentTab !== 'home') {
-          // If anywhere else, snap directly back to home screen
           navigateTo('home');
         } else {
-          // If already on home screen, track double-tap exit window
           if (backPressExitFlag) {
             CapacitorApp.exitApp();
           } else {
@@ -189,7 +178,6 @@ export default function App() {
             if (setStatusMessage) {
               setStatusMessage({ text: "Press back again to close app", type: "warn" });
             }
-            // 🔑 Message display timeout set to exactly 1 second (1000ms)
             setTimeout(() => {
               setBackPressExitFlag(false);
               if (setStatusMessage) setStatusMessage(null);
@@ -205,14 +193,6 @@ export default function App() {
       backButtonEventInstance.then(listener => listener.remove());
     };
   }, [currentTab, backPressExitFlag, setStatusMessage]);
-
-  // Touch Drag-Tracking Reference Engines
-  const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
-  const isDragging = useRef(false);
-  const isHorizontalSwipe = useRef(null);
-  const [dragOffset, setDragOffset] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(true);
 
   useEffect(() => {
     if (Capacitor.getPlatform() !== 'android') return;
@@ -231,7 +211,6 @@ export default function App() {
   const navigateTo = (tab) => {
     window.history.replaceState(null, '', `#${tab}`);
     setCurrentTab(tab);
-    setDragOffset(0);
 
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: 'auto' });
@@ -276,12 +255,10 @@ export default function App() {
     }
   };
 
-  // Add refs for tabs 2-4 (tab 1 already has mainContentRef)
   const dashboardRef = useRef(null);
   const revisionRef = useRef(null);
   const settingsRef = useRef(null);
 
-  // Attach pull-to-refresh to each tab 🔑 Captured refresh states
   const isHomeRefreshing = usePullToRefresh(
     mainContentRef,
     handleGlobalRefresh,
@@ -316,76 +293,6 @@ export default function App() {
 
   const isAnyRefreshing = isHomeRefreshing || isDashRefreshing || isRevRefreshing || isSetRefreshing;
 
-  // Real-time Drag-Tracking Engine Loops
-  const handleTouchStart = (e) => {
-    if (isAnyRefreshing) return; // 🔑 Lock
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-    isDragging.current = true;
-    isHorizontalSwipe.current = null;
-    setIsAnimating(false);
-  };
-
-  const handleTouchMove = (e) => {
-    if (isAnyRefreshing || !isDragging.current) return; // 🔑 Lock
-
-    const currentX = e.touches[0].clientX;
-    const currentY = e.touches[0].clientY;
-
-    const deltaX = touchStartX.current - currentX;
-    const deltaY = touchStartY.current - currentY;
-
-    if (isHorizontalSwipe.current === null) {
-      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
-        isHorizontalSwipe.current = false;
-        isDragging.current = false;
-        return;
-      }
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 5) {
-        isHorizontalSwipe.current = true;
-      }
-    }
-
-    if (isHorizontalSwipe.current === true) {
-      const currentIdx = TAB_SEQUENCE.indexOf(currentTab);
-
-      if ((currentIdx === 0 && deltaX < 0) || (currentIdx === TAB_SEQUENCE.length - 1 && deltaX > 0)) {
-        setDragOffset(-deltaX * 0.25);
-      } else {
-        setDragOffset(-deltaX);
-      }
-    }
-  };
-
-  const handleTouchEnd = (e) => {
-    if (isAnyRefreshing || (!isDragging.current && isHorizontalSwipe.current !== true)) return; // 🔑 Lock
-
-    isDragging.current = false;
-    setIsAnimating(true);
-
-    const windowWidth = window.innerWidth;
-    const dragThreshold = windowWidth * 0.12;
-    const currentIdx = TAB_SEQUENCE.indexOf(currentTab);
-
-    if (isHorizontalSwipe.current === true) {
-      if (dragOffset < -dragThreshold && currentIdx < TAB_SEQUENCE.length - 1) {
-        navigateTo(TAB_SEQUENCE[currentIdx + 1]);
-      } else if (dragOffset > dragThreshold && currentIdx > 0) {
-        navigateTo(TAB_SEQUENCE[currentIdx - 1]);
-      } else {
-        setDragOffset(0);
-      }
-    }
-
-    setTimeout(() => {
-      setDragOffset(0);
-    }, 0);
-
-    touchStartX.current = 0;
-    touchStartY.current = 0;
-  };
-
-  // 1. If AuthContext is still checking cookies, show a loading state
   if (loading) {
     return (
       <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-center">
@@ -396,12 +303,10 @@ export default function App() {
     );
   }
 
-  // 2. Once loading is false, if NOT authenticated, show AuthPage
   if (!isDisconnecting && !isAuthenticated) {
     return <AuthPage onAuthSuccess={() => navigateTo('home')} />;
   }
 
-  // 3. If authenticated but data hasn't loaded yet, show Init state
   if (!isCountLoaded) {
     return (
       <div className="h-[100dvh] w-full bg-theme flex flex-col items-center justify-between pt-[35vh] pb-0 px-6 select-none">
@@ -420,10 +325,9 @@ export default function App() {
 
   const activeTabOffsetIndex = TAB_SEQUENCE.indexOf(currentTab);
 
-  // 🔑 Optimized Transform Config: Uses filters for a professional, "locked" feel instead of fading opacity
   const dynamicSlideTransformStyle = {
-    transform: `translateY(${pullDistance}px) translateX(calc(-${activeTabOffsetIndex * 25}% + ${dragOffset}px))`,
-    transition: isAnimating || pullDistance === 0
+    transform: `translateY(${pullDistance}px) translateX(-${activeTabOffsetIndex * 25}%)`,
+    transition: pullDistance === 0
       ? 'transform 330ms cubic-bezier(0.19, 1, 0.22, 1), filter 250ms ease'
       : 'none',
 
@@ -437,7 +341,6 @@ export default function App() {
   return (
     <div className="flex flex-col flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
 
-      {/* Safe Area Spacer Layout Shield */}
       <div
         style={{ height: 'env(safe-area-inset-top, 24px)' }}
         className="fixed top-0 left-0 right-0 bg-theme z-[90] w-full"
@@ -473,13 +376,9 @@ export default function App() {
         type={activeType}
       />
 
-      {/* Real-time Tracking View Window Wrapper */}
       <div
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         className="flex-1 overflow-hidden relative"
-        style={{ touchAction: isAnyRefreshing ? 'none' : 'pan-y pinch-zoom' }}
+        style={{ touchAction: 'pan-y' }}
       >
 
         <div
@@ -495,7 +394,7 @@ export default function App() {
             </div>
           )}
         </div>
-        {/* SLIDING TRACK SLIDER */}
+        
         <div
           style={{
             ...dynamicSlideTransformStyle,
@@ -503,7 +402,6 @@ export default function App() {
           }}
           className="w-[400%] h-full flex items-start will-change-transform"
         >
-          {/* Tab 1: Home */}
           <main
             ref={mainContentRef}
             className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
@@ -512,7 +410,6 @@ export default function App() {
             <HomePage pendingCount={globalCount} onNavigateToReview={() => navigateTo('revision')} mainContentRef={mainContentRef} />
           </main>
 
-          {/* Tab 2: Dashboard */}
           <main
             ref={dashboardRef}
             className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
@@ -521,7 +418,6 @@ export default function App() {
             <DashboardScreen />
           </main>
 
-          {/* Tab 3: Revision */}
           <main
             ref={revisionRef}
             className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
@@ -530,7 +426,6 @@ export default function App() {
             <ReviewScreen onBackToHome={() => navigateTo('home')} />
           </main>
 
-          {/* Tab 4: Settings */}
           <main
             ref={settingsRef}
             className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
@@ -563,7 +458,6 @@ export default function App() {
           label="Dashboard"
         />
 
-        {/* Review Button: Adding the disabled attribute */}
         <button
           disabled={isAnyRefreshing}
           onClick={() => navigateTo('revision')}
@@ -596,7 +490,6 @@ export default function App() {
         <div className="refresh-lock-overlay" />
       )}
 
-      {/* 🔑 Onboarding context rendering engine gate wrapper */}
       {showWelcome && (
         <WelcomeSheet onComplete={handleWelcomeComplete} />
       )}
