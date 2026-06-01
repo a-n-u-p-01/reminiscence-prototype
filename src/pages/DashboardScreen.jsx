@@ -451,89 +451,121 @@ export default function DashboardScreen() {
                   <span className="text-[10px] font-mono text-zinc-200 font-medium">{activeDayDetails.dailyLog.status}</span>
                 </div>
                 
-                {/* Concept Interactive Workspace */}
-                <div className="space-y-3 pt-1">
-                  <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">Topics Extracted:</span>
-                  
-                  <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
-                    {localTopics.length > 0 ? (
-                      localTopics.map((topic, index) => (
-                        <div 
-                          key={index} 
-                          className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-blue-700/60 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
-                        >
-                          <span>{topic}</span>
-                          <button 
-                            type="button"
-                            onClick={() => handleRemoveTopic(topic)}
-                            className="p-0.5 text-blue-400/50 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
-                            title={`Remove ${topic}`}
-                          >
-                            <X size={10} />
-                          </button>
-                        </div>
-                      ))
-                    ) : (
-                      <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">No structural study topics mapped yet.</span>
-                    )}
-                  </div>
+               {/* Concept Interactive Workspace */}
+<div className="space-y-3 pt-1">
+  <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
+    Topics Extracted:
+  </span>
+  
+  {!isTodayActive ? (
+    /* Premium Minimal Read-Only Mode for Past Days */
+    <div className="flex flex-wrap gap-1.5 min-h-[28px] animate-[fadeIn_0.15s_ease-out]">
+      {activeDayDetails.dailyLog.extractedTopics && activeDayDetails.dailyLog.extractedTopics.length > 0 ? (
+        activeDayDetails.dailyLog.extractedTopics.map((topic, index) => (
+          <div 
+            key={index} 
+            className="text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 px-2.5 py-1 rounded-md shadow-sm select-text transition-all hover:border-blue-700/50 hover:bg-blue-900/30"
+          >
+            {topic}
+          </div>
+        ))
+      ) : (
+        <span className="text-[10px] text-theme-muted font-mono italic self-center">
+          No structural study topics mapped on this date.
+        </span>
+      )}
+    </div>
+  ) : (
+    /* Full Interactive Editorial Pipeline for Current Day Only */
+    <>
+      <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
+        {localTopics.length > 0 ? (
+          localTopics.map((topic, index) => (
+            <div 
+              key={index} 
+              className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-blue-700/60 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+            >
+              <span>{topic}</span>
+              <button 
+                type="button"
+                onClick={() => handleRemoveTopic(topic)}
+                className="p-0.5 text-blue-400/50 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                title={`Remove ${topic}`}
+              >
+                <X size={10} />
+              </button>
+            </div>
+          ))
+        ) : (
+          <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
+            No structural study topics mapped yet.
+          </span>
+        )}
+      </div>
 
-                  {/* Excluded/Deleted Topics Section */}
-                  <div className="space-y-2 pt-1 border-t border-zinc-900/40">
-                    <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">Topics Excluded:</span>
-                    <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
-                      {localDeletedTopics.length > 0 ? (
-                        localDeletedTopics.map((topic, index) => (
-                          <div 
-                            key={index} 
-                            className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-700/60 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
-                          >
-                            <span>{topic}</span>
-                            <button 
-                              type="button"
-                              onClick={() => handleRestoreTopic(topic)}
-                              className="p-0.5 text-red-400/50 hover:text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors"
-                              title={`Restore ${topic}`}
-                            >
-                              <Plus size={10} />
-                            </button>
-                          </div>
-                        ))
-                      ) : (
-                        <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">No excluded study nodes.</span>
-                      )}
-                    </div>
-                  </div>
+      {/* Excluded/Deleted Topics Section */}
+      <div className="space-y-2 pt-1 border-t border-zinc-900/40">
+        <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
+          Topics Excluded:
+        </span>
+        <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
+          {localDeletedTopics.length > 0 ? (
+            localDeletedTopics.map((topic, index) => (
+              <div 
+                key={index} 
+                className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-700/60 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+              >
+                <span>{topic}</span>
+                <button 
+                  type="button"
+                  onClick={() => handleRestoreTopic(topic)}
+                  className="p-0.5 text-red-400/50 hover:text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors"
+                  title={`Restore ${topic}`}
+                >
+                  <Plus size={10} />
+                </button>
+              </div>
+            ))
+          ) : (
+            <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
+              No excluded study nodes.
+            </span>
+          )}
+        </div>
+      </div>
 
-                  <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-zinc-900/60">
-                    <form onSubmit={handleAddTopicSubmit} className="flex items-center gap-1.5 flex-1 max-w-sm">
-                      <input 
-                        type="text"
-                        value={newTopicInput}
-                        onChange={(e) => setNewTopicInput(e.target.value)}
-                        placeholder="Add revision node..."
-                        className="w-full text-[10px] font-mono bg-zinc-950 border border-theme rounded-md px-2 py-1 text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all select-text"
-                      />
-                      <button
-                        type="submit"
-                        className="flex items-center justify-center p-1 rounded-md bg-zinc-900 text-zinc-400 border border-theme hover:bg-blue-950/40 hover:text-blue-400 hover:border-blue-900/50 transition-all shrink-0 active:scale-95"
-                        title="Add local topic configuration"
-                      >
-                        <Plus size={12} />
-                      </button>
-                    </form>
+      {/* Interactive Action Forms Block */}
+      <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-zinc-900/60">
+        <form onSubmit={handleAddTopicSubmit} className="flex items-center gap-1.5 flex-1 max-w-sm">
+          <input 
+            type="text"
+            value={newTopicInput}
+            onChange={(e) => setNewTopicInput(e.target.value)}
+            placeholder="Add revision node..."
+            className="w-full text-[10px] font-mono bg-zinc-950 border border-theme rounded-md px-2 py-1 text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all select-text"
+          />
+          <button
+            type="submit"
+            className="flex items-center justify-center p-1 rounded-md bg-zinc-900 text-zinc-400 border border-theme hover:bg-blue-950/40 hover:text-blue-400 hover:border-blue-900/50 transition-all shrink-0 active:scale-95"
+            title="Add local topic configuration"
+          >
+            <Plus size={12} />
+          </button>
+        </form>
 
-                    <button
-                      type="button"
-                      onClick={handleSaveChanges}
-                      disabled={!isSaveActiveAndValid}
-                      className={`flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border transition-all duration-200 shrink-0 select-none ${saveButtonConfig.style}`}
-                    >
-                      {saveButtonConfig.icon}
-                      <span>{saveButtonConfig.text}</span>
-                    </button>
-                  </div>
-                </div>
+        <button
+          type="button"
+          onClick={handleSaveChanges}
+          disabled={!isSaveActiveAndValid}
+          className={`flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border transition-all duration-200 shrink-0 select-none ${saveButtonConfig.style}`}
+        >
+          {saveButtonConfig.icon}
+          <span>{saveButtonConfig.text}</span>
+        </button>
+      </div>
+    </>
+  )}
+</div>
               </div>
             )}
 
