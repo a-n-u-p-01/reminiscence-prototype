@@ -208,7 +208,7 @@ export default function DashboardScreen() {
         return {
           style: 'bg-zinc-900 text-zinc-400 border-zinc-800 pointer-events-none',
           icon: <Loader2 size={11} className="animate-spin text-blue-400" />,
-          text: 'Syncing Matrix...'
+          text: 'Syncing Topics...'
         };
       case 'success':
         return {
@@ -432,6 +432,7 @@ export default function DashboardScreen() {
 
           <button
             onClick={() => handleStepDate(1)}
+            style={{ contentVisibility: 'auto' }}
             disabled={selectedDate === todayStr}
             className="p-1 text-theme-secondary hover:text-zinc-200 hover:bg-zinc-900 rounded-md transition-all disabled:opacity-20 disabled:hover:bg-transparent active:scale-95"
           >
@@ -496,22 +497,18 @@ export default function DashboardScreen() {
                       <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
                         {localTopics.length > 0 ? (
                           localTopics.map((topic, index) => (
-                            <div 
+                            <button 
+                              type="button"
                               key={index} 
-                              className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-blue-700/60 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                              onClick={() => handleRemoveTopic(topic)}
+                              className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                              title={`Remove ${topic}`}
                             >
                               <span>{topic}</span>
-                              <button 
-                                type="button"
-                                onClick={() => handleRemoveTopic(topic)}
-                                onMouseDown={(e) => e.preventDefault()}
-                                onTouchStart={(e) => e.preventDefault()}
-                                className="p-0.5 text-blue-400/50 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
-                                title={`Remove ${topic}`}
-                              >
+                              <div className="p-0.5 text-blue-400/50 group-hover:text-red-400 rounded transition-colors">
                                 <X size={10} />
-                              </button>
-                            </div>
+                              </div>
+                            </button>
                           ))
                         ) : (
                           <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
@@ -528,22 +525,18 @@ export default function DashboardScreen() {
                         <div className="flex flex-wrap gap-1.5 min-h-[28px] transition-all duration-300">
                           {localDeletedTopics.length > 0 ? (
                             localDeletedTopics.map((topic, index) => (
-                              <div 
+                              <button 
+                                type="button"
                                 key={index} 
-                                className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-700/60 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                                onClick={() => handleRestoreTopic(topic)}
+                                className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                                title={`Restore ${topic}`}
                               >
                                 <span>{topic}</span>
-                                <button 
-                                  type="button"
-                                  onClick={() => handleRestoreTopic(topic)}
-                                  onMouseDown={(e) => e.preventDefault()}
-                                  onTouchStart={(e) => e.preventDefault()}
-                                  className="p-0.5 text-red-400/50 hover:text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors"
-                                  title={`Restore ${topic}`}
-                                >
+                                <div className="p-0.5 text-red-400/50 group-hover:text-emerald-400 rounded transition-colors">
                                   <Plus size={10} />
-                                </button>
-                              </div>
+                                </div>
+                              </button>
                             ))
                           ) : (
                             <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
@@ -632,7 +625,7 @@ export default function DashboardScreen() {
           </div>
         ) : (
           <div className="text-center py-12 border border-dashed border-theme rounded-xl bg-theme-card transition-all">
-            <p className="text-xs text-theme-muted font-mono">No raw data input logs or revisions recorded on this calendar calendar matrix coordinate.</p>
+            <p className="text-xs text-theme-muted font-mono">No raw data input logs or revisions recorded on this calendar matrix coordinate.</p>
           </div>
         )}
       </div>

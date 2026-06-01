@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, BookOpen, Settings, Home as HomeIcon } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Settings, Home as HomeIcon } from 'lucide-react';
 import AuthPage from './pages/Auth';
 import HomePage from './pages/Home';
 import { useAuth } from './context/AuthContext';
@@ -559,7 +559,7 @@ export default function App() {
         <NavBtn
           active={currentTab === 'dashboard'}
           onClick={() => navigateTo('dashboard')}
-          icon={Clock}
+          icon={LayoutDashboard}
           label="Dashboard"
         />
 
