@@ -213,7 +213,8 @@ export default function DashboardScreen() {
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const isTodayActive = selectedDate === todayStr;
+  // const isTodayActive = selectedDate === todayStr;
+  const isTodayActive = false;
   const isButtonBusy = saveStatus === 'sync' || saveStatus === 'success' || saveStatus === 'error' || saveStatus === 'restricted';
   const isSaveActiveAndValid = isTodayActive && hasChanges && !isButtonBusy;
 
