@@ -61,8 +61,8 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         {/* Branch A: Dashboard View */}
         <div
           className={`col-start-1 row-start-1 space-y-6 transition-all duration-300 transform origin-top ${showDashboardMode
-              ? 'opacity-100 scale-100 pointer-events-auto'
-              : 'opacity-0 scale-[0.98] pointer-events-none absolute w-full'
+            ? 'opacity-100 scale-100 pointer-events-auto'
+            : 'opacity-0 scale-[0.98] pointer-events-none absolute w-full'
             }`}
         >
           <div className="bg-theme-card border border-theme rounded-2xl p-6 text-center space-y-5 shadow-sm">
@@ -106,8 +106,8 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         {/* Branch B: Input Note View */}
         <div
           className={`col-start-1 row-start-1 space-y-6 transition-all duration-300 transform origin-top ${!showDashboardMode
-              ? 'opacity-100 scale-100 pointer-events-auto'
-              : 'opacity-0 scale-[0.98] pointer-events-none absolute w-full'
+            ? 'opacity-100 scale-100 pointer-events-auto'
+            : 'opacity-0 scale-[0.98] pointer-events-none absolute w-full'
             }`}
         >
           <div className="space-y-4">
@@ -149,17 +149,17 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 type="submit"
                 disabled={isInputDisabled || !hasUnsavedChanges}
                 className={`w-full border border-theme text-theme-secondary hover:text-theme-primary font-medium text-xs py-3 rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm ${loading
-                    ? 'ai-loading-btn border-theme-accent/20 text-theme-accent'
-                    : 'bg-theme-card hover:bg-theme'
+                  ? 'ai-loading-btn border-theme-accent/20 text-theme-accent'
+                  : 'bg-theme-card hover:bg-theme'
                   }`}
               >
                 <Sparkles
                   size={13}
                   className={`transition-colors duration-300 ${loading
-                      ? 'text-theme-accent animate-spin [animation-duration:3s]'
-                      : hasUnsavedChanges
-                        ? 'text-theme-accent'
-                        : 'text-theme-muted'
+                    ? 'text-theme-accent animate-spin [animation-duration:3s]'
+                    : hasUnsavedChanges
+                      ? 'text-theme-accent'
+                      : 'text-theme-muted'
                     }`}
                 />
                 <span>Save Note</span>
@@ -183,62 +183,62 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
           {/* Timeline Flow Container */}
           <div className="bg-theme-card border border-theme rounded-2xl p-5 space-y-5 shadow-inner transition-all duration-300">
             <div className="flex items-center justify-between border-b border-theme pb-3">
-              <span className="text-[10px] font-mono tracking-wider uppercase text-theme-secondary flex items-center gap-2">
+              <span className="text-xs font-mono tracking-wider uppercase text-theme-secondary flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-theme-accent" />
                 Active Memory Engine
               </span>
-              <span className="text-[10px] text-theme-muted font-mono tracking-wide">How it works</span>
+              <span className="text-xs text-theme-muted font-mono tracking-wide">How it works</span>
             </div>
 
             <div className="relative pl-2 space-y-5 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-theme">
-  {/* Step 1 */}
-  <div className="relative flex items-start gap-4">
-    <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-[10px] font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
-      1
-    </div>
-    <div className="pl-9 space-y-0.5">
-      <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
-        <Brain size={12} className="text-theme-muted" />
-        <span>Log Your Study</span>
-      </h4>
-      <p className="text-[11px] font-sans text-theme-muted leading-relaxed tracking-wide">
-        Write down what you learned today in your own words. It only takes two minutes, and our engine instantly finds the key topics.
-      </p>
-    </div>
-  </div>
+              {/* Step 1 */}
+              <div className="relative flex items-start gap-4">
+                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-xs font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
+                  1
+                </div>
+                <div className="pl-9 space-y-0.5">
+                  <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
+                    <Brain size={12} className="text-theme-muted" />
+                    <span>Log Your Study</span>
+                  </h4>
+                  <p className="text-xs font-sans text-theme-muted leading-relaxed tracking-wide">
+                    Write down what you learned today in your own words. It only takes two minutes, and our engine instantly finds the key topics.
+                  </p>
+                </div>
+              </div>
 
-  {/* Step 2 */}  
-  <div className="relative flex items-start gap-4">
-    <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-[10px] font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
-      2
-    </div>
-    <div className="pl-9 space-y-0.5">
-      <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
-        <Target size={12} className="text-theme-muted" />
-        <span>Auto-Create Cards</span>
-      </h4>
-      <p className="text-[11px] font-sans text-theme-muted leading-relaxed tracking-wide">
-        The engine automatically turns those topics into clear concepts and generates smart flashcards for your review.
-      </p>
-    </div>
-  </div>
+              {/* Step 2 */}
+              <div className="relative flex items-start gap-4">
+                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-xs font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
+                  2
+                </div>
+                <div className="pl-9 space-y-0.5">
+                  <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
+                    <Target size={12} className="text-theme-muted" />
+                    <span>Auto-Create Cards</span>
+                  </h4>
+                  <p className="text-xs font-sans text-theme-muted leading-relaxed tracking-wide">
+                    The engine automatically turns those topics into clear concepts and generates smart flashcards for your review.
+                  </p>
+                </div>
+              </div>
 
-  {/* Step 3 */}
-  <div className="relative flex items-start gap-4">
-    <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-[10px] font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
-      3
-    </div>
-    <div className="pl-9 space-y-0.5">
-      <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
-        <CalendarDays size={12} className="text-theme-muted" />
-        <span>Lock Into Memory</span>
-      </h4>
-      <p className="text-[11px] font-sans text-theme-muted leading-relaxed tracking-wide">
-        The system will push your review right before you forget it, locking the knowledge into your long-term memory.
-      </p>
-    </div>
-  </div>
-</div>
+              {/* Step 3 */}
+              <div className="relative flex items-start gap-4">
+                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-xs font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
+                  3
+                </div>
+                <div className="pl-9 space-y-0.5">
+                  <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
+                    <CalendarDays size={12} className="text-theme-muted" />
+                    <span>Lock Into Memory</span>
+                  </h4>
+                  <p className="text-xs font-sans text-theme-muted leading-relaxed tracking-wide">
+                    The system will push your review right before you forget it, locking the knowledge into your long-term memory.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
