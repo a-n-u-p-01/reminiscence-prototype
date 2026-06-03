@@ -265,7 +265,7 @@ export default function DashboardScreen() {
           <Activity size={18} className="text-blue-500 shrink-0" />
           <span>Retention Engine Dashboard</span>
         </h1>
-        <p className="text-xs text-theme-secondary mt-0.5">Tracking automated concept extraction and memory review logs.</p>
+        <p className="text-xs text-theme-secondary mt-0.5">Your daily knowledge streaks, stats, and pending reviews at a glance.</p>
       </div>
 
       {/* Grid Stats */}

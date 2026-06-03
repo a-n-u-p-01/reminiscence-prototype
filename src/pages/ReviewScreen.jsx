@@ -105,14 +105,18 @@ export default function ReviewScreen({ onBackToHome }) {
     let messageText = "Concept Saved";
     let capsuleType = "success";
 
-    if (rating === "HARD") {
-      messageText = "Review Scheduled Soon";
+    // Aligned status metrics directly to custom levels
+    if (rating === "AGAIN") {
+      messageText = "Lapse Handled • Reviewing Soon";
       capsuleType = "error"; 
-    } else if (rating === "MEDIUM") {
-      messageText = "Interval Updated";
+    } else if (rating === "HARD") {
+      messageText = "Struggled • Core Trace Maintained";
       capsuleType = "warn"; 
+    } else if (rating === "GOOD") {
+      messageText = "Interval Updated Successfully";
+      capsuleType = "success"; 
     } else if (rating === "EASY") {
-      messageText = "Retention Locked";
+      messageText = "Retention Extended Safely";
       capsuleType = "success"; 
     }
 
@@ -263,32 +267,50 @@ export default function ReviewScreen({ onBackToHome }) {
                     </span>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-2.5">
+                  {/* Premium balanced 4-column custom response engine matrix */}
+                  <div className="grid grid-cols-4 gap-2">
+                    {/* AGAIN BUTTON: BLANK */}
+                    <button 
+                      disabled={submittingRating || isExiting} 
+                      onClick={() => handleRateCard('AGAIN')} 
+                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-red-900/40 text-zinc-400 hover:text-red-400 py-2.5 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                    >
+                      <ShieldAlert size={14} className="text-red-500/70" /> 
+                      <span className="text-xs font-semibold tracking-wide">Blank</span>
+                      <span className="text-[9px] text-zinc-500 px-1 font-normal font-sans leading-none">No idea / Wrong</span>
+                    </button>
+                    
+                    {/* HARD BUTTON: BARELY */}
                     <button 
                       disabled={submittingRating || isExiting} 
                       onClick={() => handleRateCard('HARD')} 
-                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-red-900/40 text-zinc-400 hover:text-red-400 py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1.5 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-orange-900/40 text-zinc-400 hover:text-orange-400 py-2.5 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
-                      <ShieldAlert size={15} className="text-red-500/70" /> 
-                      <span className="font-medium tracking-wide">Forgot</span>
+                      <Frown size={14} className="text-orange-500/70" /> 
+                      <span className="text-xs font-semibold tracking-wide">Barely</span>
+                      <span className="text-[9px] text-zinc-500 px-1 font-normal font-sans leading-none">Took a moment</span>
                     </button>
                     
+                    {/* GOOD BUTTON: RIGHT */}
                     <button 
                       disabled={submittingRating || isExiting} 
-                      onClick={() => handleRateCard('MEDIUM')} 
-                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-amber-900/40 text-zinc-400 hover:text-amber-400 py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1.5 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      onClick={() => handleRateCard('GOOD')} 
+                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-blue-900/40 text-zinc-400 hover:text-blue-400 py-2.5 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
-                      <Frown size={15} className="text-amber-500/70" /> 
-                      <span className="font-medium tracking-wide">Hesitant</span>
+                      <Smile size={14} className="text-blue-500/70" /> 
+                      <span className="text-xs font-semibold tracking-wide">Right</span>
+                      <span className="text-[9px] text-zinc-500 px-1 font-normal font-sans leading-none">Remembered clearly</span>
                     </button>
-                    
+
+                    {/* EASY BUTTON: TOO EASY */}
                     <button 
                       disabled={submittingRating || isExiting} 
                       onClick={() => handleRateCard('EASY')} 
-                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-emerald-900/40 text-zinc-400 hover:text-emerald-400 py-3 rounded-xl text-xs font-medium flex flex-col items-center gap-1.5 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      className="bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-emerald-900/40 text-zinc-400 hover:text-emerald-400 py-2.5 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
-                      <Smile size={15} className="text-emerald-500/70" /> 
-                      <span className="font-medium tracking-wide">Got It</span>
+                      <CheckCircle2 size={14} className="text-emerald-500/70" /> 
+                      <span className="text-xs font-semibold tracking-wide whitespace-nowrap">Too Easy</span>
+                      <span className="text-[9px] text-zinc-500 px-1 font-normal font-sans leading-none">Don't show for a while</span>
                     </button>
                   </div>
                 </div>
