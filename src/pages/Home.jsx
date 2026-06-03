@@ -169,7 +169,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 <span>Save Note</span>
               </button>
             </form>
-
+{/* 
             {pendingCount > 0 && (
               <button
                 type="button"
@@ -181,7 +181,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
               >
                 &larr; Return to pending review panel ({pendingCount})
               </button>
-            )}
+            )} */}
           </div>
 
           {/* Timeline Flow Container */}

@@ -621,39 +621,40 @@ export default function DashboardScreen() {
               </div>
             )}
 
-            {activeDayDetails.revisionLogs.map((rev, index) => {
-              const mastery = Math.min(100, Math.round(rev.masteryScore || 0));
-              const isMastered = mastery >= 90;
-              const memoryAge = Math.floor((new Date() - new Date(rev.createdAt)) / (1000 * 60 * 60 * 24));
+   {activeDayDetails.revisionLogs.map((rev, index) => {
+  const mastery = Math.min(100, Math.round(rev.masteryScore || 0));
+  const isMastered = mastery >= 90;
+  const memoryAge = Math.floor((new Date() - new Date(rev.createdAt)) / (1000 * 60 * 60 * 24));
 
-              return (
-                <div key={index} className="bg-theme-card border border-theme rounded-2xl px-4 py-3.5 space-y-3 shadow-sm hover:scale-[1.005] transition-all">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-medium text-theme-primary leading-snug">{rev.conceptName}</h4>
-                      <div className="flex items-center gap-2 mt-1 text-[10px] text-theme-muted">
-                        <span>{memoryAge}d active</span>
-                        <span className="text-zinc-700">•</span>
-                        <span>{rev.reviewCount}x</span>
-                      </div>
-                    </div>
-                    <div className={`shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full ${isMastered ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                      {mastery}%
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-700 ${isMastered ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${mastery}%` }} />
-                    </div>
-                    <div className="flex justify-end">
-                      <span className="text-[10px] text-theme-muted">
-                        Next review: {new Date(rev.nextReviewDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+  return (
+    <div key={index} className="bg-theme-card border border-theme rounded-2xl px-4 py-3.5 space-y-3 shadow-sm hover:scale-[1.005] transition-all">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h4 className="text-sm font-medium text-theme-primary leading-snug">{rev.conceptName}</h4>
+          <div className="flex items-center gap-2 mt-1 text-[10px] text-theme-muted">
+            <span>{memoryAge}d active</span>
+            <span className="text-zinc-700">•</span>
+            <span>{rev.reviewCount}x</span>
+          </div>
+        </div>
+        <div className={`shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full ${isMastered ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
+          {mastery}%
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        {/* Progress Track: Changed h-1.5 to h-[2px] and tuned down the background color */}
+        <div className="h-[2px] w-full bg-zinc-900/60 rounded-full overflow-hidden">
+          <div className={`h-full rounded-full transition-all duration-700 ${isMastered ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${mastery}%` }} />
+        </div>
+        <div className="flex justify-end">
+          <span className="text-[10px] text-theme-muted">
+            Next review: {new Date(rev.nextReviewDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+})}
           </div>
         ) : (
           <div className="text-center py-12 border border-dashed border-theme rounded-xl bg-theme-card transition-all">

@@ -20,6 +20,9 @@ export default function ReviewScreen({ onBackToHome }) {
   // Local state to manage the rating capsule notifications
   const [reviewStatus, setReviewStatus] = useState(null);
 
+  // Rewards Engine State for global coordinate tracking with multi-particle bursts
+  const [rewardTrack, setRewardTrack] = useState({ x: 0, y: 0, color: '', glow: '', active: false });
+
   const containerRef = useRef(null);
   const activeCard = concepts[0];
 
@@ -98,14 +101,39 @@ export default function ReviewScreen({ onBackToHome }) {
     setShowAnswer(false);
   };
 
-  const handleRateCard = async (rating) => {
+  const handleRateCard = async (rating, e) => {
     if (submittingRating || isExiting) return;
+
+    // Premium Color Matrix Injection (Pure Dopamine Color Profiles)
+    if (e && e.clientX && e.clientY) {
+      let coreColor = '#3b82f6'; // Good / Blue
+      let glowColor = 'rgba(59, 130, 246, 0.45)';
+      
+      if (rating === "AGAIN") {
+        coreColor = '#ef4444'; // Red
+        glowColor = 'rgba(239, 68, 68, 0.5)';
+      } else if (rating === "HARD") {
+        coreColor = '#f97316'; // Orange
+        glowColor = 'rgba(249, 115, 22, 0.5)';
+      } else if (rating === "EASY") {
+        coreColor = '#10b981'; // Emerald Sparkle
+        glowColor = 'rgba(16, 185, 129, 0.6)';
+      }
+
+      setRewardTrack({
+        x: e.clientX,
+        y: e.clientY,
+        color: coreColor,
+        glow: glowColor,
+        active: true
+      });
+    }
+
     setSubmittingRating(true);
 
     let messageText = "Concept Saved";
     let capsuleType = "success";
 
-    // Aligned status metrics directly to custom levels
     if (rating === "AGAIN") {
       messageText = "Lapse Handled • Reviewing Soon";
       capsuleType = "error";
@@ -131,6 +159,7 @@ export default function ReviewScreen({ onBackToHome }) {
         handleCardReviewed(activeCard.userConceptId);
         setShowAnswer(false);
         setIsExiting(false);
+        setRewardTrack(prev => ({ ...prev, active: false }));
       }, 250);
 
       // 2. Longer capsule visibility
@@ -151,12 +180,65 @@ export default function ReviewScreen({ onBackToHome }) {
     <>
       {/* PERSISTENT PORTAL: We always render the Portal. StatusCapsule handles its own visibility. */}
       {typeof document !== 'undefined' && createPortal(
-        <div className="fixed top-6 right-6 z-[9999] pointer-events-none flex justify-end">
-          <StatusCapsule
-            message={reviewStatus}
-            type={reviewStatus?.type || 'success'}
-          />
-        </div>,
+        <>
+          {/* Kinetic Dopamine Particle Styles */}
+          <style>{`
+            @keyframes shockwave-halo {
+              0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; filter: blur(0px); border-width: 3px; }
+              40% { opacity: 0.8; }
+              100% { transform: translate(-50%, -50%) scale(3.2); opacity: 0; filter: blur(4px); border-width: 1px; }
+            }
+            @keyframes particle-blast-1 { 0% { transform: translate(-50%, -50%) translate(0, 0) scale(1.3) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) translate(-45px, -35px) scale(0) rotate(180deg); opacity: 0; } }
+            @keyframes particle-blast-2 { 0% { transform: translate(-50%, -50%) translate(0, 0) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) translate(52px, -25px) scale(0) rotate(-120deg); opacity: 0; } }
+            @keyframes particle-blast-3 { 0% { transform: translate(-50%, -50%) translate(0, 0) scale(1.5) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) translate(-22px, 48px) scale(0) rotate(240deg); opacity: 0; } }
+            @keyframes particle-blast-4 { 0% { transform: translate(-50%, -50%) translate(0, 0) scale(1.1) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) translate(38px, 42px) scale(0) rotate(-200deg); opacity: 0; } }
+            @keyframes particle-blast-5 { 0% { transform: translate(-50%, -50%) translate(0, 0) scale(1.4) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) translate(-55px, 10px) scale(0) rotate(90deg); opacity: 0; } }
+            @keyframes particle-blast-6 { 0% { transform: translate(-50%, -50%) translate(0, 0) scale(0.9) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) translate(58px, 15px) scale(0) rotate(-90deg); opacity: 0; } }
+            @keyframes particle-blast-7 { 0% { transform: translate(-50%, -50%) translate(0, 0) scale(1.2) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) translate(5px, -55px) scale(0) rotate(320deg); opacity: 0; } }
+            @keyframes particle-blast-8 { 0% { transform: translate(-50%, -50%) translate(0, 0) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) translate(-10px, -50px) scale(0) rotate(-45deg); opacity: 0; } }
+            
+            .dopamine-halo { animation: shockwave-halo 600ms cubic-bezier(0.15, 0.85, 0.35, 1) forwards; }
+            .dp-1 { animation: particle-blast-1 550ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
+            .dp-2 { animation: particle-blast-2 520ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
+            .dp-3 { animation: particle-blast-3 580ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
+            .dp-4 { animation: particle-blast-4 500ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
+            .dp-5 { animation: particle-blast-5 530ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
+            .dp-6 { animation: particle-blast-6 490ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
+            .dp-7 { animation: particle-blast-7 560ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
+            .dp-8 { animation: particle-blast-8 540ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
+          `}</style>
+
+          {/* High Impact Particle Canvas */}
+          {rewardTrack.active && (
+            <div 
+              className="fixed pointer-events-none z-[10000]"
+              style={{ left: rewardTrack.x, top: rewardTrack.y }}
+            >
+              {/* Expanding chromatic halo ring */}
+              <div 
+                className="dopamine-halo absolute w-12 h-12 rounded-full border-4" 
+                style={{ borderColor: rewardTrack.color, boxShadow: `0 0 16px ${rewardTrack.glow}` }}
+              />
+              
+              {/* Kinetic Diamond & Circular Shrapnel Elements */}
+              <div className="dp-1 absolute w-2.5 h-2.5 bg-white rounded-sm rotate-45" style={{ boxShadow: `0 0 8px ${rewardTrack.color}` }} />
+              <div className="dp-2 absolute w-2 h-2 rounded-full" style={{ backgroundColor: rewardTrack.color }} />
+              <div className="dp-3 absolute w-3 h-1.5 rounded-full" style={{ backgroundColor: rewardTrack.color }} />
+              <div className="dp-4 absolute w-2 h-2 bg-white rounded-full" style={{ boxShadow: `0 0 6px ${rewardTrack.color}` }} />
+              <div className="dp-5 absolute w-1.5 h-3 bg-white rounded-sm" />
+              <div className="dp-6 absolute w-2.5 h-2.5 rounded-full" style={{ backgroundColor: rewardTrack.color }} />
+              <div className="dp-7 absolute w-2 h-2 bg-white rotate-12" style={{ boxShadow: `0 0 10px ${rewardTrack.color}` }} />
+              <div className="dp-8 absolute w-1.5 h-1.5 rounded-full" style={{ backgroundColor: rewardTrack.color }} />
+            </div>
+          )}
+
+          {/* <div className="fixed top-6 right-6 z-[9999] pointer-events-none flex justify-end">
+            <StatusCapsule
+              message={reviewStatus}
+              type={reviewStatus?.type || 'success'}
+            />
+          </div> */}
+        </>,
         document.body
       )}
 
@@ -229,12 +311,6 @@ export default function ReviewScreen({ onBackToHome }) {
                     </button>
                     <span className="text-[10px] font-bold tracking-widest font-mono text-zinc-400 uppercase block">Verified Answer</span>
                   </div>
-                  {/* <span className={`text-[9px] px-2.5 py-0.5 rounded-lg font-medium border tracking-wide font-mono uppercase ${activeCard?.difficulty === 'HARD' ? 'bg-red-500/5 text-red-400/90 border-red-500/10' :
-                      activeCard?.difficulty === 'MEDIUM' ? 'bg-amber-500/5 text-amber-400/90 border-amber-500/10' :
-                        'bg-emerald-500/5 text-emerald-400/90 border-emerald-500/10'
-                    }`}>
-                    {activeCard?.difficulty || 'NORMAL'}
-                  </span> */}
                 </div>
 
                 {/* Premium Calm Answer Block (Optimized Typography Structure) */}
@@ -272,7 +348,7 @@ export default function ReviewScreen({ onBackToHome }) {
                     {/* AGAIN BUTTON */}
                     <button
                       disabled={submittingRating || isExiting}
-                      onClick={() => handleRateCard('AGAIN')}
+                      onClick={(e) => handleRateCard('AGAIN', e)}
                       className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-red-900/40 text-zinc-500 hover:text-red-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
                       <ShieldAlert size={13} className="text-red-500/50 hover:text-red-500" />
@@ -285,7 +361,7 @@ export default function ReviewScreen({ onBackToHome }) {
                     {/* HARD BUTTON */}
                     <button
                       disabled={submittingRating || isExiting}
-                      onClick={() => handleRateCard('HARD')}
+                      onClick={(e) => handleRateCard('HARD', e)}
                       className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-orange-900/40 text-zinc-500 hover:text-orange-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
                       <Frown size={13} className="text-orange-500/50 hover:text-orange-500" />
@@ -298,7 +374,7 @@ export default function ReviewScreen({ onBackToHome }) {
                     {/* GOOD BUTTON */}
                     <button
                       disabled={submittingRating || isExiting}
-                      onClick={() => handleRateCard('GOOD')}
+                      onClick={(e) => handleRateCard('GOOD', e)}
                       className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-blue-900/40 text-zinc-500 hover:text-blue-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
                       <Smile size={13} className="text-blue-500/50 hover:text-blue-500" />
@@ -311,7 +387,7 @@ export default function ReviewScreen({ onBackToHome }) {
                     {/* EASY BUTTON */}
                     <button
                       disabled={submittingRating || isExiting}
-                      onClick={() => handleRateCard('EASY')}
+                      onClick={(e) => handleRateCard('EASY', e)}
                       className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-emerald-900/40 text-zinc-400 hover:text-emerald-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
                       <CheckCircle2 size={13} className="text-emerald-500/50 hover:text-emerald-500" />
