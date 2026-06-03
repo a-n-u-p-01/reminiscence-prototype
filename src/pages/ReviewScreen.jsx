@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Eye, CheckCircle2, ShieldAlert, Smile, Frown, Layers, ArrowLeft } from 'lucide-react';
+import { Eye, CheckCircle2, ShieldAlert, Smile, Frown, Layers, ArrowLeft, X, HelpCircle } from 'lucide-react';
 import { noteService } from '../api/noteService';
 import { useReviewEngine } from '../context/ReviewContext';
 import StatusCapsule from '../components/StatusCapsule';
@@ -16,6 +16,7 @@ export default function ReviewScreen({ onBackToHome }) {
   const [submittingRating, setSubmittingRating] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
+  const [showFSRSModal, setShowFSRSModal] = useState(false);
 
   // Local state to manage the rating capsule notifications
   const [reviewStatus, setReviewStatus] = useState(null);
@@ -104,19 +105,18 @@ export default function ReviewScreen({ onBackToHome }) {
   const handleRateCard = async (rating, e) => {
     if (submittingRating || isExiting) return;
 
-    // Premium Color Matrix Injection (Pure Dopamine Color Profiles)
     if (e && e.clientX && e.clientY) {
-      let coreColor = '#3b82f6'; // Good / Blue
+      let coreColor = '#3b82f6'; 
       let glowColor = 'rgba(59, 130, 246, 0.45)';
       
       if (rating === "AGAIN") {
-        coreColor = '#ef4444'; // Red
+        coreColor = '#ef4444'; 
         glowColor = 'rgba(239, 68, 68, 0.5)';
       } else if (rating === "HARD") {
-        coreColor = '#f97316'; // Orange
+        coreColor = '#f97316'; 
         glowColor = 'rgba(249, 115, 22, 0.5)';
       } else if (rating === "EASY") {
-        coreColor = '#10b981'; // Emerald Sparkle
+        coreColor = '#10b981'; 
         glowColor = 'rgba(16, 185, 129, 0.6)';
       }
 
@@ -154,7 +154,6 @@ export default function ReviewScreen({ onBackToHome }) {
       await noteService.submitReviewFeedback(activeCard.userConceptId, rating);
       setIsExiting(true);
 
-      // 1. Snappy card transition
       setTimeout(() => {
         handleCardReviewed(activeCard.userConceptId);
         setShowAnswer(false);
@@ -162,7 +161,6 @@ export default function ReviewScreen({ onBackToHome }) {
         setRewardTrack(prev => ({ ...prev, active: false }));
       }, 250);
 
-      // 2. Longer capsule visibility
       setTimeout(() => {
         setReviewStatus(null);
       }, 2000);
@@ -178,10 +176,8 @@ export default function ReviewScreen({ onBackToHome }) {
 
   return (
     <>
-      {/* PERSISTENT PORTAL: We always render the Portal. StatusCapsule handles its own visibility. */}
       {typeof document !== 'undefined' && createPortal(
         <>
-          {/* Kinetic Dopamine Particle Styles */}
           <style>{`
             @keyframes shockwave-halo {
               0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; filter: blur(0px); border-width: 3px; }
@@ -208,19 +204,15 @@ export default function ReviewScreen({ onBackToHome }) {
             .dp-8 { animation: particle-blast-8 540ms cubic-bezier(0.1, 0.8, 0.25, 1) forwards; }
           `}</style>
 
-          {/* High Impact Particle Canvas */}
           {rewardTrack.active && (
             <div 
               className="fixed pointer-events-none z-[10000]"
               style={{ left: rewardTrack.x, top: rewardTrack.y }}
             >
-              {/* Expanding chromatic halo ring */}
               <div 
                 className="dopamine-halo absolute w-12 h-12 rounded-full border-4" 
                 style={{ borderColor: rewardTrack.color, boxShadow: `0 0 16px ${rewardTrack.glow}` }}
               />
-              
-              {/* Kinetic Diamond & Circular Shrapnel Elements */}
               <div className="dp-1 absolute w-2.5 h-2.5 bg-white rounded-sm rotate-45" style={{ boxShadow: `0 0 8px ${rewardTrack.color}` }} />
               <div className="dp-2 absolute w-2 h-2 rounded-full" style={{ backgroundColor: rewardTrack.color }} />
               <div className="dp-3 absolute w-3 h-1.5 rounded-full" style={{ backgroundColor: rewardTrack.color }} />
@@ -232,12 +224,69 @@ export default function ReviewScreen({ onBackToHome }) {
             </div>
           )}
 
-          {/* <div className="fixed top-6 right-6 z-[9999] pointer-events-none flex justify-end">
-            <StatusCapsule
-              message={reviewStatus}
-              type={reviewStatus?.type || 'success'}
-            />
-          </div> */}
+          {/* FSRS Calibration Guidance Modal */}
+          {showFSRSModal && (
+            <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 ease-out duration-200">
+                <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle size={15} className="text-blue-400" />
+                    <h3 className="text-xs font-semibold text-zinc-200 font-mono tracking-wide uppercase">How to rate your recall</h3>
+                  </div>
+                  <button 
+                    onClick={() => setShowFSRSModal(false)}
+                    className="p-1 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-all"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+                
+                <div className="p-4 space-y-3.5 text-xs">
+                  <p className="text-zinc-400 leading-relaxed">
+                    Be honest with yourself! Pick the option that matches how hard your brain had to work to find the answer:
+                  </p>
+
+                  <div className="space-y-2.5">
+                    <div className="flex gap-3 items-start bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-800/40">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="font-semibold text-zinc-200">Blank (Again): </span>
+                        <span className="text-zinc-400">You completely forgot, drew a blank, or got it wrong. This card will show up again very soon.</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 items-start bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-800/40">
+                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="font-semibold text-zinc-200">Barely (Hard): </span>
+                        <span className="text-zinc-400">You remembered it, but it took serious effort, hesitation, or a long pause. You'll see it a bit sooner.</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 items-start bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-800/40">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="font-semibold text-zinc-200">Right (Good): </span>
+                        <span className="text-zinc-400">Normal, successful recall. You remembered it with just a brief thought. This is the sweet spot.</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 items-start bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-800/40">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="font-semibold text-zinc-200">Too Easy: </span>
+                        <span className="text-zinc-400">Instant pop in your head with zero effort. The system pushes this card far into the future.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-zinc-500 bg-zinc-950/40 p-2 rounded-lg text-center font-mono border border-zinc-800/30">
+                    Rule of thumb: When in doubt, click "Right".
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </>,
         document.body
       )}
@@ -304,14 +353,26 @@ export default function ReviewScreen({ onBackToHome }) {
             >
               <div className="space-y-5 flex-1">
                 {/* Meta Header */}
-                <div className="flex justify-between items-center bg-zinc-950/20 border border-zinc-900/60 p-2 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <button onClick={handleReturnToQuestion} className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors">
-                      <ArrowLeft size={14} />
-                    </button>
-                    <span className="text-[10px] font-bold tracking-widest font-mono text-zinc-400 uppercase block">Verified Answer</span>
-                  </div>
-                </div>
+               <div className="flex justify-between items-center bg-zinc-950/20 border border-zinc-900/60 p-2 rounded-xl">
+  <div className="flex items-center gap-2">
+    <button
+      onClick={handleReturnToQuestion}
+      className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+    >
+      <ArrowLeft size={14} />
+    </button>
+
+    <span className="text-[10px] font-bold tracking-widest font-mono text-zinc-400 uppercase block">
+      Verified Answer
+    </span>
+  </div>
+
+  <HelpCircle
+    onClick={() => setShowFSRSModal(true)}
+    size={10}
+    className="text-zinc-500 stroke-[2.5]"
+  />
+</div>
 
                 {/* Premium Calm Answer Block (Optimized Typography Structure) */}
                 <div className="pt-2 px-1 min-h-[100px]">
@@ -337,9 +398,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     <span className="text-[10px] font-semibold font-mono text-zinc-500 uppercase tracking-wider block">
                       Rate Recall & Adjust Intervals
                     </span>
-                    <span className="text-[9px] font-mono text-zinc-600 bg-zinc-900/40 px-1.5 py-0.5 rounded border border-zinc-800/50">
-                      FSRS Engine v5.0
-                    </span>
+                    <button 
+                      className="text-[9px] font-mono text-zinc-400 hover:text-zinc-200 bg-zinc-900/60 hover:bg-zinc-800/80 px-2 py-0.5 rounded border border-zinc-800/80 transition-all duration-150 flex items-center gap-1 active:scale-[0.98]"
+                    >
+                      <span>FSRS Engine v5.0</span>
+                    </button>
                   </div>
 
                   {/* Premium balanced 4-column custom response engine matrix */}
