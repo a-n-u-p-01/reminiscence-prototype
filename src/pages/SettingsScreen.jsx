@@ -155,12 +155,7 @@ export default function SettingsScreen() {
   }
 
   // Dynamic Typography Scale Map
-  const fontMatrix = {
-    sm: { root: 'text-sm', label: 'text-xs', desc: 'text-[11px]', title: 'text-base' },
-    base: { root: 'text-sm', label: 'text-xs', desc: 'text-[11px]', title: 'text-base' },
-    lg: { root: 'text-sm', label: 'text-xs', desc: 'text-[11px]', title: 'text-base' },
-    xl: { root: 'text-sm', label: 'text-xs', desc: 'text-[11px]', title: 'text-base' }
-  };
+ 
 
   const algoMetadata = {
     fsrs: {
@@ -177,17 +172,16 @@ export default function SettingsScreen() {
     }
   };
 
-  const f = fontMatrix[draftTextScale] || fontMatrix.base;
   const activeAlgoInfo = algoMetadata[draftAlgoEngine] || algoMetadata.fsrs;
 
   return (
-    <div className={`text-zinc-100 pb-20 space-y-6 transition-all duration-150 ease-in-out ${f.root} animate-[fadeIn_0.2s_ease-out]`}>
+    <div className={`text-zinc-100 pb-20 space-y-6 transition-all duration-150 ease-in-out text-s3 animate-[fadeIn_0.2s_ease-out]`}>
 
       {/* Structural Header */}
       <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px]">
         <div className="flex items-center gap-2">
           <Settings size={16} className="text-blue-500 shrink-0" />
-          <h1 className={`font-semibold tracking-tight text-zinc-100 flex items-center ${f.title}`}>
+          <h1 className={`font-semibold tracking-tight text-zinc-100 flex items-center text-s4`}>
             System Settings
             {isDirty && (
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse ml-2" />
@@ -223,10 +217,10 @@ export default function SettingsScreen() {
             <User size={15} />
           </div>
           <div className="min-w-0">
-            <h3 className={`font-mono font-bold text-zinc-200 truncate ${f.label}`}>
+            <h3 className={`font-mono font-bold text-zinc-200 truncate text-s3`}>
               {user?.fullName || user?.name || 'Active Operator'}
             </h3>
-            <p className="text-[11px] text-zinc-500 font-mono truncate mt-0.5">
+            <p className="text-s2 text-zinc-500 font-mono truncate mt-0.5">
               {user?.email || 'node-session@system'}
             </p>
           </div>
@@ -235,7 +229,7 @@ export default function SettingsScreen() {
         <button
           onClick={handleAndroidLogout}
           disabled={isDisconnecting}
-          className={`flex items-center gap-2 border text-[10px] font-mono uppercase font-bold px-3 py-2 rounded-lg transition-all min-w-[105px] justify-center shrink-0 active:scale-[0.98] ${isDisconnecting
+          className={`flex items-center gap-2 border text-s1 font-mono uppercase font-bold px-3 py-2 rounded-lg transition-all min-w-[105px] justify-center shrink-0 active:scale-[0.98] ${isDisconnecting
               ? 'bg-red-950/20 border-red-900/30 text-red-400/80 opacity-90'
               : 'border-zinc-800 bg-zinc-950 hover:bg-red-950/20 hover:border-red-900/40 text-zinc-400 hover:text-red-400'
             }`}
@@ -256,7 +250,7 @@ export default function SettingsScreen() {
         <div className="space-y-2.5">
           <div className="px-0.5 flex items-center gap-2 text-zinc-400">
             <BrainCircuit size={13} className="text-blue-500/80" />
-            <h4 className="text-[10px] font-mono font-bold tracking-wider uppercase">Study Logic</h4>
+            <h4 className="text-s1 font-mono font-bold tracking-wider uppercase">Study Logic</h4>
           </div>
 
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl divide-y divide-zinc-800/40 overflow-visible">
@@ -265,8 +259,8 @@ export default function SettingsScreen() {
             <div className="p-4 space-y-3.5">
               <div className="flex items-start justify-between gap-6">
                 <div className="space-y-1 max-w-[400px]">
-                  <label className={`font-medium text-zinc-200 block ${f.label}`}>Calculation Engine</label>
-                  <p className={`text-zinc-500 leading-normal ${f.desc}`}>
+                  <label className={`font-medium text-zinc-200 block text-s3`}>Calculation Engine</label>
+                  <p className={`text-zinc-500 leading-normal text-s2`}>
                     Changes the underlying math formula system used to determine card intervals.
                   </p>
                 </div>
@@ -274,7 +268,7 @@ export default function SettingsScreen() {
                   disabled={true}
                   value={draftAlgoEngine}
                   onChange={(val) => markDirty(() => setDraftAlgoEngine(val))}
-                  sizeClass={f.label}
+                  sizeClass="text-s1"
                   options={[
                     { value: 'fsrs', label: 'Smart Balance' },
                     { value: 'sm2', label: 'Classic Interval' },
@@ -285,10 +279,10 @@ export default function SettingsScreen() {
 
               {/* Dynamic Info Explanation Panel */}
               <div key={draftAlgoEngine} className="bg-zinc-950/40 border border-zinc-800/50 rounded-lg p-3 space-y-1 animate-[fadeIn_0.15s_ease-out]">
-                <div className={`text-blue-400 font-mono font-bold tracking-tight ${f.label}`}>
+                <div className={`text-blue-400 font-mono font-bold tracking-tight text-s1`}>
                   {activeAlgoInfo.title}
                 </div>
-                <p className={`text-zinc-400 leading-normal ${f.desc}`}>
+                <p className={`text-zinc-400 leading-normal text-s2`}>
                   {activeAlgoInfo.desc}
                 </p>
               </div>
@@ -297,8 +291,8 @@ export default function SettingsScreen() {
             {/* Setting: Daily Cap */}
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
-                <label className={`font-medium text-zinc-200 block ${f.label}`}>Daily Queue Limit</label>
-                <p className={`text-zinc-500 leading-normal ${f.desc}`}>
+                <label className={`font-medium text-zinc-200 block text-s3`}>Daily Queue Limit</label>
+                <p className={`text-zinc-500 leading-normal text-s2`}>
                   Limits how many scheduled review cards you are allowed to see in a single day.
                 </p>
               </div>
@@ -306,7 +300,7 @@ export default function SettingsScreen() {
                 disabled={true}
                 value={draftReviewCap}
                 onChange={(val) => markDirty(() => setDraftReviewCap(val))}
-                sizeClass={f.label}
+                sizeClass="text-s1"
                 options={[
                   { value: 10, label: '10 Cards' },
                   { value: 25, label: '25 Cards' },
@@ -322,7 +316,7 @@ export default function SettingsScreen() {
         <div className="space-y-2.5">
           <div className="px-0.5 flex items-center gap-2 text-zinc-400">
             <Sliders size={13} className="text-blue-500/80" />
-            <h4 className="text-[10px] font-mono font-bold tracking-wider uppercase">Card Layout</h4>
+            <h4 className="text-s1 font-mono font-bold tracking-wider uppercase">Card Layout</h4>
           </div>
 
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl divide-y divide-zinc-800/40 overflow-visible">
@@ -330,8 +324,8 @@ export default function SettingsScreen() {
             {/* Setting: Card Orientation */}
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
-                <label className={`font-medium text-zinc-200 block ${f.label}`}>Default Card Side</label>
-                <p className={`text-zinc-500 leading-normal ${f.desc}`}>
+                <label className={`font-medium text-zinc-200 block text-s3`}>Default Card Side</label>
+                <p className={`text-zinc-500 leading-normal text-s2`}>
                   Controls whether a card defaults to showing the front question first or reverse answer layer first.
                 </p>
               </div>
@@ -339,7 +333,7 @@ export default function SettingsScreen() {
                 disabled={true}
                 value={draftDefaultSide}
                 onChange={(val) => markDirty(() => setDraftDefaultSide(val))}
-                sizeClass={f.label}
+                sizeClass="text-s1"
                 options={[
                   { value: 'front', label: 'Question First' },
                   { value: 'back', label: 'Answer First' }
@@ -350,8 +344,8 @@ export default function SettingsScreen() {
             {/* Setting: Auto-Reveal Timer */}
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
-                <label className={`font-medium text-zinc-200 block ${f.label}`}>Auto-Reveal Timer</label>
-                <p className={`text-zinc-500 leading-normal ${f.desc}`}>
+                <label className={`font-medium text-zinc-200 block text-s3`}>Auto-Reveal Timer</label>
+                <p className={`text-zinc-500 leading-normal text-s2`}>
                   Automatically flips to reveal the card answer after a certain number of seconds pass.
                 </p>
               </div>
@@ -359,7 +353,7 @@ export default function SettingsScreen() {
                 disabled={true}
                 value={draftAutoRevealTimer}
                 onChange={(val) => markDirty(() => setDraftAutoRevealTimer(val))}
-                sizeClass={f.label}
+                sizeClass="text-s1"
                 options={[
                   { value: 0, label: 'Off (Manual)' },
                   { value: 5, label: '5 Seconds' },
@@ -374,7 +368,7 @@ export default function SettingsScreen() {
         <div className="space-y-2.5">
           <div className="px-0.5 flex items-center gap-2 text-zinc-400">
             <Palette size={13} className="text-blue-500/80" />
-            <h4 className="text-[10px] font-mono font-bold tracking-wider uppercase">Display Settings</h4>
+            <h4 className="text-s1 font-mono font-bold tracking-wider uppercase">Display Settings</h4>
           </div>
 
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl divide-y divide-zinc-800/40 overflow-visible">
@@ -383,16 +377,16 @@ export default function SettingsScreen() {
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
                 <div className="flex items-center gap-1.5">
-                  <Type size={14} className="text-zinc-400 shrink-0" />
-                  <label className={`font-medium text-zinc-200 ${f.label}`}>Interface Text Size</label>
+                  {/* <Type size={14} className="text-zinc-400 shrink-0" /> */}
+                  <label className={`font-medium text-zinc-200 text-s3`}>Interface Text Size</label>
                 </div>
-                <p className={`text-zinc-500 leading-normal ${f.desc}`}>
+                <p className={`text-zinc-500 leading-normal text-s2`}>
                   Changes the overall sizing configuration of the interface text to scale readability up or down.
                 </p>
               </div>
 
               <div className="flex bg-zinc-950 border border-zinc-800 p-0.5 rounded-lg shrink-0 w-[140px]">
-                {['sm', 'base', 'lg', 'xl'].map((scale) => (
+                {['xs','sm', 'base', 'lg', 'xl'].map((scale) => (
                   <button
                     key={scale}
                     type="button"
@@ -414,8 +408,8 @@ export default function SettingsScreen() {
             {/* Setting: Theme Accent */}
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
-                <label className={`font-medium text-zinc-200 block ${f.label}`}>Color Theme</label>
-                <p className={`text-zinc-500 leading-normal ${f.desc}`}>
+                <label className={`font-medium text-zinc-200 block text-s3`}>Color Theme</label>
+                <p className={`text-zinc-500 leading-normal text-s2`}>
                   Alters the base color shading profile applied to your active application panel environment.
                 </p>
               </div>
@@ -425,7 +419,7 @@ export default function SettingsScreen() {
                   setThemeTransient(val);
                   setDraftTheme(val);
                 })}
-                sizeClass={f.label}
+                sizeClass="text-s1"
                 
                 openUpwards={true}
                 options={[

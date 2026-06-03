@@ -44,10 +44,10 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
       {/* Header Blocks */}
       <div className="border-b border-theme pb-5 transition-all duration-300">
-        <h1 className="text-base font-semibold tracking-tight text-theme-primary transition-opacity duration-200">
+        <h1 className="text-s6 font-semibold tracking-tight text-theme-primary transition-opacity duration-200">
           {showDashboardMode ? 'Workspace Dashboard' : 'Knowledge Logging'}
         </h1>
-        <p className="text-xs text-theme-muted font-sans tracking-wide mt-1 transition-opacity duration-200">
+        <p className="text-s2 text-theme-muted font-sans tracking-wide mt-1 transition-opacity duration-200">
           {showDashboardMode
             ? 'Knowledge baseline status update.'
             : 'Convert natural language daily logs into review anchors.'}
@@ -71,17 +71,17 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
             </div>
 
             <div className="space-y-1.5">
-              <h2 className="text-[14px] font-medium tracking-tight text-theme-primary">
+              <h2 className="text-s6 font-medium tracking-tight text-theme-primary">
                 {pendingCount} Revisions Pending
               </h2>
-              <p className="text-xs text-theme-muted font-sans tracking-wide max-w-xs mx-auto leading-relaxed">
+              <p className="text-s2 text-theme-muted font-sans tracking-wide max-w-xs mx-auto leading-relaxed">
                 Review your knowledge anchors today to lock them into long-term memory.
               </p>
             </div>
 
             <button
               onClick={onNavigateToReview}
-              className="w-full bg-theme-accent hover:opacity-90 text-theme-card font-medium text-xs py-3 px-4 rounded-xl active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm transition-all duration-200"
+              className="w-full bg-theme-accent hover:opacity-90 text-theme-card font-medium text-s2 py-3 px-4 rounded-xl active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm transition-all duration-200"
             >
               <BookOpen size={13} className="opacity-90" />
               <span>Start Revision</span>
@@ -95,7 +95,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 setStatusMessage(null);
                 setForceShowInput(true);
               }}
-              className="text-[11px] font-mono text-theme-muted hover:text-theme-accent transition-colors flex items-center justify-center gap-1.5 mx-auto tracking-wide py-1 px-3 rounded-lg hover:bg-theme-card/30"
+              className="text-s2 font-mono text-theme-muted hover:text-theme-accent transition-colors flex items-center justify-center gap-1.5 mx-auto tracking-wide py-1 px-3 rounded-lg hover:bg-theme-card/30"
             >
               <Plus size={12} />
               <span>Log today's new note anyway</span>
@@ -114,7 +114,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
             <form onSubmit={handleSave} className="space-y-4">
               <div className="bg-theme-card border border-theme rounded-2xl p-5 focus-within:border-theme transition-colors relative select-text shadow-sm">
                 <div className="flex justify-between items-center mb-3 select-none">
-                  <label className="block text-[10px] font-mono tracking-wider text-theme-muted uppercase">
+                  <label className="block text-s1 font-mono tracking-wider text-theme-muted uppercase">
                     Input Workspace Note
                   </label>
 
@@ -122,7 +122,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                     <button
                       type="button"
                       onClick={() => setIsEditing(true)}
-                      className="text-[10px] text-theme-secondary hover:text-theme-primary font-medium font-mono flex items-center gap-1 transition-colors px-2 py-0.5 rounded-lg bg-theme border border-theme active:scale-[0.97]"
+                      className="text-s1 text-theme-secondary hover:text-theme-primary font-medium font-mono flex items-center gap-1 transition-colors px-2 py-0.5 rounded-lg bg-theme border border-theme active:scale-[0.97]"
                     >
                       <Edit2 size={10} />
                     </button>
@@ -140,7 +140,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   autoComplete="on"
                   autoCorrect="on"
                   spellCheck={true}
-                  className="w-full bg-transparent text-[14px] text-theme-primary placeholder-theme-muted/50 resize-none focus:outline-none leading-relaxed tracking-wide disabled:opacity-50 select-text font-sans"
+                  className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/50 resize-none focus:outline-none leading-relaxed tracking-wide disabled:opacity-50 select-text font-sans"
                 />
               </div>
 
@@ -148,7 +148,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
               <button
                 type="submit"
                 disabled={isInputDisabled || !hasUnsavedChanges}
-                className={`w-full border border-theme text-theme-secondary hover:text-theme-primary font-medium text-xs py-3 rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm ${loading
+                className={`w-full border border-theme text-theme-secondary hover:text-theme-primary font-medium text-s2 py-3 rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm ${loading
                   ? 'ai-loading-btn border-theme-accent/20 text-theme-accent'
                   : 'bg-theme-card hover:bg-theme'
                   }`}
@@ -183,25 +183,25 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
           {/* Timeline Flow Container */}
           <div className="bg-theme-card border border-theme rounded-2xl p-5 space-y-5 shadow-inner transition-all duration-300">
             <div className="flex items-center justify-between border-b border-theme pb-3">
-              <span className="text-xs font-mono tracking-wider uppercase text-theme-secondary flex items-center gap-2">
+              <span className="text-s2 font-mono tracking-wider uppercase text-theme-secondary flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-theme-accent" />
                 Active Memory Engine
               </span>
-              <span className="text-xs text-theme-muted font-mono tracking-wide">How it works</span>
+              <span className="text-s1 text-theme-muted font-mono tracking-wide">How it works</span>
             </div>
 
             <div className="relative pl-2 space-y-5 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-theme">
               {/* Step 1 */}
               <div className="relative flex items-start gap-4">
-                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-xs font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
+                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-s3 font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   1
                 </div>
                 <div className="pl-9 space-y-0.5">
-                  <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
+                  <h4 className="text-s3 font-medium text-theme-primary flex items-center gap-1.5">
                     <Brain size={12} className="text-theme-muted" />
                     <span>Log Your Study</span>
                   </h4>
-                  <p className="text-xs font-sans text-theme-muted leading-relaxed tracking-wide">
+                  <p className="text-s2 font-sans text-theme-muted leading-relaxed tracking-wide">
                     Write down what you learned today in your own words. It only takes two minutes, and our engine instantly finds the key topics.
                   </p>
                 </div>
@@ -209,15 +209,15 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
               {/* Step 2 */}
               <div className="relative flex items-start gap-4">
-                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-xs font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
+                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-s3 font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   2
                 </div>
                 <div className="pl-9 space-y-0.5">
-                  <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
+                  <h4 className="text-s3 font-medium text-theme-primary flex items-center gap-1.5">
                     <Target size={12} className="text-theme-muted" />
                     <span>Auto-Create Cards</span>
                   </h4>
-                  <p className="text-xs font-sans text-theme-muted leading-relaxed tracking-wide">
+                  <p className="text-s2 font-sans text-theme-muted leading-relaxed tracking-wide">
                     The engine automatically turns those topics into clear concepts and generates smart flashcards for your review.
                   </p>
                 </div>
@@ -225,15 +225,15 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
               {/* Step 3 */}
               <div className="relative flex items-start gap-4">
-                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-xs font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
+                <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-s3 font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   3
                 </div>
                 <div className="pl-9 space-y-0.5">
-                  <h4 className="text-xs font-medium text-theme-primary flex items-center gap-1.5">
+                  <h4 className="text-s3 font-medium text-theme-primary flex items-center gap-1.5">
                     <CalendarDays size={12} className="text-theme-muted" />
                     <span>Lock Into Memory</span>
                   </h4>
-                  <p className="text-xs font-sans text-theme-muted leading-relaxed tracking-wide">
+                  <p className="text-s2 font-sans text-theme-muted leading-relaxed tracking-wide">
                     The system will push your review right before you forget it, locking the knowledge into your long-term memory.
                   </p>
                 </div>

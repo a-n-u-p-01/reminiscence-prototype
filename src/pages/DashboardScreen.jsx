@@ -257,15 +257,15 @@ export default function DashboardScreen() {
   }, [saveStatus, isSaveActiveAndValid]);
 
   return (
-    <div className="space-y-6 animate-[fadeIn_0.15s_ease-out] pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out pt-4">
+    <div className="space-y-6 animate-[fadeIn_0.15s_ease-out] pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out">
 
       {/* Visual Header */}
       <div className="border-b border-theme pb-4">
-        <h1 className="text-xl font-bold tracking-tight text-theme-primary flex items-center gap-2">
+        <h1 className="text-s6 font-semibold tracking-tight text-theme-primary flex items-center gap-2">
           <Activity size={18} className="text-blue-500 shrink-0" />
           <span>Retention Engine Dashboard</span>
         </h1>
-        <p className="text-xs text-theme-secondary mt-0.5">Your daily knowledge streaks, stats, and pending reviews at a glance.</p>
+        <p className="text-s2 text-theme-secondary mt-0.5">Your daily knowledge streaks, stats, and pending reviews at a glance.</p>
       </div>
 
       {/* Grid Stats */}
@@ -273,46 +273,46 @@ export default function DashboardScreen() {
         <div className="bg-theme-card border border-theme rounded-xl p-4 flex flex-col justify-between h-24 transition-all hover:scale-[1.01]">
           <div className="flex items-center gap-2 text-theme-secondary">
             <Flame size={15} className="text-blue-500 shrink-0" />
-            <span className="text-[10px] font-bold tracking-widest uppercase font-mono truncate">Streak</span>
+            <span className="text-s1 font-bold tracking-widest uppercase font-mono truncate">Streak</span>
           </div>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl font-bold font-mono text-theme-primary">{metrics.currentStreak}</span>
-            <span className="text-[10px] font-medium text-theme-muted uppercase">days</span>
+            <span className="text-s7 font-bold font-mono text-theme-primary">{metrics.currentStreak}</span>
+            <span className="text-s1 font-medium text-theme-muted uppercase">days</span>
           </div>
         </div>
 
         <div className="bg-theme-card border border-theme rounded-xl p-4 flex flex-col justify-between h-24 transition-all hover:scale-[1.01]">
           <div className="flex items-center gap-2 text-theme-secondary">
             <Layers size={15} className="text-blue-400 shrink-0" />
-            <span className="text-[10px] font-bold tracking-widest uppercase font-mono truncate">Concepts</span>
+            <span className="text-s1 font-bold tracking-widest uppercase font-mono truncate">Concepts</span>
           </div>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl font-bold font-mono text-theme-primary">{metrics.totalConceptsCount}</span>
-            <span className="text-[10px] font-medium text-theme-muted uppercase">items</span>
+            <span className="text-s7 font-bold font-mono text-theme-primary">{metrics.totalConceptsCount}</span>
+            <span className="text-s1 font-medium text-theme-muted uppercase">items</span>
           </div>
         </div>
 
         <div className="bg-theme-card border border-theme rounded-xl p-4 flex flex-col justify-between h-24 transition-all hover:scale-[1.01]">
           <div className="flex items-center gap-2 text-theme-secondary">
             <Trophy size={15} className="text-emerald-400 shrink-0" />
-            <span className="text-[10px] font-bold tracking-widest uppercase font-mono truncate">Mastery</span>
+            <span className="text-s1 font-bold tracking-widest uppercase font-mono truncate">Mastery</span>
           </div>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl font-bold font-mono text-theme-primary">{metrics.averageMasteryScore}</span>
-            <span className="text-[10px] font-medium text-theme-muted">%</span>
+            <span className="text-s7 font-bold font-mono text-theme-primary">{metrics.averageMasteryScore}</span>
+            <span className="text-s1 font-medium text-theme-muted">%</span>
           </div>
         </div>
       </div>
 
       {/* Engineering Map Grid Wrapper */}
       <div className="bg-theme-card border border-theme rounded-xl p-4 space-y-3 shadow-inner">
-        <div className="flex justify-between items-center text-[10px] font-mono tracking-wider text-theme-secondary">
+        <div className="flex justify-between items-center text-s1 font-mono tracking-wider text-theme-secondary">
           <span className="flex items-center gap-1.5">
             <Calendar size={12} className="text-theme-muted" />
             365-Day Engineering Log Matrix
           </span>
           {isLoadingHeatmap && (
-            <span className="flex items-center gap-1 text-[9px] text-blue-400 font-mono transition-opacity">
+            <span className="flex items-center gap-1 text-s1 text-blue-400 font-mono transition-opacity">
               <Loader2 size={10} className="animate-spin" /> Syncing Matrix...
             </span>
           )}
@@ -364,7 +364,7 @@ export default function DashboardScreen() {
                     {monthLabels.map(({ index, label }) => (
                       <span
                         key={index}
-                        className="absolute text-[9px] text-theme-secondary font-medium whitespace-nowrap select-none transition-all"
+                        className="absolute text-s1 text-theme-secondary font-medium whitespace-nowrap select-none transition-all"
                         style={{ left: `${index * 12}px` }}
                       >
                         {label}
@@ -402,7 +402,7 @@ export default function DashboardScreen() {
           </div>
         </div>
 
-        <div className="flex justify-end items-center gap-1.5 pt-1 text-[9px] font-mono text-theme-muted select-none">
+        <div className="flex justify-end items-center gap-1.5 pt-1 text-s1 font-mono text-theme-muted select-none">
           <span>Less Logs</span>
           <div className="w-2.5 h-2.5 rounded-[1px] bg-zinc-900/40 border border-zinc-950" />
           <div className="w-2.5 h-2.5 rounded-[1px] bg-blue-950/40 border border-blue-900/30" />
@@ -415,18 +415,18 @@ export default function DashboardScreen() {
 
       {/* Forecast Block */}
       <div className="bg-zinc-900/10 border border-theme rounded-xl p-3.5 space-y-2.5">
-        <h4 className="text-[10px] font-mono font-bold tracking-wider text-theme-secondary uppercase flex items-center gap-1.5">
+        <h4 className="text-s1 font-mono font-bold tracking-wider text-theme-secondary uppercase flex items-center gap-1.5">
           <Eye size={12} className="text-theme-muted" />
           Pipeline Schedule Forecast
         </h4>
         <div className="grid grid-cols-2 gap-4 text-center">
           <div className="border-r border-zinc-900/60 py-1">
-            <span className="block text-[9px] font-mono text-theme-muted uppercase">Revisions Due Tomorrow</span>
-            <span className="text-sm font-bold text-blue-400 font-mono">+{metrics.dueTomorrowCount} Items</span>
+            <span className="block text-s1 font-mono text-theme-muted uppercase">Revisions Due Tomorrow</span>
+            <span className="text-s3 font-bold text-blue-400 font-mono">+{metrics.dueTomorrowCount} Items</span>
           </div>
           <div className="py-1">
-            <span className="block text-[9px] font-mono text-theme-muted uppercase">Scheduled This Week</span>
-            <span className="text-sm font-bold text-zinc-300 font-mono">{metrics.dueNextWeekCount} Total</span>
+            <span className="block text-s1 font-mono text-theme-muted uppercase">Scheduled This Week</span>
+            <span className="text-s3 font-bold text-zinc-300 font-mono">{metrics.dueNextWeekCount} Total</span>
           </div>
         </div>
       </div>
@@ -441,7 +441,7 @@ export default function DashboardScreen() {
             <ChevronLeft size={16} />
           </button>
 
-          <h3 className="text-xs font-bold tracking-wider font-mono text-zinc-200 uppercase flex items-center gap-2">
+          <h3 className="text-s2 font-bold tracking-wider font-mono text-zinc-200 uppercase flex items-center gap-2">
             {isLoadingActivity && <Loader2 size={10} className="animate-spin text-theme-muted" />}
             {formatDisplayDate(selectedDate)}
           </h3>
@@ -463,29 +463,29 @@ export default function DashboardScreen() {
                 <div className="flex justify-between items-center border-b border-theme pb-2">
                   <div className="flex items-center gap-2 text-emerald-400">
                     <Terminal size={14} />
-                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Daily Saved Input</span>
+                    <span className="text-s2 font-mono font-bold uppercase tracking-wider">Daily Saved Input</span>
                   </div>
-                  <span className="text-[9px] font-mono font-semibold uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 shadow-sm">
+                  <span className="text-s1 font-mono font-semibold uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 shadow-sm">
                     Active Raw Log
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">Input Text Saved:</span>
-                  <p className="text-xs text-zinc-300 leading-relaxed bg-zinc-950/50 p-2.5 rounded-lg border border-zinc-900/80 italic select-text">
+                  <span className="block text-s1 uppercase tracking-wider font-mono text-theme-muted">Input Text Saved:</span>
+                  <p className="text-s2 text-zinc-300 leading-relaxed bg-zinc-950/50 p-2.5 rounded-lg border border-zinc-900/80 select-text">
                     "{activeDayDetails.dailyLog.rawInput}"
                   </p>
                 </div>
                 <div className="flex items-center gap-3 bg-zinc-900/60 p-2 rounded-lg border border-zinc-800/40">
-                  <div className="flex items-center gap-1.5 text-theme-secondary text-[10px] font-mono uppercase tracking-wide">
+                  <div className="flex items-center gap-1.5 text-theme-secondary text-s2 font-mono uppercase tracking-wide">
                     <Cpu size={12} className="text-blue-400" />
                     Status:
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-200 font-medium">{activeDayDetails.dailyLog.status}</span>
+                  <span className="text-s1 font-mono text-zinc-200 font-medium">{activeDayDetails.dailyLog.status}</span>
                 </div>
 
                 {/* Concept Interactive Workspace */}
                 <div className="space-y-3 pt-1">
-                  <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
+                  <span className="block text-s1 uppercase tracking-wider font-mono text-theme-muted">
                     Topics Extracted:
                   </span>
 
@@ -496,13 +496,13 @@ export default function DashboardScreen() {
                         activeDayDetails.dailyLog.extractedTopics.map((topic, index) => (
                           <div
                             key={index}
-                            className="text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 px-2.5 py-1 rounded-md shadow-sm select-text transition-all hover:border-blue-700/50 hover:bg-blue-900/30"
+                            className="text-s1 font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 px-2.5 py-1 rounded-md shadow-sm select-text transition-all hover:border-blue-700/50 hover:bg-blue-900/30"
                           >
                             {topic}
                           </div>
                         ))
                       ) : (
-                        <span className="text-[10px] text-theme-muted font-mono italic self-center">
+                        <span className="text-s1 text-theme-muted font-mono italic self-center">
                           No structural study topics mapped on this date.
                         </span>
                       )}
@@ -523,7 +523,7 @@ export default function DashboardScreen() {
                               key={index}
                               // CHANGE THIS:
                               onMouseDown={(e) => { e.preventDefault(); handleRemoveTopic(topic); }}
-                              className="flex items-center gap-1.5 text-[10px] font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                              className="flex items-center gap-1.5 text-s1 font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
                               title={`Remove ${topic}`}
                             >
                               <span>{topic}</span>
@@ -533,7 +533,7 @@ export default function DashboardScreen() {
                             </button>
                           ))
                         ) : (
-                          <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
+                          <span className="text-s1 text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
                             No structural study topics mapped yet.
                           </span>
                         )}
@@ -541,7 +541,7 @@ export default function DashboardScreen() {
 
                       {/* Excluded/Deleted Topics Section */}
                       <div className="space-y-2 pt-1 border-t border-zinc-900/40">
-                        <span className="block text-[9px] uppercase tracking-wider font-mono text-theme-muted">
+                        <span className="block text-s1 uppercase tracking-wider font-mono text-theme-muted">
                           Topics Excluded:
                         </span>
                         <div
@@ -557,7 +557,7 @@ export default function DashboardScreen() {
                                 key={index}
                                 // Updated to onMouseDown to preserve input focus
                                 onMouseDown={(e) => { e.preventDefault(); handleRestoreTopic(topic); }}
-                                className="flex items-center gap-1.5 text-[10px] font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                                className="flex items-center gap-1.5 text-s1 font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
                                 title={`Restore ${topic}`}
                               >
                                 <span>{topic}</span>
@@ -567,7 +567,7 @@ export default function DashboardScreen() {
                               </button>
                             ))
                           ) : (
-                            <span className="text-[10px] text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
+                            <span className="text-s1 text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
                               No excluded study nodes.
                             </span>
                           )}
@@ -587,7 +587,7 @@ export default function DashboardScreen() {
                             value={newTopicInput}
                             onChange={(e) => setNewTopicInput(e.target.value)}
                             placeholder="Add revision node..."
-                            className="w-full text-[10px] font-mono bg-zinc-950 border border-theme rounded-md px-2 py-1 text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all select-text"
+                            className="w-full text-s1 font-mono bg-zinc-950 border border-theme rounded-md px-2 py-1 text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all select-text"
                           />
                           <button
                             type="submit"
@@ -602,7 +602,7 @@ export default function DashboardScreen() {
                           type="button"
                           onClick={(e) => { e.preventDefault(); handleSaveChanges(); }}
                           disabled={!isSaveActiveAndValid}
-                          className={`flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border transition-all duration-200 shrink-0 select-none ${saveButtonConfig.style}`}
+                          className={`flex items-center gap-1.5 text-s1 font-mono font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border transition-all duration-200 shrink-0 select-none ${saveButtonConfig.style}`}
                         >
                           {saveButtonConfig.icon}
                           <span>{saveButtonConfig.text}</span>
@@ -617,7 +617,7 @@ export default function DashboardScreen() {
             {activeDayDetails.revisionLogs.length > 0 && (
               <div className="flex items-center gap-2 px-1 pt-2">
                 <div className="h-1.5 w-full bg-blue-500 max-w-[6px] rounded-full" />
-                <h3 className="text-[11px] font-semibold tracking-wide uppercase text-theme-muted">Concepts Revised</h3>
+                <h3 className="text-s2 font-semibold tracking-wide uppercase text-theme-muted">Concepts Revised</h3>
               </div>
             )}
 
@@ -630,14 +630,14 @@ export default function DashboardScreen() {
     <div key={index} className="bg-theme-card border border-theme rounded-2xl px-4 py-3.5 space-y-3 shadow-sm hover:scale-[1.005] transition-all">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h4 className="text-sm font-medium text-theme-primary leading-snug">{rev.conceptName}</h4>
-          <div className="flex items-center gap-2 mt-1 text-[10px] text-theme-muted">
+          <h4 className="text-s2 font-medium text-theme-primary leading-snug">{rev.conceptName}</h4>
+          <div className="flex items-center gap-2 mt-1 text-s1 text-theme-muted">
             <span>{memoryAge}d active</span>
             <span className="text-zinc-700">•</span>
             <span>{rev.reviewCount}x</span>
           </div>
         </div>
-        <div className={`shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full ${isMastered ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
+        <div className={`shrink-0 text-s1 font-semibold px-2 py-1 rounded-full ${isMastered ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
           {mastery}%
         </div>
       </div>
@@ -647,7 +647,7 @@ export default function DashboardScreen() {
           <div className={`h-full rounded-full transition-all duration-700 ${isMastered ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${mastery}%` }} />
         </div>
         <div className="flex justify-end">
-          <span className="text-[10px] text-theme-muted">
+          <span className="text-s1 text-theme-muted">
             Next review: {new Date(rev.nextReviewDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </span>
         </div>
@@ -658,7 +658,7 @@ export default function DashboardScreen() {
           </div>
         ) : (
           <div className="text-center py-12 border border-dashed border-theme rounded-xl bg-theme-card transition-all">
-            <p className="text-xs text-theme-muted font-mono">No raw data input logs or revisions recorded on this calendar matrix coordinate.</p>
+            <p className="text-s1 text-theme-muted font-mono">No raw data input logs or revisions recorded on this calendar matrix coordinate.</p>
           </div>
         )}
       </div>

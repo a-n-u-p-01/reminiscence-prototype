@@ -12,6 +12,16 @@
   --app-primary: #1A73E8;
 }
 
+
+.text-s1 { font-size: var(--s1); }
+.text-s2 { font-size: var(--s2); }
+.text-s3 { font-size: var(--s3); }
+.text-s4 { font-size: var(--s4); }
+.text-s5 { font-size: var(--s5); }
+.text-s6 { font-size: var(--s6); }
+.text-s7 { font-size: var(--s7); }
+
+
 /* =========================
    GLOBAL RESET (NATIVE MOBILE FOCUS)
 ========================= */
