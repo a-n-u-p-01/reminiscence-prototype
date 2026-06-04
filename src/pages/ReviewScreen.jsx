@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Eye, CheckCircle2, ShieldAlert, Smile, Frown, Layers, ArrowLeft, X, HelpCircle } from 'lucide-react';
+import { CheckCircle2, ShieldAlert, Smile, Frown, Layers, X, HelpCircle, ArrowRight } from 'lucide-react';
 import { noteService } from '../api/noteService';
 import { useReviewEngine } from '../context/ReviewContext';
-import StatusCapsule from '../components/StatusCapsule';
 
 export default function ReviewScreen({ onBackToHome }) {
   const {
@@ -17,11 +16,7 @@ export default function ReviewScreen({ onBackToHome }) {
   const [isExiting, setIsExiting] = useState(false);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
   const [showFSRSModal, setShowFSRSModal] = useState(false);
-
-  // Local state to manage the rating capsule notifications
   const [reviewStatus, setReviewStatus] = useState(null);
-
-  // Rewards Engine State for global coordinate tracking with multi-particle bursts
   const [rewardTrack, setRewardTrack] = useState({ x: 0, y: 0, color: '', glow: '', active: false });
 
   const containerRef = useRef(null);
@@ -94,14 +89,6 @@ export default function ReviewScreen({ onBackToHome }) {
     );
   }
 
-  const handleRevealAnswer = () => {
-    setShowAnswer(true);
-  };
-
-  const handleReturnToQuestion = () => {
-    setShowAnswer(false);
-  };
-
   const handleRateCard = async (rating, e) => {
     if (submittingRating || isExiting) return;
 
@@ -151,15 +138,11 @@ export default function ReviewScreen({ onBackToHome }) {
     try {
       setReviewStatus({ text: messageText, type: capsuleType });
 
+      // Submit feedback metrics immediately
       await noteService.submitReviewFeedback(activeCard.userConceptId, rating);
-      setIsExiting(true);
-
-      setTimeout(() => {
-        handleCardReviewed(activeCard.userConceptId);
-        setShowAnswer(false);
-        setIsExiting(false);
-        setRewardTrack(prev => ({ ...prev, active: false }));
-      }, 250);
+      
+      // Reveal the answers static on screen without timers
+      setShowAnswer(true);
 
       setTimeout(() => {
         setReviewStatus(null);
@@ -172,6 +155,19 @@ export default function ReviewScreen({ onBackToHome }) {
     } finally {
       setSubmittingRating(false);
     }
+  };
+
+  // Dedicated function handle next button manual advancement
+  const handleNextCard = () => {
+    if (isExiting) return;
+    setIsExiting(true);
+
+    setTimeout(() => {
+      handleCardReviewed(activeCard.userConceptId);
+      setShowAnswer(false);
+      setIsExiting(false);
+      setRewardTrack(prev => ({ ...prev, active: false }));
+    }, 250);
   };
 
   return (
@@ -243,7 +239,7 @@ export default function ReviewScreen({ onBackToHome }) {
                 
                 <div className="p-4 space-y-3.5 text-s2">
                   <p className="text-zinc-400 leading-relaxed">
-                    Be honest with yourself! Pick the option that matches how hard your brain had to work to find the answer:
+                    Be honest with yourself! Rate your target recall memory before confirming your balance card metrics:
                   </p>
 
                   <div className="space-y-2.5">
@@ -296,7 +292,7 @@ export default function ReviewScreen({ onBackToHome }) {
         {/* Header */}
         <div className="flex justify-between items-start border-b border-zinc-900 pb-4">
           <div>
-            <h1 className="text-s6 font-semibold tracking-tight text-zinc-400 flex items-center gap-2">
+            <h1 className="text-s5 font-semibold tracking-tight text-zinc-400 flex items-center gap-2">
               <Layers size={16} className="text-blue-500/80 stroke-[2]" />
               <span className="text-zinc-200">Recall Active Engine</span>
             </h1>
@@ -325,23 +321,90 @@ export default function ReviewScreen({ onBackToHome }) {
               className={`w-full bg-theme-card border border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-start shadow-xl transition-all duration-300 ${showAnswer ? 'pointer-events-none absolute opacity-0 invisible h-0 overflow-hidden' : 'opacity-100 visible h-auto'
                 }`}
             >
-              {/* Question Text Area */}
+              <div className="flex justify-between items-center bg-zinc-950/20 border border-zinc-900/60 p-2 rounded-xl mb-4">
+                <span className="text-s1 font-bold tracking-[0.15em] font-mono text-zinc-500 uppercase block">
+                  Active Inquiry Challenge
+                </span>
+                <HelpCircle
+                  onClick={() => setShowFSRSModal(true)}
+                  size={14}
+                  className="text-zinc-500 hover:text-zinc-400 cursor-pointer stroke-[2.5]"
+                />
+              </div>
+
               <div className="space-y-3">
-                <span className="text-s1 font-bold tracking-[0.15em] font-mono text-zinc-500 uppercase block">Active Inquiry Challenge</span>
                 <p className="text-s4 text-zinc-300 leading-relaxed font-normal tracking-wide min-h-[60px]">
                   {activeCard?.questionText}
                 </p>
               </div>
 
-              {/* Calm, Deep Dark Reveal Trigger */}
-              <div className="border-t border-zinc-900 pt-5 mt-6 w-full">
-                <button
-                  onClick={handleRevealAnswer}
-                  className="w-full bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800/80 text-zinc-400 hover:text-zinc-200 font-medium text-s2 py-3 rounded-xl transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 tracking-wide shadow-sm"
-                >
-                  <Eye size={14} className="opacity-70 stroke-[2]" />
-                  <span>Reveal Resolution Map</span>
-                </button>
+              <div className="pt-4 border-t border-zinc-900/60 mt-6">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-s1 font-semibold font-mono text-zinc-500 uppercase tracking-wider block">
+                      Rate Your Recall To Reveal
+                    </span>
+                    <button 
+                      className="text-s1 font-mono text-zinc-400 hover:text-zinc-200 bg-zinc-900/60 hover:bg-zinc-800/80 px-2 py-0.5 rounded border border-zinc-800/80 transition-all duration-150 flex items-center gap-1"
+                    >
+                      <span>FSRS Engine v5.0</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-2">
+                    {/* AGAIN BUTTON */}
+                    <button
+                      disabled={submittingRating || isExiting}
+                      onClick={(e) => handleRateCard('AGAIN', e)}
+                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-red-900/40 text-zinc-500 hover:text-red-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                    >
+                      <ShieldAlert size={13} className="text-red-500/50" />
+                      <span className="text-s1 font-semibold tracking-wide">Blank</span>
+                      <span className="text-s1 font-mono text-red-500/70 font-medium mt-0.5 bg-red-950/20 border border-red-900/20 px-1 rounded">
+                        Restart
+                      </span>
+                    </button>
+
+                    {/* HARD BUTTON */}
+                    <button
+                      disabled={submittingRating || isExiting}
+                      onClick={(e) => handleRateCard('HARD', e)}
+                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-orange-900/40 text-zinc-500 hover:text-orange-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                    >
+                      <Frown size={13} className="text-orange-500/50" />
+                      <span className="text-s1 font-semibold tracking-wide">Barely</span>
+                      <span className="text-s1 font-mono text-orange-400/70 font-medium mt-0.5 bg-orange-950/20 border border-orange-900/20 px-1 rounded">
+                        Shorter
+                      </span>
+                    </button>
+
+                    {/* GOOD BUTTON */}
+                    <button
+                      disabled={submittingRating || isExiting}
+                      onClick={(e) => handleRateCard('GOOD', e)}
+                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-blue-900/40 text-zinc-500 hover:text-blue-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                    >
+                      <Smile size={13} className="text-blue-500/50" />
+                      <span className="text-s1 font-semibold tracking-wide">Right</span>
+                      <span className="text-s1 font-mono text-blue-400/70 font-medium mt-0.5 bg-blue-950/20 border border-blue-900/20 px-1 rounded">
+                        Standard
+                      </span>
+                    </button>
+
+                    {/* EASY BUTTON */}
+                    <button
+                      disabled={submittingRating || isExiting}
+                      onClick={(e) => handleRateCard('EASY', e)}
+                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-emerald-900/40 text-zinc-500 hover:text-emerald-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                    >
+                      <CheckCircle2 size={13} className="text-emerald-500/50" />
+                      <span className="text-s1 font-semibold tracking-wide whitespace-nowrap">Too Easy</span>
+                      <span className="text-s1 font-mono text-emerald-400/70 font-medium mt-0.5 bg-emerald-950/20 border border-emerald-900/20 px-1 rounded">
+                        Fast {">>"}
+                      </span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -352,29 +415,12 @@ export default function ReviewScreen({ onBackToHome }) {
               style={{ transform: 'rotateY(180deg)' }}
             >
               <div className="space-y-5 flex-1">
-                {/* Meta Header */}
-               <div className="flex justify-between items-center bg-zinc-950/20 border border-zinc-900/60 p-2 rounded-xl">
-  <div className="flex items-center gap-2">
-    <button
-      onClick={handleReturnToQuestion}
-      className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
-    >
-      <ArrowLeft size={14} />
-    </button>
+                <div className="flex justify-between items-center bg-zinc-950/20 border border-zinc-900/60 p-2 rounded-xl">
+                  <span className="text-s1 font-bold tracking-widest font-mono text-zinc-400 uppercase block">
+                    Verified Answer Map
+                  </span>
+                </div>
 
-    <span className="text-s1 font-bold tracking-widest font-mono text-zinc-400 uppercase block">
-      Verified Answer
-    </span>
-  </div>
-
-  <HelpCircle
-    onClick={() => setShowFSRSModal(true)}
-    size={12}
-    className="text-zinc-500 stroke-[2.5]"
-  />
-</div>
-
-                {/* Premium Calm Answer Block (Optimized Typography Structure) */}
                 <div className="pt-2 px-1 min-h-[100px]">
                   <p className="text-s3 text-zinc-300 leading-relaxed font-normal tracking-wide whitespace-pre-wrap font-sans">
                     {activeCard?.answerText}
@@ -389,82 +435,18 @@ export default function ReviewScreen({ onBackToHome }) {
                 )}
               </div>
 
-              {/* Response Form Selection Grid */}
-              <div className="pt-4 border-t border-zinc-900/60 mt-6">
-                <div className="space-y-3">
-
-                  {/* Minimalist, functional header header */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-s1 font-semibold font-mono text-zinc-500 uppercase tracking-wider block">
-                      Rate Recall & Adjust Intervals
-                    </span>
-                    <button 
-                      className="text-s1 font-mono text-zinc-400 hover:text-zinc-200 bg-zinc-900/60 hover:bg-zinc-800/80 px-2 py-0.5 rounded border border-zinc-800/80 transition-all duration-150 flex items-center gap-1 active:scale-[0.98]"
-                    >
-                      <span>FSRS Engine v5.0</span>
-                    </button>
-                  </div>
-
-                  {/* Premium balanced 4-column custom response engine matrix */}
-                  <div className="grid grid-cols-4 gap-2">
-
-                    {/* AGAIN BUTTON */}
-                    <button
-                      disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('AGAIN', e)}
-                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-red-900/40 text-zinc-500 hover:text-red-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
-                    >
-                      <ShieldAlert size={13} className="text-red-500/50 hover:text-red-500" />
-                      <span className="text-s1 font-semibold tracking-wide">Blank</span>
-                      <span className="text-s1 font-mono text-red-500/70 font-medium mt-0.5 bg-red-950/20 border border-red-900/20 px-1 rounded">
-                        Restart
-                      </span>
-                    </button>
-
-                    {/* HARD BUTTON */}
-                    <button
-                      disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('HARD', e)}
-                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-orange-900/40 text-zinc-500 hover:text-orange-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
-                    >
-                      <Frown size={13} className="text-orange-500/50 hover:text-orange-500" />
-                      <span className="text-s1 font-semibold tracking-wide">Barely</span>
-                      <span className="text-s1 font-mono text-orange-400/70 font-medium mt-0.5 bg-orange-950/20 border border-orange-900/20 px-1 rounded">
-                        Shorter
-                      </span>
-                    </button>
-
-                    {/* GOOD BUTTON */}
-                    <button
-                      disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('GOOD', e)}
-                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-blue-900/40 text-zinc-500 hover:text-blue-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
-                    >
-                      <Smile size={13} className="text-blue-500/50 hover:text-blue-500" />
-                      <span className="text-s1 font-semibold tracking-wide">Right</span>
-                      <span className="text-s1 font-mono text-blue-400/70 font-medium mt-0.5 bg-blue-950/20 border border-blue-900/20 px-1 rounded">
-                        Standard
-                      </span>
-                    </button>
-
-                    {/* EASY BUTTON */}
-                    <button
-                      disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('EASY', e)}
-                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-emerald-900/40 text-zinc-500 hover:text-emerald-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
-                    >
-                      <CheckCircle2 size={13} className="text-emerald-500/50 hover:text-emerald-500" />
-                      <span className="text-s1 font-semibold tracking-wide whitespace-nowrap">Too Easy</span>
-                      <span className="text-s1 font-mono text-emerald-400/70 font-medium mt-0.5 bg-emerald-950/20 border border-emerald-900/20 px-1 rounded">
-                        Fast {">>"}
-                      </span>
-                    </button>
-
-                  </div>
-                </div>
+              {/* Static Next Card Action Trigger Area */}
+              <div className="pt-5 border-t border-zinc-900/60 mt-6 w-full">
+                <button
+                  onClick={handleNextCard}
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-s2 py-3 rounded-xl transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 tracking-wide shadow-lg shadow-blue-600/10 hover:shadow-blue-500/20"
+                >
+                  <span>Next Concept Card</span>
+                  <ArrowRight size={14} className="stroke-[2.5]" />
+                </button>
               </div>
-
             </div>
+
           </div>
         </div>
       </div>
