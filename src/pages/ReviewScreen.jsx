@@ -93,17 +93,17 @@ export default function ReviewScreen({ onBackToHome }) {
     if (submittingRating || isExiting) return;
 
     if (e && e.clientX && e.clientY) {
-      let coreColor = '#3b82f6'; 
+      let coreColor = '#3b82f6';
       let glowColor = 'rgba(59, 130, 246, 0.45)';
-      
+
       if (rating === "AGAIN") {
-        coreColor = '#ef4444'; 
+        coreColor = '#ef4444';
         glowColor = 'rgba(239, 68, 68, 0.5)';
       } else if (rating === "HARD") {
-        coreColor = '#f97316'; 
+        coreColor = '#f97316';
         glowColor = 'rgba(249, 115, 22, 0.5)';
       } else if (rating === "EASY") {
-        coreColor = '#10b981'; 
+        coreColor = '#10b981';
         glowColor = 'rgba(16, 185, 129, 0.6)';
       }
 
@@ -196,12 +196,12 @@ export default function ReviewScreen({ onBackToHome }) {
           `}</style>
 
           {rewardTrack.active && (
-            <div 
+            <div
               className="fixed pointer-events-none z-[10000]"
               style={{ left: rewardTrack.x, top: rewardTrack.y }}
             >
-              <div 
-                className="dopamine-halo absolute w-12 h-12 rounded-full border-4" 
+              <div
+                className="dopamine-halo absolute w-12 h-12 rounded-full border-4"
                 style={{ borderColor: rewardTrack.color, boxShadow: `0 0 16px ${rewardTrack.glow}` }}
               />
               <div className="dp-1 absolute w-2.5 h-2.5 bg-white rounded-sm rotate-45" style={{ boxShadow: `0 0 8px ${rewardTrack.color}` }} />
@@ -216,68 +216,79 @@ export default function ReviewScreen({ onBackToHome }) {
           )}
 
           {/* FSRS Guidance Modal */}
-          {showFSRSModal && (
-            <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 ease-out duration-200">
-                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <HelpCircle size={15} className="text-blue-500 dark:text-blue-400" />
-                    <h3 className="text-s2 font-semibold text-zinc-800 dark:text-zinc-200 font-mono tracking-wide uppercase">How to rate your recall</h3>
-                  </div>
-                  <button 
-                    onClick={() => setShowFSRSModal(false)}
-                    className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-all"
-                  >
-                    <X size={15} />
-                  </button>
-                </div>
-                
-                <div className="p-4 space-y-3.5 text-s2">
-                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                    Be honest with yourself! Rate your target recall memory before confirming your balance card metrics:
-                  </p>
+        {showFSRSModal && (
+  <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 ease-out duration-200">
+      
+      {/* HEADER */}
+      <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <HelpCircle size={15} className="text-blue-500 dark:text-blue-400" />
+          <h3 className="text-s2 font-semibold text-zinc-800 dark:text-zinc-200 font-mono tracking-wide uppercase">
+            How to rate your recall
+          </h3>
+        </div>
+        <button
+          onClick={() => setShowFSRSModal(false)}
+          className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-all"
+        >
+          <X size={15} />
+        </button>
+      </div>
 
-                  <div className="space-y-2.5">
-                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/40">
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
-                      <div>
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Blank (Again): </span>
-                        <span className="text-zinc-600 dark:text-zinc-400">You completely forgot, drew a blank, or got it wrong. This card will show up again very soon.</span>
-                      </div>
-                    </div>
+      {/* CONTENT */}
+      <div className="p-4 space-y-4 text-s3">
+        
+        {/* METRICS STACK */}
+        <div className="space-y-2">
+          
+          {/* AGAIN */}
+          <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
+            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Blank (Again): </span>
+              You could not recall what the concept was about. The concept felt completely unfamiliar.
+            </p>
+          </div>
 
-                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/40">
-                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 shrink-0" />
-                      <div>
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Barely (Hard): </span>
-                        <span className="text-zinc-600 dark:text-zinc-400">You remembered it, but it took serious effort, hesitation, or a long pause. You'll see it a bit sooner.</span>
-                      </div>
-                    </div>
+          {/* HARD */}
+          <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
+            <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 shrink-0" />
+            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Barely (Hard): </span>
+              You recognized the concept and remembered something about it, but the details were mostly missing.
+            </p>
+          </div>
 
-                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/40">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                      <div>
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Right (Good): </span>
-                        <span className="text-zinc-600 dark:text-zinc-400">Normal, successful recall. You remembered it with just a brief thought. This is the sweet spot.</span>
-                      </div>
-                    </div>
+          {/* GOOD */}
+          <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
+            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Right (Good): </span>
+              You recalled the main idea correctly and could explain at least one or two important points.
+            </p>
+          </div>
 
-                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/40">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                      <div>
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Too Easy: </span>
-                        <span className="text-zinc-600 dark:text-zinc-400">Instant pop in your head with zero effort. The system pushes this card far into the future.</span>
-                      </div>
-                    </div>
-                  </div>
+          {/* EASY */}
+          <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
+            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Too Easy: </span>
+              You recalled the concept immediately and remembered most of the important details without effort.
+            </p>
+          </div>
 
-                  <p className="text-s1 text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/40 p-2 rounded-lg text-center font-mono border border-zinc-200 dark:border-zinc-800/30">
-                    Rule of thumb: When in doubt, click "Right".
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+        </div>
+
+        {/* FOOTNOTE */}
+        <p className="text-s2 text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/40 p-3 rounded-xl text-center font-mono border border-zinc-200 dark:border-zinc-800/30 leading-relaxed">
+          There is no perfect rating. Choose the option that feels closest to your actual recall. Be honest rather than optimistic or pessimistic. The engine works best when ratings reflect what you truly remembered before seeing the answer.
+        </p>
+      </div>
+
+    </div>
+  </div>
+)}
         </>,
         document.body
       )}
@@ -409,7 +420,7 @@ export default function ReviewScreen({ onBackToHome }) {
             {/* BACK CONTAINER VIEW */}
             <div
               className={`w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300`}
-              style={{ 
+              style={{
                 transform: 'rotateY(180deg)',
                 backfaceVisibility: 'hidden',
                 position: showAnswer ? 'relative' : 'absolute',
