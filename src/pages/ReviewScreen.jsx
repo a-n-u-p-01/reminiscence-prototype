@@ -246,7 +246,7 @@ export default function ReviewScreen({ onBackToHome }) {
           <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
             <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
             <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Blank (Again): </span>
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Forgot: </span>
               You could not recall what the concept was about. The concept felt completely unfamiliar.
             </p>
           </div>
@@ -255,7 +255,7 @@ export default function ReviewScreen({ onBackToHome }) {
           <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
             <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 shrink-0" />
             <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Barely (Hard): </span>
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Partial: </span>
               You recognized the concept and remembered something about it, but the details were mostly missing.
             </p>
           </div>
@@ -264,7 +264,7 @@ export default function ReviewScreen({ onBackToHome }) {
           <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
             <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Right (Good): </span>
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Recalled: </span>
               You recalled the main idea correctly and could explain at least one or two important points.
             </p>
           </div>
@@ -273,7 +273,7 @@ export default function ReviewScreen({ onBackToHome }) {
           <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
             <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Too Easy: </span>
+              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Fluent: </span>
               You recalled the concept immediately and remembered most of the important details without effort.
             </p>
           </div>
@@ -281,7 +281,7 @@ export default function ReviewScreen({ onBackToHome }) {
         </div>
 
         {/* FOOTNOTE */}
-        <p className="text-s2 text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/40 p-3 rounded-xl text-center font-mono border border-zinc-200 dark:border-zinc-800/30 leading-relaxed">
+        <p className="text-s2 text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/40 p-3 rounded-xl text-justify font-mono border border-zinc-200 dark:border-zinc-800/30 leading-relaxed">
           There is no perfect rating. Choose the option that feels closest to your actual recall. Be honest rather than optimistic or pessimistic. The engine works best when ratings reflect what you truly remembered before seeing the answer.
         </p>
       </div>
@@ -364,11 +364,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     {/* AGAIN BUTTON */}
                     <button
                       disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('AGAIN', e)}
-                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-red-200 dark:hover:border-red-900/40 text-zinc-500 hover:text-red-600 dark:hover:text-red-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      onClick={(e) => handleRateCard('FORGOT', e)}
+                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-red-200 dark:hover:border-red-900/40 text-zinc-300 hover:text-red-600 dark:hover:text-red-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
                       <ShieldAlert size={13} className="text-red-500/60" />
-                      <span className="text-s1 font-semibold tracking-wide">Blank</span>
+                      <span className="text-s1 font-semibold tracking-wide">Forget</span>
                       <span className="text-s1 font-mono text-red-600 dark:text-red-500/70 font-medium mt-0.5 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/20 px-1 rounded">
                         Restart
                       </span>
@@ -377,11 +377,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     {/* HARD BUTTON */}
                     <button
                       disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('HARD', e)}
-                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-orange-200 dark:hover:border-orange-900/40 text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      onClick={(e) => handleRateCard('PARTIAL', e)}
+                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-orange-200 dark:hover:border-orange-900/40 text-zinc-300 hover:text-orange-600 dark:hover:text-orange-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
                       <Frown size={13} className="text-orange-500/60" />
-                      <span className="text-s1 font-semibold tracking-wide">Barely</span>
+                      <span className="text-s1 font-semibold tracking-wide">Partial</span>
                       <span className="text-s1 font-mono text-orange-600 dark:text-orange-400/70 font-medium mt-0.5 bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/20 px-1 rounded">
                         Shorter
                       </span>
@@ -390,11 +390,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     {/* GOOD BUTTON */}
                     <button
                       disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('GOOD', e)}
-                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-blue-200 dark:hover:border-blue-900/40 text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      onClick={(e) => handleRateCard('RECALLED', e)}
+                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-blue-200 dark:hover:border-blue-900/40 text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
                       <Smile size={13} className="text-blue-500/60" />
-                      <span className="text-s1 font-semibold tracking-wide">Right</span>
+                      <span className="text-s1 font-semibold tracking-wide">Recalled</span>
                       <span className="text-s1 font-mono text-blue-600 dark:text-blue-400/70 font-medium mt-0.5 bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/20 px-1 rounded">
                         Standard
                       </span>
@@ -403,11 +403,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     {/* EASY BUTTON */}
                     <button
                       disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('EASY', e)}
-                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-emerald-200 dark:hover:border-emerald-900/40 text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      onClick={(e) => handleRateCard('FLUENT', e)}
+                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-emerald-200 dark:hover:border-emerald-900/40 text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
                       <CheckCircle2 size={13} className="text-emerald-500/60" />
-                      <span className="text-s1 font-semibold tracking-wide whitespace-nowrap">Too Easy</span>
+                      <span className="text-s1 font-semibold tracking-wide whitespace-nowrap">Fluent</span>
                       <span className="text-s1 font-mono text-emerald-600 dark:text-emerald-400/70 font-medium mt-0.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/20 px-1 rounded">
                         Fast {">>"}
                       </span>
