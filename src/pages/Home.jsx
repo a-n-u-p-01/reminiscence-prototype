@@ -181,7 +181,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
           </div>
 
           {/* Timeline Flow Container */}
-         {/* <div className="bg-theme-card border border-theme rounded-2xl p-5 space-y-5 shadow-inner transition-all duration-300">
+          {/* <div className="bg-theme-card border border-theme rounded-2xl p-5 space-y-5 shadow-inner transition-all duration-300">
             <div className="flex items-center justify-between border-b border-theme pb-3">
               <span className="text-s2 font-mono tracking-wider uppercase text-theme-secondary flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-theme-accent" />
@@ -238,6 +238,20 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
               </div>
             </div>
           </div> */}
+          {(pendingCount > 0 && hasExistingEntry)&& (
+            <div className="mb-3 px-3 py-2 rounded-xl bg-amber-500/5 border border-amber-500/15">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-s1 font-mono uppercase tracking-wider text-amber-400">
+                  Draft Note
+                </span>
+              </div>
+
+              <p className="text-s1 text-theme-muted mt-1 leading-relaxed">
+                This note is currently a draft. Complete all pending revisions before midnight to keep it. Unfinished draft notes are automatically deleted at the end of the day.
+              </p>
+            </div>
+          )}
         </div>
 
       </div>
