@@ -157,6 +157,12 @@ export default function ReviewScreen({ onBackToHome }) {
     if (isExiting) return;
     setIsExiting(true);
 
+    // Smoothly scroll back to the top of the component
+    containerRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+
     setTimeout(() => {
       handleCardReviewed(activeCard.userConceptId);
       setShowAnswer(false);
