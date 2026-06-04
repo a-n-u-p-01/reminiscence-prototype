@@ -247,7 +247,7 @@ export default function SettingsScreen() {
       <div className="space-y-6">
 
         {/* Section 1: Algorithmic Core */}
-        <div className="space-y-2.5">
+        {/* <div className="space-y-2.5">
           <div className="px-0.5 flex items-center gap-2 text-zinc-400">
             <BrainCircuit size={13} className="text-blue-500/80" />
             <h4 className="text-s1 font-mono font-bold tracking-wider uppercase">Study Logic</h4>
@@ -255,7 +255,7 @@ export default function SettingsScreen() {
 
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl divide-y divide-zinc-800/40 overflow-visible">
 
-            {/* Setting: Calculation Engine Selection */}
+            
             <div className="p-4 space-y-3.5">
               <div className="flex items-start justify-between gap-6">
                 <div className="space-y-1 max-w-[400px]">
@@ -277,7 +277,7 @@ export default function SettingsScreen() {
                 />
               </div>
 
-              {/* Dynamic Info Explanation Panel */}
+         
               <div key={draftAlgoEngine} className="bg-zinc-950/40 border border-zinc-800/50 rounded-lg p-3 space-y-1 animate-[fadeIn_0.15s_ease-out]">
                 <div className={`text-blue-400 font-mono font-bold tracking-tight text-s1`}>
                   {activeAlgoInfo.title}
@@ -288,7 +288,7 @@ export default function SettingsScreen() {
               </div>
             </div>
 
-            {/* Setting: Daily Cap */}
+         
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
                 <label className={`font-medium text-zinc-200 block text-s3`}>Daily Queue Limit</label>
@@ -312,7 +312,6 @@ export default function SettingsScreen() {
           </div>
         </div>
 
-        {/* Section 2: Automation & Flow */}
         <div className="space-y-2.5">
           <div className="px-0.5 flex items-center gap-2 text-zinc-400">
             <Sliders size={13} className="text-blue-500/80" />
@@ -321,7 +320,6 @@ export default function SettingsScreen() {
 
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl divide-y divide-zinc-800/40 overflow-visible">
 
-            {/* Setting: Card Orientation */}
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
                 <label className={`font-medium text-zinc-200 block text-s3`}>Default Card Side</label>
@@ -341,7 +339,6 @@ export default function SettingsScreen() {
               />
             </div>
 
-            {/* Setting: Auto-Reveal Timer */}
             <div className="p-4 flex items-start justify-between gap-6">
               <div className="space-y-1 max-w-[400px]">
                 <label className={`font-medium text-zinc-200 block text-s3`}>Auto-Reveal Timer</label>
@@ -362,7 +359,7 @@ export default function SettingsScreen() {
               />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Section 3: Workspace Environment */}
         <div className="space-y-2.5">

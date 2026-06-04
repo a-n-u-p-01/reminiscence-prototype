@@ -472,7 +472,7 @@ export default function DashboardScreen() {
                 <div className="space-y-1">
                   <span className="block text-s1 uppercase tracking-wider font-mono text-theme-muted">Input Text Saved:</span>
                   <p className="text-s2 text-zinc-300 leading-relaxed bg-zinc-950/50 p-2.5 rounded-lg border border-zinc-900/80 select-text">
-                    "{activeDayDetails.dailyLog.rawInput}"
+                    {activeDayDetails.dailyLog.rawInput}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 bg-zinc-900/60 p-2 rounded-lg border border-zinc-800/40">

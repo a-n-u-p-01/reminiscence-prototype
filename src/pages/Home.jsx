@@ -181,7 +181,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
           </div>
 
           {/* Timeline Flow Container */}
-          <div className="bg-theme-card border border-theme rounded-2xl p-5 space-y-5 shadow-inner transition-all duration-300">
+         {/* <div className="bg-theme-card border border-theme rounded-2xl p-5 space-y-5 shadow-inner transition-all duration-300">
             <div className="flex items-center justify-between border-b border-theme pb-3">
               <span className="text-s2 font-mono tracking-wider uppercase text-theme-secondary flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-theme-accent" />
@@ -191,13 +191,13 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
             </div>
 
             <div className="relative pl-2 space-y-5 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-theme">
-              {/* Step 1 */}
+            
               <div className="relative flex items-start gap-4">
                 <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-s3 font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   1
                 </div>
                 <div className="pl-9 space-y-0.5">
-                  <h4 className="text-s3 font-medium text-theme-primary flex items-center gap-1.5">
+                  <h4 className="text-s3 font-medium text-zinc-300 flex items-center gap-1.5">
                     <Brain size={12} className="text-theme-muted" />
                     <span>Log Your Study</span>
                   </h4>
@@ -207,13 +207,12 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 </div>
               </div>
 
-              {/* Step 2 */}
               <div className="relative flex items-start gap-4">
                 <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-s3 font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   2
                 </div>
                 <div className="pl-9 space-y-0.5">
-                  <h4 className="text-s3 font-medium text-theme-primary flex items-center gap-1.5">
+                  <h4 className="text-s3 font-medium text-zinc-300 flex items-center gap-1.5">
                     <Target size={12} className="text-theme-muted" />
                     <span>Auto-Create Cards</span>
                   </h4>
@@ -223,13 +222,12 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 </div>
               </div>
 
-              {/* Step 3 */}
               <div className="relative flex items-start gap-4">
                 <div className="absolute left-0 w-6 h-6 rounded-lg bg-theme border border-theme text-s3 font-mono text-theme-secondary flex items-center justify-center font-medium shadow-sm z-10">
                   3
                 </div>
                 <div className="pl-9 space-y-0.5">
-                  <h4 className="text-s3 font-medium text-theme-primary flex items-center gap-1.5">
+                  <h4 className="text-s3 font-medium text-zinc-300 flex items-center gap-1.5">
                     <CalendarDays size={12} className="text-theme-muted" />
                     <span>Lock Into Memory</span>
                   </h4>
@@ -239,7 +237,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
       </div>

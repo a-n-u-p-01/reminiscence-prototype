@@ -328,7 +328,7 @@ export default function ReviewScreen({ onBackToHome }) {
               {/* Question Text Area */}
               <div className="space-y-3">
                 <span className="text-s1 font-bold tracking-[0.15em] font-mono text-zinc-500 uppercase block">Active Inquiry Challenge</span>
-                <p className="text-s4 text-zinc-100 leading-relaxed font-normal tracking-wide min-h-[60px]">
+                <p className="text-s4 text-zinc-300 leading-relaxed font-normal tracking-wide min-h-[60px]">
                   {activeCard?.questionText}
                 </p>
               </div>
@@ -369,14 +369,14 @@ export default function ReviewScreen({ onBackToHome }) {
 
   <HelpCircle
     onClick={() => setShowFSRSModal(true)}
-    size={10}
+    size={12}
     className="text-zinc-500 stroke-[2.5]"
   />
 </div>
 
                 {/* Premium Calm Answer Block (Optimized Typography Structure) */}
                 <div className="pt-2 px-1 min-h-[100px]">
-                  <p className="text-s3 text-zinc-200 leading-relaxed font-normal tracking-wide whitespace-pre-wrap font-sans">
+                  <p className="text-s3 text-zinc-300 leading-relaxed font-normal tracking-wide whitespace-pre-wrap font-sans">
                     {activeCard?.answerText}
                   </p>
                 </div>
