@@ -12,7 +12,7 @@
   --app-primary: #1A73E8;
 }
 
-
+.text-s0 { font-size: var(--s0); }
 .text-s1 { font-size: var(--s1); }
 .text-s2 { font-size: var(--s2); }
 .text-s3 { font-size: var(--s3); }

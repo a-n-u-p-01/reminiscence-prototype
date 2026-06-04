@@ -53,11 +53,11 @@ export const SettingsProvider = ({ children }) => {
 
    // Define the system: s1 is smallest, s5 is largest
 const scaleMap = {
-  xs: { s1: '10px', s2: '12px', s3: '14px', s4: '16px', s5: '20px', s6: '24px',s7: '20px' },
-  sm: { s1: '9px', s2: '11px', s3: '13px', s4: '15px', s5: '17px', s6: '19px',s7: '21px' },
-  base: { s1: '10px', s2: '12px', s3: '14px', s4: '16px', s5: '18px', s6: '20px',s7: '22px' },
-  lg: { s1: '11px', s2: '13px', s3: '15px', s4: '17px', s5: '19px', s6: '21px',s7: '23px' },
-  xl: { s1: '12px', s2: '14px', s3: '16px', s4: '18px', s5: '20px', s6: '22px',s7: '24px' },
+  xs: { s0:'6px',s1: '8px', s2: '10px', s3: '12px', s4: '14px', s5: '16px', s6: '18px',s7: '20px' },
+  sm: { s0:'7px',s1: '9px', s2: '11px', s3: '13px', s4: '15px', s5: '17px', s6: '19px',s7: '21px' },
+  base: { s0:'8px',s1: '10px', s2: '12px', s3: '14px', s4: '16px', s5: '18px', s6: '20px',s7: '22px' },
+  lg: { s0:'9px',s1: '11px', s2: '13px', s3: '15px', s4: '17px', s5: '19px', s6: '21px',s7: '23px' },
+  xl: {s0:'10px', s1: '12px', s2: '14px', s3: '16px', s4: '18px', s5: '20px', s6: '22px',s7: '24px' },
 };
 
 // Retrieve the active configuration (defaulting to 'base')

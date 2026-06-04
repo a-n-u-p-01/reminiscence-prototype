@@ -49,17 +49,17 @@ export default function ReviewScreen({ onBackToHome }) {
       `}</style>
 
       <div className="flex flex-col items-center w-full max-w-[200px] gap-5">
-        <div className="w-full h-[2px] bg-zinc-800/60 rounded-full relative overflow-hidden">
+        <div className="w-full h-[2px] bg-zinc-200 dark:bg-zinc-800/60 rounded-full relative overflow-hidden">
           <div className="absolute inset-y-0 left-0 right-0 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full origin-center anim-micro-track" />
         </div>
         <div className="text-center space-y-1">
           <div className="flex items-center justify-center gap-1.5">
             <span className="w-1 h-1 rounded-full bg-blue-500 anim-engine-pulse" />
-            <p className="text-s1 font-mono tracking-[0.25em] text-theme-secondary uppercase">
+            <p className="text-s1 font-mono tracking-[0.25em] text-zinc-600 dark:text-zinc-400 uppercase">
               Syncing Engine
             </p>
           </div>
-          <p className="text-s1 text-zinc-600 font-sans tracking-wide">
+          <p className="text-s1 text-zinc-500 dark:text-zinc-600 font-sans tracking-wide">
             Calibrating review matrices
           </p>
         </div>
@@ -75,13 +75,13 @@ export default function ReviewScreen({ onBackToHome }) {
     return (
       <div className="flex flex-col items-center justify-center text-center py-24 px-6 space-y-4 max-w-sm mx-auto">
         <div className="p-4 bg-emerald-500/10 rounded-full border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
-          <CheckCircle2 size={32} className="text-emerald-400" />
+          <CheckCircle2 size={32} className="text-emerald-500 dark:text-emerald-400" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-s5 font-semibold tracking-tight text-zinc-100">
+          <h2 className="text-s5 font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
             Review Queue Cleared
           </h2>
-          <p className="text-s2 text-theme-secondary leading-relaxed">
+          <p className="text-s2 text-zinc-600 dark:text-zinc-400 leading-relaxed">
             Your memory baselines are secure. No concept cards are due right now.
           </p>
         </div>
@@ -137,11 +137,7 @@ export default function ReviewScreen({ onBackToHome }) {
 
     try {
       setReviewStatus({ text: messageText, type: capsuleType });
-
-      // Submit feedback metrics immediately
       await noteService.submitReviewFeedback(activeCard.userConceptId, rating);
-      
-      // Reveal the answers static on screen without timers
       setShowAnswer(true);
 
       setTimeout(() => {
@@ -157,7 +153,6 @@ export default function ReviewScreen({ onBackToHome }) {
     }
   };
 
-  // Dedicated function handle next button manual advancement
   const handleNextCard = () => {
     if (isExiting) return;
     setIsExiting(true);
@@ -220,63 +215,63 @@ export default function ReviewScreen({ onBackToHome }) {
             </div>
           )}
 
-          {/* FSRS Calibration Guidance Modal */}
+          {/* FSRS Guidance Modal */}
           {showFSRSModal && (
             <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 ease-out duration-200">
-                <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
+              <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 ease-out duration-200">
+                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <HelpCircle size={15} className="text-blue-400" />
-                    <h3 className="text-s2 font-semibold text-zinc-200 font-mono tracking-wide uppercase">How to rate your recall</h3>
+                    <HelpCircle size={15} className="text-blue-500 dark:text-blue-400" />
+                    <h3 className="text-s2 font-semibold text-zinc-800 dark:text-zinc-200 font-mono tracking-wide uppercase">How to rate your recall</h3>
                   </div>
                   <button 
                     onClick={() => setShowFSRSModal(false)}
-                    className="p-1 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-all"
+                    className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-all"
                   >
                     <X size={15} />
                   </button>
                 </div>
                 
                 <div className="p-4 space-y-3.5 text-s2">
-                  <p className="text-zinc-400 leading-relaxed">
+                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     Be honest with yourself! Rate your target recall memory before confirming your balance card metrics:
                   </p>
 
                   <div className="space-y-2.5">
-                    <div className="flex gap-3 items-start bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-800/40">
+                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/40">
                       <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
                       <div>
-                        <span className="font-semibold text-zinc-200">Blank (Again): </span>
-                        <span className="text-zinc-400">You completely forgot, drew a blank, or got it wrong. This card will show up again very soon.</span>
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Blank (Again): </span>
+                        <span className="text-zinc-600 dark:text-zinc-400">You completely forgot, drew a blank, or got it wrong. This card will show up again very soon.</span>
                       </div>
                     </div>
 
-                    <div className="flex gap-3 items-start bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-800/40">
+                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/40">
                       <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 shrink-0" />
                       <div>
-                        <span className="font-semibold text-zinc-200">Barely (Hard): </span>
-                        <span className="text-zinc-400">You remembered it, but it took serious effort, hesitation, or a long pause. You'll see it a bit sooner.</span>
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Barely (Hard): </span>
+                        <span className="text-zinc-600 dark:text-zinc-400">You remembered it, but it took serious effort, hesitation, or a long pause. You'll see it a bit sooner.</span>
                       </div>
                     </div>
 
-                    <div className="flex gap-3 items-start bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-800/40">
+                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/40">
                       <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                       <div>
-                        <span className="font-semibold text-zinc-200">Right (Good): </span>
-                        <span className="text-zinc-400">Normal, successful recall. You remembered it with just a brief thought. This is the sweet spot.</span>
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Right (Good): </span>
+                        <span className="text-zinc-600 dark:text-zinc-400">Normal, successful recall. You remembered it with just a brief thought. This is the sweet spot.</span>
                       </div>
                     </div>
 
-                    <div className="flex gap-3 items-start bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-800/40">
+                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/40">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
                       <div>
-                        <span className="font-semibold text-zinc-200">Too Easy: </span>
-                        <span className="text-zinc-400">Instant pop in your head with zero effort. The system pushes this card far into the future.</span>
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Too Easy: </span>
+                        <span className="text-zinc-600 dark:text-zinc-400">Instant pop in your head with zero effort. The system pushes this card far into the future.</span>
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-s1 text-zinc-500 bg-zinc-950/40 p-2 rounded-lg text-center font-mono border border-zinc-800/30">
+                  <p className="text-s1 text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/40 p-2 rounded-lg text-center font-mono border border-zinc-200 dark:border-zinc-800/30">
                     Rule of thumb: When in doubt, click "Right".
                   </p>
                 </div>
@@ -287,18 +282,18 @@ export default function ReviewScreen({ onBackToHome }) {
         document.body
       )}
 
-      <div ref={containerRef} className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-8 text-theme-primary select-none">
+      <div ref={containerRef} className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-8 text-zinc-800 dark:text-zinc-100 select-none">
 
         {/* Header */}
-        <div className="flex justify-between items-start border-b border-zinc-900 pb-4">
+        <div className="flex justify-between items-start border-b border-zinc-200 dark:border-zinc-900 pb-4">
           <div>
-            <h1 className="text-s5 font-semibold tracking-tight text-zinc-400 flex items-center gap-2">
-              <Layers size={16} className="text-blue-500/80 stroke-[2]" />
-              <span className="text-zinc-200">Recall Active Engine</span>
+            <h1 className="text-s5 font-semibold tracking-tight text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
+              <Layers size={16} className="text-blue-500 stroke-[2]" />
+              <span className="text-zinc-800 dark:text-zinc-200">Recall Active Engine</span>
             </h1>
-            <p className="text-s1 text-zinc-500 mt-0.5">Active retention tracking loop.</p>
+            <p className="text-s1 text-zinc-400 dark:text-zinc-500 mt-0.5">Active retention tracking loop.</p>
           </div>
-          <span className="text-s2 font-mono bg-zinc-900/50 text-zinc-400 font-medium px-2.5 py-1 rounded-full border border-zinc-800 shadow-sm">
+          <span className="text-s2 font-mono bg-zinc-100 dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 font-medium px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-sm">
             Queue: {concepts.length}
           </span>
         </div>
@@ -318,37 +313,40 @@ export default function ReviewScreen({ onBackToHome }) {
           >
             {/* FRONT CONTAINER VIEW */}
             <div
-              className={`w-full bg-theme-card border border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-start shadow-xl transition-all duration-300 ${showAnswer ? 'pointer-events-none absolute opacity-0 invisible h-0 overflow-hidden' : 'opacity-100 visible h-auto'
-                }`}
+              className={`w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-start shadow-xl transition-all duration-300`}
+              style={{
+                backfaceVisibility: 'hidden',
+                position: showAnswer ? 'absolute' : 'relative',
+                visibility: showAnswer ? 'hidden' : 'visible'
+              }}
             >
-              <div className="flex justify-between items-center bg-zinc-950/20 border border-zinc-900/60 p-2 rounded-xl mb-4">
-                <span className="text-s1 font-bold tracking-[0.15em] font-mono text-zinc-500 uppercase block">
+              <div className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-100 dark:border-zinc-900/60 p-2 rounded-xl mb-5">
+                <span className="text-s1 font-bold tracking-[0.15em] font-mono text-zinc-400 dark:text-zinc-500 uppercase block">
                   Active Inquiry Challenge
                 </span>
                 <HelpCircle
                   onClick={() => setShowFSRSModal(true)}
                   size={14}
-                  className="text-zinc-500 hover:text-zinc-400 cursor-pointer stroke-[2.5]"
+                  className="text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-400 cursor-pointer stroke-[2.5]"
                 />
               </div>
 
-              <div className="space-y-3">
-                <p className="text-s4 text-zinc-300 leading-relaxed font-normal tracking-wide min-h-[60px]">
+              {/* Question Block */}
+              <div className="bg-zinc-50/70 dark:bg-zinc-950/40 border border-zinc-100 dark:border-zinc-900/40 rounded-xl p-5 min-h-[110px] flex items-center">
+                <p className="text-s4 text-zinc-800 dark:text-zinc-400 leading-relaxed font-medium tracking-wide w-full">
                   {activeCard?.questionText}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-zinc-900/60 mt-6">
+              <div className="pt-4 border-t border-zinc-100 dark:border-zinc-900/60 mt-6">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-s1 font-semibold font-mono text-zinc-500 uppercase tracking-wider block">
+                    <span className="text-s1 font-semibold font-mono text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">
                       Rate Your Recall To Reveal
                     </span>
-                    <button 
-                      className="text-s1 font-mono text-zinc-400 hover:text-zinc-200 bg-zinc-900/60 hover:bg-zinc-800/80 px-2 py-0.5 rounded border border-zinc-800/80 transition-all duration-150 flex items-center gap-1"
-                    >
+                    <div className="text-s0 font-mono text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900/60 px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-800/80 flex items-center gap-1">
                       <span>FSRS Engine v5.0</span>
-                    </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-4 gap-2">
@@ -356,11 +354,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('AGAIN', e)}
-                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-red-900/40 text-zinc-500 hover:text-red-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-red-200 dark:hover:border-red-900/40 text-zinc-500 hover:text-red-600 dark:hover:text-red-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
-                      <ShieldAlert size={13} className="text-red-500/50" />
+                      <ShieldAlert size={13} className="text-red-500/60" />
                       <span className="text-s1 font-semibold tracking-wide">Blank</span>
-                      <span className="text-s1 font-mono text-red-500/70 font-medium mt-0.5 bg-red-950/20 border border-red-900/20 px-1 rounded">
+                      <span className="text-s1 font-mono text-red-600 dark:text-red-500/70 font-medium mt-0.5 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/20 px-1 rounded">
                         Restart
                       </span>
                     </button>
@@ -369,11 +367,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('HARD', e)}
-                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-orange-900/40 text-zinc-500 hover:text-orange-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-orange-200 dark:hover:border-orange-900/40 text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
-                      <Frown size={13} className="text-orange-500/50" />
+                      <Frown size={13} className="text-orange-500/60" />
                       <span className="text-s1 font-semibold tracking-wide">Barely</span>
-                      <span className="text-s1 font-mono text-orange-400/70 font-medium mt-0.5 bg-orange-950/20 border border-orange-900/20 px-1 rounded">
+                      <span className="text-s1 font-mono text-orange-600 dark:text-orange-400/70 font-medium mt-0.5 bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/20 px-1 rounded">
                         Shorter
                       </span>
                     </button>
@@ -382,11 +380,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('GOOD', e)}
-                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-blue-900/40 text-zinc-500 hover:text-blue-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-blue-200 dark:hover:border-blue-900/40 text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
-                      <Smile size={13} className="text-blue-500/50" />
+                      <Smile size={13} className="text-blue-500/60" />
                       <span className="text-s1 font-semibold tracking-wide">Right</span>
-                      <span className="text-s1 font-mono text-blue-400/70 font-medium mt-0.5 bg-blue-950/20 border border-blue-900/20 px-1 rounded">
+                      <span className="text-s1 font-mono text-blue-600 dark:text-blue-400/70 font-medium mt-0.5 bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/20 px-1 rounded">
                         Standard
                       </span>
                     </button>
@@ -395,11 +393,11 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('EASY', e)}
-                      className="bg-zinc-900/20 hover:bg-zinc-900 border border-zinc-800/80 hover:border-emerald-900/40 text-zinc-500 hover:text-emerald-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
+                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-emerald-200 dark:hover:border-emerald-900/40 text-zinc-500 hover:text-emerald-600 dark:hover:text-emerald-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
                     >
-                      <CheckCircle2 size={13} className="text-emerald-500/50" />
+                      <CheckCircle2 size={13} className="text-emerald-500/60" />
                       <span className="text-s1 font-semibold tracking-wide whitespace-nowrap">Too Easy</span>
-                      <span className="text-s1 font-mono text-emerald-400/70 font-medium mt-0.5 bg-emerald-950/20 border border-emerald-900/20 px-1 rounded">
+                      <span className="text-s1 font-mono text-emerald-600 dark:text-emerald-400/70 font-medium mt-0.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/20 px-1 rounded">
                         Fast {">>"}
                       </span>
                     </button>
@@ -410,36 +408,47 @@ export default function ReviewScreen({ onBackToHome }) {
 
             {/* BACK CONTAINER VIEW */}
             <div
-              className={`w-full bg-theme-card border border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300 ${showAnswer ? 'opacity-100 visible h-auto' : 'pointer-events-none absolute opacity-0 invisible h-0 overflow-hidden'
-                }`}
-              style={{ transform: 'rotateY(180deg)' }}
+              className={`w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300`}
+              style={{ 
+                transform: 'rotateY(180deg)',
+                backfaceVisibility: 'hidden',
+                position: showAnswer ? 'relative' : 'absolute',
+                visibility: showAnswer ? 'visible' : 'hidden'
+              }}
             >
               <div className="space-y-5 flex-1">
-                <div className="flex justify-between items-center bg-zinc-950/20 border border-zinc-900/60 p-2 rounded-xl">
-                  <span className="text-s1 font-bold tracking-widest font-mono text-zinc-400 uppercase block">
+                <div className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-100 dark:border-zinc-900/60 p-2 rounded-xl">
+                  <span className="text-s1 font-bold tracking-widest font-mono text-zinc-500 uppercase block">
                     Verified Answer Map
                   </span>
                 </div>
 
-                <div className="pt-2 px-1 min-h-[100px]">
-                  <p className="text-s3 text-zinc-300 leading-relaxed font-normal tracking-wide whitespace-pre-wrap font-sans">
+                {/* Answer Container Block */}
+                <div className="bg-blue-50/30 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/20 rounded-xl p-5 min-h-[110px]">
+                  <p className="text-s3 text-zinc-800 dark:text-zinc-400 leading-relaxed font-normal tracking-wide whitespace-pre-wrap font-sans">
                     {activeCard?.answerText}
                   </p>
                 </div>
 
                 {activeCard?.keyNotes && (
-                  <div className="space-y-1.5 pt-4 border-t border-zinc-900/40">
-                    <span className="text-s1 font-bold tracking-widest font-mono text-zinc-500 uppercase block">Contextual Key Notes</span>
-                    <p className="text-s2 text-zinc-400 leading-relaxed italic font-sans">{activeCard.keyNotes}</p>
+                  <div className="space-y-2 pt-4 border-t border-zinc-100 dark:border-zinc-900/40">
+                    <span className="text-s1 font-bold tracking-widest font-mono text-zinc-400 dark:text-zinc-500 uppercase block">
+                      Contextual Key Notes
+                    </span>
+                    <div className="bg-zinc-50 dark:bg-zinc-950/30 border border-zinc-100 dark:border-zinc-900/30 rounded-lg p-3">
+                      <p className="text-s2 text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans">
+                        {activeCard.keyNotes}
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Static Next Card Action Trigger Area */}
-              <div className="pt-5 border-t border-zinc-900/60 mt-6 w-full">
+              {/* Toned Down Next Card Trigger Action Area */}
+              <div className="pt-5 border-t border-zinc-100 dark:border-zinc-900/60 mt-6 w-full">
                 <button
                   onClick={handleNextCard}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-s2 py-3 rounded-xl transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 tracking-wide shadow-lg shadow-blue-600/10 hover:shadow-blue-500/20"
+                  className="w-full bg-zinc-100 hover:bg-zinc-200/80 text-zinc-700 border border-zinc-300/70 dark:bg-zinc-800/40 dark:hover:bg-zinc-800/80 dark:text-zinc-300 dark:border-zinc-700/60 font-medium text-s2 py-3 rounded-xl transition-all duration-150 active:scale-[0.99] flex items-center justify-center gap-2 tracking-wide hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-900/50"
                 >
                   <span>Next Concept Card</span>
                   <ArrowRight size={14} className="stroke-[2.5]" />
