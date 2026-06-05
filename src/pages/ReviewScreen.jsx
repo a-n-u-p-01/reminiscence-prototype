@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { CheckCircle2, ShieldAlert, Smile, Frown, Layers, X, HelpCircle, ArrowRight, ChevronDown } from 'lucide-react';
 import { noteService } from '../api/noteService';
 import { useReviewEngine } from '../context/ReviewContext';
+import { motion ,AnimatePresence } from 'framer-motion';
 
 export default function ReviewScreen({ onBackToHome }) {
   const {
@@ -244,75 +245,100 @@ export default function ReviewScreen({ onBackToHome }) {
             </div>
           )}
 
-          {/* FSRS Guidance Modal */}
-          {showFSRSModal && (
-            <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 ease-out duration-200">
-                
-                {/* HEADER */}
-                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <HelpCircle size={15} className="text-blue-500 dark:text-blue-400" />
-                    <h3 className="text-s2 font-semibold text-zinc-800 dark:text-zinc-200 font-mono tracking-wide uppercase">
-                      How to rate your recall
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => setShowFSRSModal(false)}
-                    className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-all"
-                  >
-                    <X size={15} />
-                  </button>
-                </div>
+      <AnimatePresence>
+  {showFSRSModal && (
+    <motion.div 
+      key="fsrs-modal-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      // Changed to clear backdrop with a strong blur effect
+      className="fixed inset-0 z-[11000] flex items-center justify-center p-6 bg-zinc-950/20 backdrop-blur-sm"
+      onClick={() => setShowFSRSModal(false)}
+    >
+      <motion.div 
+        key="fsrs-modal-card"
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 8 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        // Increased to max-w-md for a wider, more premium gallery look
+        className="bg-zinc-950/90 border border-zinc-900 rounded-xl max-w-md w-full overflow-hidden "
+        onClick={(e) => e.stopPropagation()}
+      >
+        
+        {/* HEADER */}
+        <div className="p-4 border-b border-zinc-900 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <HelpCircle size={14} className="text-zinc-500" />
+            <h3 className="text-[10px] font-medium text-zinc-500 font-mono tracking-[0.3em] uppercase">
+              Evaluation Guide
+            </h3>
+          </div>
+          <button
+            onClick={() => setShowFSRSModal(false)}
+            className="p-1 rounded-sm text-zinc-600 hover:text-zinc-200 transition-colors active:scale-90"
+          >
+            <X size={14} />
+          </button>
+        </div>
 
-                {/* CONTENT */}
-                <div className="p-4 space-y-4 text-s3">
-                  <div className="space-y-2">
-                    {/* AGAIN */}
-                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Forgot: </span>
-                        You could not recall what the concept was about. The concept felt completely unfamiliar.
-                      </p>
-                    </div>
-
-                    {/* HARD */}
-                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
-                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 shrink-0" />
-                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Partial: </span>
-                        You recognized the concept and remembered something about it, but the details were mostly missing.
-                      </p>
-                    </div>
-
-                    {/* GOOD */}
-                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
-                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Recalled: </span>
-                        You recalled the main idea correctly and could explain at least one or two important points.
-                      </p>
-                    </div>
-
-                    {/* EASY */}
-                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
-                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Fluent: </span>
-                        You recalled the concept immediately and remembered most of the important details without effort.
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="text-s2 text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/40 p-3 rounded-xl text-justify font-mono border border-zinc-200 dark:border-zinc-800/30 leading-relaxed">
-                    There is no perfect rating. Choose the option that feels closest to your actual recall. Be honest rather than optimistic or pessimistic. The engine works best when ratings reflect what you truly remembered before seeing the answer.
-                  </p>
-                </div>
-
-              </div>
+        {/* CONTENT */}
+        <div className="p-6 space-y-6">
+          <div className="space-y-4">
+            
+            {/* AGAIN */}
+            <div className="flex gap-6 items-baseline">
+              <span className="text-[10px] font-mono text-red-500/80 font-semibold uppercase tracking-widest min-w-[55px]">
+                Again
+              </span>
+              <p className="text-xs text-zinc-400 font-sans tracking-wide">
+                <span className="text-zinc-200 font-medium">Forgot.</span> Complete retrieval failure or concept feels entirely unfamiliar.
+              </p>
             </div>
-          )}
+
+            {/* HARD */}
+            <div className="flex gap-6 items-baseline">
+              <span className="text-[10px] font-mono text-orange-500/80 font-semibold uppercase tracking-widest min-w-[55px]">
+                Hard
+              </span>
+              <p className="text-xs text-zinc-400 font-sans tracking-wide">
+                <span className="text-zinc-200 font-medium">Partial.</span> Recognized the subject, but core details were missing.
+              </p>
+            </div>
+
+            {/* GOOD */}
+            <div className="flex gap-6 items-baseline">
+              <span className="text-[10px] font-mono text-blue-500/80 font-semibold uppercase tracking-widest min-w-[55px]">
+                Good
+              </span>
+              <p className="text-xs text-zinc-400 font-sans tracking-wide">
+                <span className="text-zinc-200 font-medium">Recalled.</span> Remembered the main idea clearly with minimal effort.
+              </p>
+            </div>
+
+            {/* EASY */}
+            <div className="flex gap-6 items-baseline">
+              <span className="text-[10px] font-mono text-emerald-500/80 font-semibold uppercase tracking-widest min-w-[55px]">
+                Easy
+              </span>
+              <p className="text-xs text-zinc-400 font-sans tracking-wide">
+                <span className="text-zinc-200 font-medium">Fluent.</span> Instantaneous retrieval. Perfect structural understanding.
+              </p>
+            </div>
+          </div>
+
+          {/* FOOTNOTE */}
+          <p className="text-[10px] text-zinc-600 font-mono tracking-wide pt-4 border-t border-zinc-900/60 leading-relaxed">
+            Be honest rather than optimistic. Accurate grades optimize scheduling intervals.
+          </p>
+        </div>
+
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
         </>,
         document.body
       )}
