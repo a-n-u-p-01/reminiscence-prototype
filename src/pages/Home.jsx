@@ -101,23 +101,22 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   const handleTextareaChange = (e) => {
     const inputValue = e.target.value;
     const textarea = e.target;
-    const { selectionStart } = textarea;
     
     if (!inputValue || inputValue.trim() === '') {
       setNoteText('');
       return;
     }
     
-    // Ensure the very first line starts with a bullet point if they clear everything out
+    // Ensure the very first line starts with a bullet point and capitalizes its first character
     if (inputValue.length === 1 && inputValue !== '-') {
-      setNoteText('- ' + inputValue);
+      setNoteText('- ' + inputValue.toUpperCase());
       setTimeout(() => {
         textarea.setSelectionRange(3, 3);
       }, 0);
       return;
     }
 
-    // Standard structural sweep safety fallback logic
+    // Process all lines to guarantee bullet prefixing and auto-capitalization on typed entries
     const lines = inputValue.split('\n');
     const formattedLines = lines.map((line, index) => {
       if (line === '' && index === lines.length - 1) {
@@ -125,11 +124,28 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
       }
       if (line === '') return line;
       
+      let processedLine = line;
       const trimmed = line.trimStart();
+      
+      // 1. Ensure line begins structural design syntax with a hyphen
       if (trimmed.length > 0 && !trimmed.startsWith('-')) {
-        return '- ' + line;
+        processedLine = '- ' + line;
       }
-      return line;
+
+      // 2. Auto-capitalize the first alphabetical character following the "- " bullet prefix
+      if (processedLine.startsWith('- ')) {
+        const contentText = processedLine.substring(2);
+        if (contentText.length > 0) {
+          processedLine = '- ' + contentText.charAt(0).toUpperCase() + contentText.slice(1);
+        }
+      } else if (processedLine.startsWith('-')) {
+        const contentText = processedLine.substring(1);
+        if (contentText.length > 0) {
+          processedLine = '-' + contentText.charAt(0).toUpperCase() + contentText.slice(1);
+        }
+      }
+      
+      return processedLine;
     });
 
     setNoteText(formattedLines.join('\n'));
