@@ -75,10 +75,14 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
       setNoteText(newText);
 
-      // Restore cursor position on the next frame loop and scroll to bottom
+      // Restore cursor position on the next frame loop and scroll to bottom if at the end
       setTimeout(() => {
         textarea.setSelectionRange(newCursorPos, newCursorPos);
-        textarea.scrollTop = textarea.scrollHeight;
+        
+        // Only scroll to bottom if the cursor is actually at the very end of the text area string
+        if (textAfterCursor.length === 0) {
+          textarea.scrollTop = textarea.scrollHeight;
+        }
       }, 0);
     }
 
@@ -117,12 +121,12 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
       return;
     }
 
+    // Capture current cursor references before updating state string formats
+    const originalSelectionStart = textarea.selectionStart;
+
     // Process all lines to guarantee bullet prefixing and auto-capitalization on typed entries
     const lines = inputValue.split('\n');
-    const formattedLines = lines.map((line, index) => {
-      if (line === '' && index === lines.length - 1) {
-        return '- ';
-      }
+    const formattedLines = lines.map((line) => {
       if (line === '') return line;
       
       let processedLine = line;
@@ -149,7 +153,15 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
       return processedLine;
     });
 
-    setNoteText(formattedLines.join('\n'));
+    const finalValue = formattedLines.join('\n');
+    setNoteText(finalValue);
+
+    // Calculate length variations to prevent jumping lines or jumping to bottom on middle modifications
+    const lengthDifference = finalValue.length - inputValue.length;
+    setTimeout(() => {
+      const adjustedCursorPos = originalSelectionStart + lengthDifference;
+      textarea.setSelectionRange(adjustedCursorPos, adjustedCursorPos);
+    }, 0);
   };
 
   return (
