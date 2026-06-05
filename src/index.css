@@ -190,6 +190,28 @@ html.theme-matte {
   --color-blue-400: #93c5fd;
 }
 
+/* Ember Theme — Warm Dark Matte */
+html.theme-ember {
+  --color-dark-bg:    #0f0d0a;
+  --color-dark-card:  #1b1713;
+  --color-dark-border:#44362a;
+
+  --color-zinc-950:   #090806;
+  --color-zinc-900:   #0f0d0a;
+  --color-zinc-800:   #1b1713;
+  --color-zinc-700:   #44362a;
+  --color-zinc-600:   #5e4c3a;
+  --color-zinc-500:   #7d6650;
+  --color-zinc-400:   #a68e72;
+  --color-zinc-300:   #cdb89a;
+  --color-zinc-200:   #e2d0b8;
+  --color-zinc-100:   #f4ead8;
+
+  --color-blue-600:   #1d4ed8;
+  --color-blue-500:   #3b82f6;
+  --color-blue-400:   #60a5fa;
+}
+
 /* Zinc Theme */
 html.theme-zinc {
   --color-dark-bg: #09090b;

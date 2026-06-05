@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { CheckCircle2, ShieldAlert, Smile, Frown, Layers, X, HelpCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ShieldAlert, Smile, Frown, Layers, X, HelpCircle, ArrowRight, ChevronDown } from 'lucide-react';
 import { noteService } from '../api/noteService';
 import { useReviewEngine } from '../context/ReviewContext';
 
@@ -18,13 +18,17 @@ export default function ReviewScreen({ onBackToHome }) {
   const [showFSRSModal, setShowFSRSModal] = useState(false);
   const [reviewStatus, setReviewStatus] = useState(null);
   const [rewardTrack, setRewardTrack] = useState({ x: 0, y: 0, color: '', glow: '', active: false });
+  // Accordion toggle state for key notes
+  const [showNotes, setShowNotes] = useState(false);
 
   const containerRef = useRef(null);
   const activeCard = concepts[0];
 
   useEffect(() => {
     if (loading || concepts.length > 0) {
+      setShowAnswer(false);
       setInitialCheckDone(true);
+      setRewardTrack(false);
     } else {
       const timer = setTimeout(() => setInitialCheckDone(true), 180);
       return () => clearTimeout(timer);
@@ -157,7 +161,6 @@ export default function ReviewScreen({ onBackToHome }) {
     if (isExiting) return;
     setIsExiting(true);
 
-    // Smoothly scroll back to the top of the component
     containerRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
@@ -166,9 +169,29 @@ export default function ReviewScreen({ onBackToHome }) {
     setTimeout(() => {
       handleCardReviewed(activeCard.userConceptId);
       setShowAnswer(false);
+      setShowNotes(false); // Reset accordion on new card
       setIsExiting(false);
       setRewardTrack(prev => ({ ...prev, active: false }));
     }, 250);
+  };
+
+  // Helper helper to handle both newline-separated points or fallback arrays
+  const renderKeyNotes = (notes) => {
+    if (!notes) return null;
+    const points = Array.isArray(notes) 
+      ? notes 
+      : notes.split('\n').filter(p => p.trim() !== '');
+
+    return (
+      <ul className="space-y-2">
+        {points.map((point, index) => (
+          <li key={index} className="flex gap-2 text-s3 text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans items-start">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-600 mt-2 shrink-0" />
+            <span>{point.replace(/^[•\-\d.\s]+/, '')}</span>
+          </li>
+        ))}
+      </ul>
+    );
   };
 
   return (
@@ -222,79 +245,74 @@ export default function ReviewScreen({ onBackToHome }) {
           )}
 
           {/* FSRS Guidance Modal */}
-        {showFSRSModal && (
-  <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 ease-out duration-200">
-      
-      {/* HEADER */}
-      <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <HelpCircle size={15} className="text-blue-500 dark:text-blue-400" />
-          <h3 className="text-s2 font-semibold text-zinc-800 dark:text-zinc-200 font-mono tracking-wide uppercase">
-            How to rate your recall
-          </h3>
-        </div>
-        <button
-          onClick={() => setShowFSRSModal(false)}
-          className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-all"
-        >
-          <X size={15} />
-        </button>
-      </div>
+          {showFSRSModal && (
+            <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 ease-out duration-200">
+                
+                {/* HEADER */}
+                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle size={15} className="text-blue-500 dark:text-blue-400" />
+                    <h3 className="text-s2 font-semibold text-zinc-800 dark:text-zinc-200 font-mono tracking-wide uppercase">
+                      How to rate your recall
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setShowFSRSModal(false)}
+                    className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-all"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
 
-      {/* CONTENT */}
-      <div className="p-4 space-y-4 text-s3">
-        
-        {/* METRICS STACK */}
-        <div className="space-y-2">
-          
-          {/* AGAIN */}
-          <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Forgot: </span>
-              You could not recall what the concept was about. The concept felt completely unfamiliar.
-            </p>
-          </div>
+                {/* CONTENT */}
+                <div className="p-4 space-y-4 text-s3">
+                  <div className="space-y-2">
+                    {/* AGAIN */}
+                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
+                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Forgot: </span>
+                        You could not recall what the concept was about. The concept felt completely unfamiliar.
+                      </p>
+                    </div>
 
-          {/* HARD */}
-          <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
-            <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 shrink-0" />
-            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Partial: </span>
-              You recognized the concept and remembered something about it, but the details were mostly missing.
-            </p>
-          </div>
+                    {/* HARD */}
+                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
+                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 shrink-0" />
+                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Partial: </span>
+                        You recognized the concept and remembered something about it, but the details were mostly missing.
+                      </p>
+                    </div>
 
-          {/* GOOD */}
-          <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
-            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Recalled: </span>
-              You recalled the main idea correctly and could explain at least one or two important points.
-            </p>
-          </div>
+                    {/* GOOD */}
+                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
+                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Recalled: </span>
+                        You recalled the main idea correctly and could explain at least one or two important points.
+                      </p>
+                    </div>
 
-          {/* EASY */}
-          <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
-            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              <span className="font-semibold text-zinc-800 dark:text-zinc-200">Fluent: </span>
-              You recalled the concept immediately and remembered most of the important details without effort.
-            </p>
-          </div>
+                    {/* EASY */}
+                    <div className="flex gap-3 items-start bg-zinc-50 dark:bg-zinc-950/30 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/50">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
+                      <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Fluent: </span>
+                        You recalled the concept immediately and remembered most of the important details without effort.
+                      </p>
+                    </div>
+                  </div>
 
-        </div>
+                  <p className="text-s2 text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/40 p-3 rounded-xl text-justify font-mono border border-zinc-200 dark:border-zinc-800/30 leading-relaxed">
+                    There is no perfect rating. Choose the option that feels closest to your actual recall. Be honest rather than optimistic or pessimistic. The engine works best when ratings reflect what you truly remembered before seeing the answer.
+                  </p>
+                </div>
 
-        {/* FOOTNOTE */}
-        <p className="text-s2 text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950/40 p-3 rounded-xl text-justify font-mono border border-zinc-200 dark:border-zinc-800/30 leading-relaxed">
-          There is no perfect rating. Choose the option that feels closest to your actual recall. Be honest rather than optimistic or pessimistic. The engine works best when ratings reflect what you truly remembered before seeing the answer.
-        </p>
-      </div>
-
-    </div>
-  </div>
-)}
+              </div>
+            </div>
+          )}
         </>,
         document.body
       )}
@@ -447,21 +465,37 @@ export default function ReviewScreen({ onBackToHome }) {
                   </p>
                 </div>
 
+                {/* Accordion Contextual Key Notes */}
                 {activeCard?.keyNotes && (
-                  <div className="space-y-2 pt-4 border-t border-zinc-100 dark:border-zinc-900/40">
-                    <span className="text-s1 font-bold tracking-widest font-mono text-zinc-400 dark:text-zinc-500 uppercase block">
-                      Contextual Key Notes
-                    </span>
-                    <div className="bg-zinc-50 dark:bg-zinc-950/30 border border-zinc-100 dark:border-zinc-900/30 rounded-lg p-3">
-                      <p className="text-s2 text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans">
-                        {activeCard.keyNotes}
-                      </p>
+                  <div className="pt-4 border-t border-zinc-100 dark:border-zinc-900/40">
+                    <button
+                      type="button"
+                      onClick={() => setShowNotes(!showNotes)}
+                      className="w-full flex items-center justify-between p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-100 dark:border-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-950/40 transition-all duration-200 group"
+                    >
+                      <span className="text-s2 font-bold tracking-widest font-mono text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 uppercase block text-left">
+                        Contextual Key Notes (Extra Info)
+                      </span>
+                      <ChevronDown 
+                        size={16} 
+                        className={`text-zinc-400 group-hover:text-zinc-600 transition-transform duration-300 ${showNotes ? 'rotate-180' : ''}`} 
+                      />
+                    </button>
+                    
+                    <div 
+                      className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                        showNotes ? 'max-h-[500px] opacity-100 mt-3' : 'max-h-0 opacity-0'
+                      }`}
+                    >
+                      <div className="bg-zinc-50 dark:bg-zinc-950/30 border border-zinc-100 dark:border-zinc-900/30 rounded-xl p-4 shadow-inner">
+                        {renderKeyNotes(activeCard.keyNotes)}
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Toned Down Next Card Trigger Action Area */}
+              {/* Next Card Trigger Action Area */}
               <div className="pt-5 border-t border-zinc-100 dark:border-zinc-900/60 mt-6 w-full">
                 <button
                   onClick={handleNextCard}
