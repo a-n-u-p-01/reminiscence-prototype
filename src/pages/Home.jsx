@@ -48,9 +48,37 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   const showDashboardMode = pendingCount > 0 && !forceShowInput;
   const isInputDisabled = loading || isInitialFetching || !isEditing;
 
+  // Intercept special editor keys (Enter and Backspace)
+  const handleKeyDown = (e) => {
+    const lines = noteText.split('\n');
+    const currentLine = lines[lines.length - 1] || '';
+
+    if (e.key === 'Enter') {
+      // If the current line has nothing but a bullet, don't allow creating another empty bullet line
+      if (currentLine.trim() === '-' || currentLine.trim() === '') {
+        e.preventDefault();
+      }
+    }
+
+    if (e.key === 'Backspace') {
+      // If the user hits Backspace on a line that is just "- " or "-", clear it completely
+      if (currentLine === '- ' || currentLine === '-') {
+        e.preventDefault();
+        const updatedLines = lines.slice(0, -1);
+        setNoteText(updatedLines.join('\n'));
+      }
+    }
+  };
+
   // Handles adding the visual hyphen '-' automatically on line break/input change
   const handleTextareaChange = (e) => {
     const inputValue = e.target.value;
+    
+    // If everything is deleted or it's empty, clear completely to bring back placeholder
+    if (!inputValue || inputValue.trim() === '') {
+      setNoteText('');
+      return;
+    }
     
     // If it's the very first character typed, ensure it starts with a hyphen
     if (inputValue.length === 1 && inputValue !== '-') {
@@ -183,6 +211,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   rows={5}
                   value={noteText}
                   disabled={isInputDisabled}
+                  onKeyDown={handleKeyDown}
                   onChange={handleTextareaChange}
                   placeholder={isInitialFetching ? "Syncing baseline..." : "- Type what you learned today. It only takes a minute, and consistency is key....."}
                   inputMode="text"
