@@ -75,9 +75,10 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
       setNoteText(newText);
 
-      // Restore cursor position on the next frame loop
+      // Restore cursor position on the next frame loop and scroll to bottom
       setTimeout(() => {
         textarea.setSelectionRange(newCursorPos, newCursorPos);
+        textarea.scrollTop = textarea.scrollHeight;
       }, 0);
     }
 
