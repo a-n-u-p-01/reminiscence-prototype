@@ -33,11 +33,12 @@ export function HomeProvider({ children }) {
       if (data && data.dailyLogs && data.dailyLogs.length > 0) {
         const log = data.dailyLogs[0];
         
-        // Reconstruct the hyphenated list from topics array or fallback to rawInput
+        // 🎯 Target extractedTopics array first and map it into a hyphenated block
         let initialText = '';
-        if (log.topics && Array.isArray(log.topics) && log.topics.length > 0) {
-          initialText = log.topics.map(t => `- ${t}`).join('\n');
+        if (log.extractedTopics && Array.isArray(log.extractedTopics) && log.extractedTopics.length > 0) {
+          initialText = log.extractedTopics.map(t => `- ${t}`).join('\n');
         } else {
+          // Fallback to rawInput if extractedTopics doesn't exist or is empty
           initialText = log.rawInput || '';
         }
 

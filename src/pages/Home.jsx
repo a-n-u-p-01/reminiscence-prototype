@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { BookOpen, Flame, Plus, Sparkles, Brain, Target, CalendarDays, Edit2 } from 'lucide-react';
 import { useHomeEngine } from '../context/HomeContext';
 import StatusCapsule from '../components/StatusCapsule';
@@ -20,16 +20,16 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
     handleSaveNote
   } = useHomeEngine();
 
+  const textareaRef = useRef(null);
+
   const handleSave = (e) => {
     e.preventDefault();
     
-    // Extract each line as a topic, remove leading hyphens/spaces, and filter out empty rows
     const topicsArray = noteText
       ? noteText
           .split('\n')
           .map(line => {
             const trimmed = line.trim();
-            // Remove the visual hyphen prefix if present to get clean text values
             if (trimmed.startsWith('-')) {
               return trimmed.substring(1).trim();
             }
@@ -48,52 +48,82 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   const showDashboardMode = pendingCount > 0 && !forceShowInput;
   const isInputDisabled = loading || isInitialFetching || !isEditing;
 
-  // Intercept special editor keys (Enter and Backspace)
+  // Intercept editor shortcuts anywhere in the text based on cursor position
   const handleKeyDown = (e) => {
-    const lines = noteText.split('\n');
-    const currentLine = lines[lines.length - 1] || '';
+    const textarea = e.target;
+    const { selectionStart, value } = textarea;
+
+    // Find exactly which line the cursor is currently sitting on
+    const textBeforeCursor = value.substring(0, selectionStart);
+    const textAfterCursor = value.substring(selectionStart);
+    const linesBefore = textBeforeCursor.split('\n');
+    const currentLine = linesBefore[linesBefore.length - 1];
 
     if (e.key === 'Enter') {
-      // If the current line has nothing but a bullet, don't allow creating another empty bullet line
+      // If the current line is empty or just an empty bullet point, prevent making another empty bullet line
       if (currentLine.trim() === '-' || currentLine.trim() === '') {
         e.preventDefault();
+        return;
       }
+
+      e.preventDefault();
+      
+      // Inject a line break and automatically start the new middle line with a bullet point
+      const newLineAddition = '\n- ';
+      const newText = textBeforeCursor + newLineAddition + textAfterCursor;
+      const newCursorPos = selectionStart + newLineAddition.length;
+
+      setNoteText(newText);
+
+      // Restore cursor position on the next frame loop
+      setTimeout(() => {
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+      }, 0);
     }
 
     if (e.key === 'Backspace') {
-      // If the user hits Backspace on a line that is just "- " or "-", clear it completely
+      // If backspacing on a bullet layout line that has no text, clear out the bullet prefix entirely
       if (currentLine === '- ' || currentLine === '-') {
         e.preventDefault();
-        const updatedLines = lines.slice(0, -1);
-        setNoteText(updatedLines.join('\n'));
+        
+        const lineStartIndex = selectionStart - currentLine.length;
+        const newText = value.substring(0, lineStartIndex) + textAfterCursor;
+        
+        setNoteText(newText);
+
+        setTimeout(() => {
+          textarea.setSelectionRange(lineStartIndex, lineStartIndex);
+        }, 0);
       }
     }
   };
 
-  // Handles adding the visual hyphen '-' automatically on line break/input change
   const handleTextareaChange = (e) => {
     const inputValue = e.target.value;
+    const textarea = e.target;
+    const { selectionStart } = textarea;
     
-    // If everything is deleted or it's empty, clear completely to bring back placeholder
     if (!inputValue || inputValue.trim() === '') {
       setNoteText('');
       return;
     }
     
-    // If it's the very first character typed, ensure it starts with a hyphen
+    // Ensure the very first line starts with a bullet point if they clear everything out
     if (inputValue.length === 1 && inputValue !== '-') {
       setNoteText('- ' + inputValue);
+      setTimeout(() => {
+        textarea.setSelectionRange(3, 3);
+      }, 0);
       return;
     }
 
-    // Process lines to guarantee every non-empty line starts with a hyphen
+    // Standard structural sweep safety fallback logic
     const lines = inputValue.split('\n');
     const formattedLines = lines.map((line, index) => {
-      // If it's a completely empty line and it's the current active typing line, automatically inject the hyphen layout immediately
       if (line === '' && index === lines.length - 1) {
         return '- ';
       }
-      if (line === '' && index !== lines.length - 1) return line;
+      if (line === '') return line;
       
       const trimmed = line.trimStart();
       if (trimmed.length > 0 && !trimmed.startsWith('-')) {
@@ -207,6 +237,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 </div>
 
                 <textarea
+                  ref={textareaRef}
                   required
                   rows={5}
                   value={noteText}

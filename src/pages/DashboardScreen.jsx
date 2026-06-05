@@ -463,31 +463,25 @@ export default function DashboardScreen() {
                 <div className="flex justify-between items-center border-b border-theme pb-2">
                   <div className="flex items-center gap-2 text-emerald-400">
                     <Terminal size={14} />
-                    <span className="text-s2 font-mono font-bold uppercase tracking-wider">Daily Saved Input</span>
+                    <span className="text-s2 font-mono font-bold uppercase tracking-wider">Topic Saved</span>
                   </div>
-                  <span className="text-s1 font-mono font-semibold uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 shadow-sm">
+                  {/* <span className="text-s1 font-mono font-semibold uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 shadow-sm">
                     Active Raw Log
-                  </span>
+                  </span> */}
                 </div>
-                <div className="space-y-1">
+                {/* <div className="space-y-1">
                   <span className="block text-s1 uppercase tracking-wider font-mono text-theme-muted">Input Text Saved:</span>
                   <p className="text-s2 text-zinc-300 leading-relaxed bg-zinc-950/50 p-2.5 rounded-lg border border-zinc-900/80 select-text">
                     {activeDayDetails.dailyLog.rawInput}
                   </p>
-                </div>
-                <div className="flex items-center gap-3 bg-zinc-900/60 p-2 rounded-lg border border-zinc-800/40">
-                  <div className="flex items-center gap-1.5 text-theme-secondary text-s2 font-mono uppercase tracking-wide">
-                    <Cpu size={12} className="text-blue-400" />
-                    Status:
-                  </div>
-                  <span className="text-s1 font-mono text-zinc-200 font-medium">{activeDayDetails.dailyLog.status}</span>
-                </div>
+                </div> */}
+              
 
                 {/* Concept Interactive Workspace */}
                 <div className="space-y-3 pt-1">
-                  <span className="block text-s1 uppercase tracking-wider font-mono text-theme-muted">
-                    Topics Extracted:
-                  </span>
+                  {/* <span className="block text-s1 uppercase tracking-wider font-mono text-theme-muted">
+                    Topics Saved:
+                  </span> */}
 
                   {!isTodayActive ? (
                     /* Premium Minimal Read-Only Mode for Past Days */
@@ -610,6 +604,13 @@ export default function DashboardScreen() {
                       </div>
                     </>
                   )}
+                </div>
+                  <div className="flex items-center gap-3 bg-zinc-900/60 p-2 rounded-lg border border-zinc-800/40">
+                  <div className="flex items-center gap-1.5 text-theme-secondary text-s2 font-mono uppercase tracking-wide">
+                    <Cpu size={12} className="text-blue-400" />
+                    Status:
+                  </div>
+                  <span className="text-s1 font-mono text-zinc-200 font-medium">{activeDayDetails.dailyLog.status}</span>
                 </div>
               </div>
             )}
