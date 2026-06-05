@@ -45,6 +45,12 @@ function usePullToRefresh(
     const THRESHOLD = 52;
 
     const onTouchStart = (e) => {
+      // FIX: If the user touches a textarea that is already scrolled down, do not initialize pull
+      const targetTextarea = e.target.closest('textarea');
+      if (targetTextarea && targetTextarea.scrollTop > 0) {
+        return;
+      }
+
       if (el.scrollTop === 0 && !isRefreshing) {
         startY.current = e.touches[0].clientY;
         isPulling.current = true;
@@ -53,6 +59,15 @@ function usePullToRefresh(
 
     const onTouchMove = (e) => {
       if (!isPulling.current || isRefreshing) return;
+
+      // FIX: If user is scrolling downwards inside a textarea element, block the pull-to-refresh hook
+      const targetTextarea = e.target.closest('textarea');
+      if (targetTextarea && targetTextarea.scrollTop > 0) {
+        isPulling.current = false;
+        setPullDistance(0);
+        setPullMessage('');
+        return;
+      }
 
       const delta = Math.max(0, e.touches[0].clientY - startY.current);
       
@@ -95,6 +110,7 @@ function usePullToRefresh(
       }
     };
 
+    // Note: To allow proper event canceling if needed, passive is kept true but we short-circuit via logic flags
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchmove', onTouchMove, { passive: true });
     el.addEventListener('touchend', onTouchEnd, { passive: true });

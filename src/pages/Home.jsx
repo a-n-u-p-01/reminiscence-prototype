@@ -248,7 +248,8 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         >
           <div className="space-y-4">
             <form onSubmit={handleSave} className="space-y-4">
-              <div className="bg-theme-card border border-theme rounded-2xl p-5 focus-within:border-theme transition-colors relative select-text shadow-sm">
+              {/* CHANGED: Added overscroll-contain directly to the card container component to completely block refresh hooks */}
+              <div className="bg-theme-card border border-theme rounded-2xl p-5 focus-within:border-theme transition-colors relative select-text shadow-sm overscroll-contain">
                 <div className="flex justify-between items-center mb-3 select-none">
                   <label className="block text-s1 font-mono tracking-wider text-theme-muted uppercase">
                     Input Workspace Note
@@ -265,6 +266,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   )}
                 </div>
 
+                {/* CHANGED: Added overscroll-contain to the textarea block as well for secondary native overflow protection */}
                 <textarea
                   ref={textareaRef}
                   required
@@ -278,7 +280,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   autoComplete="on"
                   autoCorrect="on"
                   spellCheck={true}
-                  className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/50 resize-none focus:outline-none leading-relaxed tracking-wide disabled:opacity-50 select-text font-sans"
+                  className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/50 resize-none focus:outline-none leading-relaxed tracking-wide disabled:opacity-50 select-text font-sans overscroll-contain"
                 />
               </div>
 

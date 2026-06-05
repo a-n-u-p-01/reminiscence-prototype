@@ -373,165 +373,184 @@ export default function ReviewScreen({ onBackToHome }) {
             }}
           >
             {/* FRONT CONTAINER VIEW */}
-            <div
-              className={`w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-start shadow-xl transition-all duration-300`}
-              style={{
-                backfaceVisibility: 'hidden',
-                position: showAnswer ? 'absolute' : 'relative',
-                visibility: showAnswer ? 'hidden' : 'visible'
-              }}
-            >
-              <div className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-100 dark:border-zinc-900/60 p-2 rounded-xl mb-5">
-                <span className="text-s1 font-bold tracking-[0.15em] font-mono text-zinc-400 dark:text-zinc-500 uppercase block">
-                  Active Inquiry Challenge
-                </span>
-                <HelpCircle
-                  onClick={() => setShowFSRSModal(true)}
-                  size={14}
-                  className="text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-400 cursor-pointer stroke-[2.5]"
-                />
-              </div>
+      <div
+  className="w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-start transition-all duration-300"
+  style={{
+    backfaceVisibility: 'hidden',
+    position: showAnswer ? 'absolute' : 'relative',
+    visibility: showAnswer ? 'hidden' : 'visible'
+  }}
+>
+  {/* TOP BANNER MODULE */}
+  <div className="flex justify-between items-center pb-4 border-b border-zinc-900/60 mb-6">
+    <div className="flex items-center gap-2">
+      <span className="w-1 h-1 rounded-full bg-zinc-700" />
+      <span className="text-[10px] font-medium tracking-[0.25em] font-mono text-zinc-500 uppercase block">
+        Active Inquiry
+      </span>
+    </div>
+    <button
+      type="button"
+      onClick={() => setShowFSRSModal(true)}
+      className="text-zinc-600 hover:text-zinc-300 p-1 rounded transition-colors duration-200"
+      aria-label="Open Recall Evaluation Guide"
+    >
+      <HelpCircle size={13} className="stroke-[2]" />
+    </button>
+  </div>
 
-              {/* Question Block */}
-              <div className="bg-zinc-50/70 dark:bg-zinc-950/40 border border-zinc-100 dark:border-zinc-900/40 rounded-xl p-5 min-h-[110px] flex items-center">
-                <p className="text-s4 text-zinc-800 dark:text-zinc-400 leading-relaxed font-medium tracking-wide w-full">
-                  {activeCard?.questionText}
-                </p>
-              </div>
+  {/* MAIN INQUIRY CARD BLOCK */}
+  <div className="py-4 min-h-[120px] flex items-start">
+    <p className="text-sm text-zinc-200 leading-relaxed font-light tracking-wide w-full font-sans">
+      {activeCard?.questionText}
+    </p>
+  </div>
 
-              <div className="pt-4 border-t border-zinc-100 dark:border-zinc-900/60 mt-6">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-s1 font-semibold font-mono text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">
-                      Rate Your Recall To Reveal
-                    </span>
-                    <div className="text-s0 font-mono text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900/60 px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-800/80 flex items-center gap-1">
-                      <span>FSRS Engine v5.0</span>
-                    </div>
-                  </div>
+  {/* CONTEXT & ACTION PANEL */}
+  <div className="pt-6 border-t border-zinc-900/60 mt-6 space-y-4">
+    <div className="flex items-center justify-between">
+      <span className="text-[10px] font-medium font-mono text-zinc-600 uppercase tracking-widest block">
+        Evaluate Performance
+      </span>
+      <span className="text-[9px] font-mono text-zinc-500 tracking-wider bg-zinc-900/40 px-2 py-0.5 rounded border border-zinc-900">
+        FSRS v5.0
+      </span>
+    </div>
 
-                  <div className="grid grid-cols-4 gap-2">
-                    {/* AGAIN BUTTON */}
-                    <button
-                      disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('FORGOT', e)}
-                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-red-200 dark:hover:border-red-900/40 text-zinc-300 hover:text-red-600 dark:hover:text-red-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
-                    >
-                      <ShieldAlert size={13} className="text-red-500/60" />
-                      <span className="text-s1 font-semibold tracking-wide">Forget</span>
-                      <span className="text-s1 font-mono text-red-600 dark:text-red-500/70 font-medium mt-0.5 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/20 px-1 rounded">
-                        Restart
-                      </span>
-                    </button>
+    {/* MINIMAL ACTION MATRIX */}
+    <div className="grid grid-cols-4 gap-2">
+      
+      {/* AGAIN ACCENT ACTION */}
+      <button
+        disabled={submittingRating || isExiting}
+        onClick={(e) => handleRateCard('FORGOT', e)}
+        className="group bg-zinc-900/20 hover:bg-red-950/10 border border-zinc-900 hover:border-red-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+      >
+        <ShieldAlert size={12} className="text-zinc-600 group-hover:text-red-500/80 transition-colors" />
+        <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Forget</span>
+        {/* CHANGED: Swapped text-zinc-600 with constant state color tones */}
+        <span className="text-[9px] font-mono text-red-500/60 group-hover:text-red-400/90 transition-colors tracking-wider uppercase font-medium">
+          Reset
+        </span>
+      </button>
 
-                    {/* HARD BUTTON */}
-                    <button
-                      disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('PARTIAL', e)}
-                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-orange-200 dark:hover:border-orange-900/40 text-zinc-300 hover:text-orange-600 dark:hover:text-orange-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
-                    >
-                      <Frown size={13} className="text-orange-500/60" />
-                      <span className="text-s1 font-semibold tracking-wide">Partial</span>
-                      <span className="text-s1 font-mono text-orange-600 dark:text-orange-400/70 font-medium mt-0.5 bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/20 px-1 rounded">
-                        Shorter
-                      </span>
-                    </button>
+      {/* HARD ACCENT ACTION */}
+      <button
+        disabled={submittingRating || isExiting}
+        onClick={(e) => handleRateCard('PARTIAL', e)}
+        className="group bg-zinc-900/20 hover:bg-orange-950/10 border border-zinc-900 hover:border-orange-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+      >
+        <Frown size={12} className="text-zinc-600 group-hover:text-orange-500/80 transition-colors" />
+        <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Partial</span>
+        {/* CHANGED: Swapped text-zinc-600 with constant state color tones */}
+        <span className="text-[9px] font-mono text-orange-500/60 group-hover:text-orange-400/90 transition-colors tracking-wider uppercase font-medium">
+          Short
+        </span>
+      </button>
 
-                    {/* GOOD BUTTON */}
-                    <button
-                      disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('RECALLED', e)}
-                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-blue-200 dark:hover:border-blue-900/40 text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
-                    >
-                      <Smile size={13} className="text-blue-500/60" />
-                      <span className="text-s1 font-semibold tracking-wide">Recalled</span>
-                      <span className="text-s1 font-mono text-blue-600 dark:text-blue-400/70 font-medium mt-0.5 bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/20 px-1 rounded">
-                        Standard
-                      </span>
-                    </button>
+      {/* GOOD ACCENT ACTION */}
+      <button
+        disabled={submittingRating || isExiting}
+        onClick={(e) => handleRateCard('RECALLED', e)}
+        className="group bg-zinc-900/20 hover:bg-blue-950/10 border border-zinc-900 hover:border-blue-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+      >
+        <Smile size={12} className="text-zinc-600 group-hover:text-blue-500/80 transition-colors" />
+        <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Recall</span>
+        {/* CHANGED: Swapped text-zinc-600 with constant state color tones */}
+        <span className="text-[9px] font-mono text-blue-500/60 group-hover:text-blue-400/90 transition-colors tracking-wider uppercase font-medium">
+          Norm
+        </span>
+      </button>
 
-                    {/* EASY BUTTON */}
-                    <button
-                      disabled={submittingRating || isExiting}
-                      onClick={(e) => handleRateCard('FLUENT', e)}
-                      className="bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/20 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-emerald-200 dark:hover:border-emerald-900/40 text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 py-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all duration-150 active:scale-[0.96] disabled:opacity-40"
-                    >
-                      <CheckCircle2 size={13} className="text-emerald-500/60" />
-                      <span className="text-s1 font-semibold tracking-wide whitespace-nowrap">Fluent</span>
-                      <span className="text-s1 font-mono text-emerald-600 dark:text-emerald-400/70 font-medium mt-0.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/20 px-1 rounded">
-                        Fast {">>"}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* EASY ACCENT ACTION */}
+      <button
+        disabled={submittingRating || isExiting}
+        onClick={(e) => handleRateCard('FLUENT', e)}
+        className="group bg-zinc-900/20 hover:bg-emerald-950/10 border border-zinc-900 hover:border-emerald-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+      >
+        <CheckCircle2 size={12} className="text-zinc-600 group-hover:text-emerald-500/80 transition-colors" />
+        <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Fluent</span>
+        {/* CHANGED: Swapped text-zinc-600 with constant state color tones */}
+        <span className="text-[9px] font-mono text-emerald-500/60 group-hover:text-emerald-400/90 transition-colors tracking-wider uppercase font-medium">
+          Skip
+        </span>
+      </button>
+
+    </div>
+  </div>
+</div>
 
             {/* BACK CONTAINER VIEW */}
-            <div
-              className={`w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-900/80 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition-all duration-300`}
-              style={{
-                transform: 'rotateY(180deg)',
-                backfaceVisibility: 'hidden',
-                position: showAnswer ? 'relative' : 'absolute',
-                visibility: showAnswer ? 'visible' : 'hidden'
-              }}
-            >
-              <div className="space-y-5 flex-1">
-                <div className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-100 dark:border-zinc-900/60 p-2 rounded-xl">
-                  <span className="text-s1 font-bold tracking-widest font-mono text-zinc-500 uppercase block">
-                    Verified Answer Map
-                  </span>
-                </div>
+      <div
+    className="w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-between transition-all duration-300"
+    style={{
+      transform: 'rotateY(180deg)',
+      backfaceVisibility: 'hidden',
+      position: showAnswer ? 'absolute' : 'relative',
+      visibility: showAnswer ? 'visible' : 'hidden'
+    }}
+  >
+    <div className="space-y-6 flex-1">
+      
+      {/* TOP BANNER MODULE */}
+      <div className="flex justify-between items-center pb-4 border-b border-zinc-900/60">
+        <div className="flex items-center gap-2">
+          <span className="w-1 h-1 rounded-full bg-blue-500/80" />
+          <span className="text-[10px] font-medium tracking-[0.25em] font-mono text-zinc-500 uppercase block">
+            Verified Solution
+          </span>
+        </div>
+      </div>
 
-                {/* Answer Container Block */}
-                <div className="bg-blue-50/30 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/20 rounded-xl p-5 min-h-[110px]">
-                  <p className="text-s3 text-zinc-800 dark:text-zinc-400 leading-relaxed font-normal tracking-wide whitespace-pre-wrap font-sans">
-                    {activeCard?.answerText}
-                  </p>
-                </div>
+      {/* MAIN ANSWER TEXT BLOCK */}
+      <div className="py-2 min-h-[120px] flex items-start">
+        <p className="text-sm text-zinc-200 leading-relaxed font-light tracking-wide whitespace-pre-wrap font-sans w-full">
+          {activeCard?.answerText}
+        </p>
+      </div>
 
-                {/* Accordion Contextual Key Notes */}
-                {activeCard?.keyNotes && (
-                  <div className="pt-4 border-t border-zinc-100 dark:border-zinc-900/40">
-                    <button
-                      type="button"
-                      onClick={() => setShowNotes(!showNotes)}
-                      className="w-full flex items-center justify-between p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-100 dark:border-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-950/40 transition-all duration-200 group"
-                    >
-                      <span className="text-s2 font-bold tracking-widest font-mono text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 uppercase block text-left">
-                        Contextual Key Notes (Extra Info)
-                      </span>
-                      <ChevronDown 
-                        size={16} 
-                        className={`text-zinc-400 group-hover:text-zinc-600 transition-transform duration-300 ${showNotes ? 'rotate-180' : ''}`} 
-                      />
-                    </button>
-                    
-                    <div 
-                      className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                        showNotes ? 'max-h-[500px] opacity-100 mt-3' : 'max-h-0 opacity-0'
-                      }`}
-                    >
-                      <div className="bg-zinc-50 dark:bg-zinc-950/30 border border-zinc-100 dark:border-zinc-900/30 rounded-xl p-4 shadow-inner">
-                        {renderKeyNotes(activeCard.keyNotes)}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Next Card Trigger Action Area */}
-              <div className="pt-5 border-t border-zinc-100 dark:border-zinc-900/60 mt-6 w-full">
-                <button
-                  onClick={handleNextCard}
-                  className="w-full bg-zinc-100 hover:bg-zinc-200/80 text-zinc-700 border border-zinc-300/70 dark:bg-zinc-800/40 dark:hover:bg-zinc-800/80 dark:text-zinc-300 dark:border-zinc-700/60 font-medium text-s2 py-3 rounded-xl transition-all duration-150 active:scale-[0.99] flex items-center justify-center gap-2 tracking-wide hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-900/50"
-                >
-                  <span>Next Concept Card</span>
-                  <ArrowRight size={14} className="stroke-[2.5]" />
-                </button>
-              </div>
+      {/* ACCORDION CONTEXTUAL KEY NOTES */}
+      {activeCard?.keyNotes && (
+        <div className="pt-4 border-t border-zinc-900/60">
+          <button
+            type="button"
+            onClick={() => setShowNotes(!showNotes)}
+            className="w-full flex items-center justify-between py-2 group focus:outline-none"
+          >
+            <span className="text-[10px] font-medium tracking-[0.15em] font-mono text-zinc-500 group-hover:text-zinc-300 uppercase block text-left transition-colors">
+              Key Insights
+            </span>
+            <ChevronDown 
+              size={13} 
+              className={`text-zinc-600 group-hover:text-zinc-400 transition-transform duration-300 ease-[0.22,1,0.36,1] ${showNotes ? 'rotate-180 text-zinc-400' : ''}`} 
+            />
+          </button>
+          
+          <div 
+            className={`transition-all duration-300 ease-[0.22,1,0.36,1] overflow-hidden ${
+              showNotes ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+            }`}
+          >
+            {/* Removed indentation/borders to give extra info full maximum width matching the answer above */}
+            <div className="text-xs text-zinc-400 font-sans tracking-wide leading-relaxed w-full pt-1">
+              {renderKeyNotes(activeCard.keyNotes)}
             </div>
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* CONTINUATION LAYER */}
+    <div className="pt-6 border-t border-zinc-900/60 mt-8 w-full">
+      <button
+        onClick={handleNextCard}
+        className="group w-full bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-900 text-zinc-400 hover:text-zinc-100 font-medium text-xs py-3.5 rounded-lg transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 tracking-wide"
+      >
+        <span>Next Concept Card</span>
+        <ArrowRight size={13} className="text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all duration-200" />
+      </button>
+    </div>
+  </div>
 
           </div>
         </div>
