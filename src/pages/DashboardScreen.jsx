@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Calendar, Flame, Layers, Trophy, Activity, ChevronLeft, ChevronRight, Eye, Cpu, Terminal, Loader2, Plus, X, Save, Check, AlertCircle } from 'lucide-react';
 import { useDashboard } from '../context/DashboardContext';
 import { noteService } from '../api/noteService';
+import ConceptsExplorer from '../components/ConceptsExplorer';
 
 export default function DashboardScreen() {
   const heatmapScrollContainerRef = useRef(null);
@@ -24,7 +25,7 @@ export default function DashboardScreen() {
   const [localDeletedTopics, setLocalDeletedTopics] = useState([]);
   const [newTopicInput, setNewTopicInput] = useState('');
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'sync' | 'success' | 'error' | 'restricted'
-
+  const [showConcepts, setShowConcepts] = useState(true);
   // Sync state cleanly whenever the day ledger transforms
   useEffect(() => {
     if (activeDayDetails?.dailyLog?.extractedTopics) {
@@ -256,6 +257,16 @@ export default function DashboardScreen() {
     }
   }, [saveStatus, isSaveActiveAndValid]);
 
+
+  if (showConcepts) {
+  return (
+    <ConceptsExplorer
+      revisionLogs={activeDayDetails?.revisionLogs || []}
+      onBack={() => setShowConcepts(false)}
+    />
+  );
+}
+
   return (
     <div className="space-y-6 animate-[fadeIn_0.15s_ease-out] pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out">
 
@@ -281,8 +292,8 @@ export default function DashboardScreen() {
           </div>
         </div>
 
-        <div className="bg-theme-card border border-theme rounded-xl p-4 flex flex-col justify-between h-24 transition-all hover:scale-[1.01]">
-          <div className="flex items-center gap-2 text-theme-secondary">
+        <div onClick={()=>setShowConcepts(true)} className="bg-theme-card border border-theme rounded-xl p-4 flex flex-col justify-between h-24 transition-all hover:scale-[1.01]">
+          <div className="flex items-center gap-2 text-theme-secondary" >
             <Layers size={15} className="text-blue-400 shrink-0" />
             <span className="text-s1 font-bold tracking-widest uppercase font-mono truncate">Concepts</span>
           </div>
