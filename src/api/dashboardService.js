@@ -15,5 +15,15 @@ export const dashboardService = {
   async getActivityDetails(dateStr) {
     const response = await apiClient.get(`/dashboard/activity?date=${dateStr}`);
     return response.data;
+  },
+  async getConceptsExplorer(page = 1, search = '', sortNewest = true) {
+    const response = await apiClient.get('/dashboard/concepts', {
+      params: {
+        page,
+        search: search.trim() || undefined, // Send undefined if empty to skip empty string params
+        sortNewest
+      }
+    });
+    return response.data; // Structure: { data: [...], currentPage: 1, totalPages: 1, totalItems: 0 }
   }
 };
