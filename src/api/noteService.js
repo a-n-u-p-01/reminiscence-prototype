@@ -1,8 +1,8 @@
 import apiClient from './apiClient';
 
 export const noteService = {
-  async saveDailyEntry(text) {
-    const response = await apiClient.post('/entry', { text });
+ async saveDailyEntry(requestBody) {
+    const response = await apiClient.post('/entry', requestBody);
     return response.data;
   },
 

@@ -31,7 +31,16 @@ export function HomeProvider({ children }) {
       const data = await dashboardService.getActivityDetails(todayStr);
 
       if (data && data.dailyLogs && data.dailyLogs.length > 0) {
-        const initialText = data.dailyLogs[0].rawInput || '';
+        const log = data.dailyLogs[0];
+        
+        // Reconstruct the hyphenated list from topics array or fallback to rawInput
+        let initialText = '';
+        if (log.topics && Array.isArray(log.topics) && log.topics.length > 0) {
+          initialText = log.topics.map(t => `- ${t}`).join('\n');
+        } else {
+          initialText = log.rawInput || '';
+        }
+
         setNoteText(initialText);
         setOriginalNoteText(initialText);
         setHasExistingEntry(true);
@@ -56,21 +65,22 @@ export function HomeProvider({ children }) {
     }
   }, [todayStr, isAuthenticated]); // 🔑 Re-run structural sync cleanly if session unlocks
 
-  const handleSaveNote = async (textToSave) => {
-    if (!textToSave.trim() || loading || textToSave === originalNoteText) return;
+  const handleSaveNote = async (requestBody) => {
+    if (loading || !noteText.trim() || noteText === originalNoteText) return;
 
     setLoading(true);
     setStatusMessage(null);
 
     try {
-      await noteService.saveDailyEntry(textToSave);
+      // Pass the structured { topics: [] } body to the service
+      await noteService.saveDailyEntry(requestBody);
 
       setStatusMessage({
         type: 'success',
         text: 'Note saved successfully.'
       });
 
-      setOriginalNoteText(textToSave);
+      setOriginalNoteText(noteText);
       setHasExistingEntry(true);
       setIsEditing(false);
     } catch (err) {
@@ -86,7 +96,7 @@ export function HomeProvider({ children }) {
     }
   };
 
- const resetHomeState = () => {
+  const resetHomeState = () => {
     setNoteText('');
     setOriginalNoteText('');
     setLoading(false); // 🔑 Fixed: Changed from loading(false) to setLoading(false)
