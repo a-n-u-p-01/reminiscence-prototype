@@ -27,7 +27,7 @@ export default function ConceptsExplorer({ revisionLogs = [], onBack }) {
 
   return (
     // Added 'fade-in' class to handle smooth entry
-    <div className="max-w-xs mx-auto py-8 px-5 fade-in">
+    <div className="max-w-xs mx-auto py-6 px-1 fade-in">
       <nav className="flex justify-between items-center mb-10">
         <button 
           onClick={onBack} 
@@ -37,7 +37,7 @@ export default function ConceptsExplorer({ revisionLogs = [], onBack }) {
         </button>
         <button 
           onClick={() => setSortNewest(!sortNewest)}
-          className="text-[9px] uppercase tracking-[0.25em] text-zinc-700 hover:text-zinc-400 font-bold transition-colors"
+          className="text-s0 uppercase tracking-[0.25em] text-zinc-400 hover:text-zinc-400 font-bold transition-colors"
         >
           {sortNewest ? 'Newest First' : 'Older First'}
         </button>
@@ -47,7 +47,7 @@ export default function ConceptsExplorer({ revisionLogs = [], onBack }) {
         value={search}
         onChange={(e) => { setSearch(e.target.value); setPage(1); }}
         placeholder="Search..."
-        className="w-full bg-transparent border-b border-zinc-700 pb-2 text-sm text-zinc-100 placeholder:text-zinc-800 focus:outline-none focus:border-zinc-500 transition-all duration-300"
+        className="w-full bg-transparent border-b border-zinc-700 pb-2 text-s2 text-zinc-100 placeholder:text-zinc-800 focus:outline-none focus:border-zinc-500 transition-all duration-300"
       />
 
       {/* Added transition-all to container for smooth re-rendering */}
@@ -58,10 +58,10 @@ export default function ConceptsExplorer({ revisionLogs = [], onBack }) {
             className="flex justify-between items-center group cursor-pointer transition-all duration-300 hover:translate-x-1"
           >
             <div className="truncate pr-4">
-              <div className="text-[13px] text-zinc-300 group-hover:text-white transition-colors duration-300 truncate">
+              <div className="text-s2 text-zinc-300 group-hover:text-white transition-colors duration-300 truncate">
                 {item.conceptName}
               </div>
-              <div className="text-[9px] text-zinc-600 font-mono mt-0.5 tracking-tight">
+              <div className="text-s0 text-zinc-600 font-mono mt-0.5 tracking-tight">
                 {item.reviewCount} {item.reviewCount === 1 ? 'REVISION' : 'REVISIONS'}
               </div>
             </div>
