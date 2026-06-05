@@ -273,7 +273,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   disabled={isInputDisabled}
                   onKeyDown={handleKeyDown}
                   onChange={handleTextareaChange}
-                  placeholder={isInitialFetching ? "Syncing baseline..." : "- Type what you learned today. It only takes a minute, and consistency is key....."}
+                  placeholder={isInitialFetching ? "Syncing baseline..." : "- Type topics learned today.."}
                   inputMode="text"
                   autoComplete="on"
                   autoCorrect="on"
