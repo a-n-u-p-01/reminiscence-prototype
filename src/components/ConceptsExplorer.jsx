@@ -17,6 +17,22 @@ export default function ConceptsExplorer({ onBack }) {
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+  const syncRoute = () => {
+    const hash = window.location.hash.replace('#', '');
+
+    if (hash === 'dashboard/concepts') {
+      setSelectedConcept(null);
+    }
+  };
+
+  window.addEventListener('hashchange', syncRoute);
+
+  return () => {
+    window.removeEventListener('hashchange', syncRoute);
+  };
+}, []);
+
   // Unified Trigger for explicit submissions (Button click or Enter Key)
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault(); 
@@ -73,7 +89,7 @@ export default function ConceptsExplorer({ onBack }) {
           transition={mobileTransition}
           className="w-full pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
         >
-          <ConceptDetail concept={selectedConcept} onBack={() => setSelectedConcept(null)} />
+          <ConceptDetail concept={selectedConcept} onBack={() => window.history.back()}/>
         </motion.div>
       ) : (
         // EXPLORER LIST VIEW CONTAINER MATCHING SYSTEM WIDTH
@@ -132,7 +148,15 @@ export default function ConceptsExplorer({ onBack }) {
               concepts.map((item, i) => (
                 <div 
                   key={`${item.conceptId || item.conceptName}-${i}`} 
-                  onClick={() => setSelectedConcept(item)}
+                  onClick={() => {
+  window.history.pushState(
+    null,
+    '',
+    `#dashboard/concepts/${item.conceptId}`
+  );
+
+  setSelectedConcept(item);
+}}
                   className="flex justify-between items-center group cursor-pointer py-3.5 bg-transparent transition-all active:translate-x-0.5"
                 >
                   <div className="truncate pr-4 space-y-0.5">

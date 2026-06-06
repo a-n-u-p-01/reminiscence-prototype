@@ -183,24 +183,45 @@ export default function App() {
     if (Capacitor.getPlatform() !== 'android') return;
 
     const setupBackButtonLogic = async () => {
-      const backListener = await CapacitorApp.addListener('backButton', () => {
-        if (currentTab !== 'home') {
-          navigateTo('home');
-        } else {
-          if (backPressExitFlag) {
-            CapacitorApp.exitApp();
-          } else {
-            setBackPressExitFlag(true);
-            if (setStatusMessage) {
-              setStatusMessage({ text: "Press back again to close app", type: "warn" });
-            }
-            setTimeout(() => {
-              setBackPressExitFlag(false);
-              if (setStatusMessage) setStatusMessage(null);
-            }, 1500);
-          }
-        }
+     const backListener = await CapacitorApp.addListener('backButton', () => {
+  const hash = window.location.hash.replace('#', '');
+
+  // Handle dashboard child routes first
+  if (
+    hash.startsWith('dashboard/concepts')
+  ) {
+    window.history.back();
+    return;
+  }
+
+  // Main tab navigation
+  if (currentTab !== 'home') {
+    navigateTo('home');
+    return;
+  }
+
+  // Exit app logic
+  if (backPressExitFlag) {
+    CapacitorApp.exitApp();
+  } else {
+    setBackPressExitFlag(true);
+
+    if (setStatusMessage) {
+      setStatusMessage({
+        text: 'Press back again to close app',
+        type: 'warn'
       });
+    }
+
+    setTimeout(() => {
+      setBackPressExitFlag(false);
+
+      if (setStatusMessage) {
+        setStatusMessage(null);
+      }
+    }, 1500);
+  }
+});
       return backListener;
     };
 
@@ -242,12 +263,15 @@ export default function App() {
         return;
       }
 
-      if (TAB_SEQUENCE.includes(rawHash)) {
-        setCurrentTab(rawHash);
-      } else {
-        setCurrentTab('home');
-        window.history.replaceState(null, '', window.location.pathname);
-      }
+      if (rawHash === 'dashboard' || rawHash.startsWith('dashboard/')) {
+  setCurrentTab('dashboard');
+}
+else if (TAB_SEQUENCE.includes(rawHash)) {
+  setCurrentTab(rawHash);
+}
+else {
+  setCurrentTab('home');
+}
     };
 
     sanitizeAndRoute();

@@ -38,6 +38,27 @@ export default function DashboardScreen() {
     setSaveStatus('idle');
   }, [activeDayDetails]);
 
+
+//navigation hash impl
+  useEffect(() => {
+  const syncRoute = () => {
+    const hash = window.location.hash.replace('#', '');
+
+    setShowConcepts(
+      hash === 'dashboard/concepts' ||
+      hash.startsWith('dashboard/concepts/')
+    );
+  };
+
+  syncRoute();
+
+  window.addEventListener('hashchange', syncRoute);
+
+  return () => {
+    window.removeEventListener('hashchange', syncRoute);
+  };
+}, []);
+
   // Track deep differences to control the Save action button state cleanly
   const hasChanges = useMemo(() => {
     const originalTopics = activeDayDetails?.dailyLog?.extractedTopics || [];
@@ -268,10 +289,12 @@ return (
       exit={{ x: 50, opacity: 0 }} // Smooth slide-out to the right
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
     >
-      <ConceptsExplorer
-        revisionLogs={activeDayDetails?.revisionLogs || []}
-        onBack={() => setShowConcepts(false)}
-      />
+     <ConceptsExplorer
+  revisionLogs={activeDayDetails?.revisionLogs || []}
+  onBack={() => {
+    window.history.back();
+  }}
+/>
     </motion.div>
   ) : (
     <motion.div
@@ -307,7 +330,9 @@ return (
 
         {/* CLICKABLE CONCEPTS BOX */}
         <div 
-          onClick={() => setShowConcepts(true)} 
+          onClick={() => {
+    window.location.hash = 'dashboard/concepts';
+  }} 
           className="bg-theme-card border border-zinc-700/60 rounded-xl p-4 flex flex-col justify-between h-24 transition-all active:scale-[0.97] active:bg-zinc-900/40 select-none cursor-pointer"
         >
           <div className="flex items-center justify-between text-theme-secondary w-full">
