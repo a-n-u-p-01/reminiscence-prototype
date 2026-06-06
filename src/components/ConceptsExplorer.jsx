@@ -18,20 +18,20 @@ export default function ConceptsExplorer({ onBack }) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-  const syncRoute = () => {
-    const hash = window.location.hash.replace('#', '');
+    const syncRoute = () => {
+      const hash = window.location.hash.replace('#', '');
 
-    if (hash === 'dashboard/concepts') {
-      setSelectedConcept(null);
-    }
-  };
+      if (hash === 'dashboard/concepts') {
+        setSelectedConcept(null);
+      }
+    };
 
-  window.addEventListener('hashchange', syncRoute);
+    window.addEventListener('hashchange', syncRoute);
 
-  return () => {
-    window.removeEventListener('hashchange', syncRoute);
-  };
-}, []);
+    return () => {
+      window.removeEventListener('hashchange', syncRoute);
+    };
+  }, []);
 
   // Unified Trigger for explicit submissions (Button click or Enter Key)
   const handleSearchSubmit = (e) => {
@@ -75,19 +75,12 @@ export default function ConceptsExplorer({ onBack }) {
         // DETAIL VIEW CONTAINER MATCHING SYSTEM WIDTH
         <motion.div
           key="detail"
-          // drag="x"
-          // dragConstraints={{ left: 0, right: 0 }}
-          // dragElastic={{ left: 0.1, right: 0.6 }}
-          // onDragEnd={(event, info) => {
-          //   if (info.offset.x > 80 || info.velocity.x > 300) {
-          //     setSelectedConcept(null);
-          //   }
-          // }}
           initial={{ x: 16, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 16, opacity: 0 }}
           transition={mobileTransition}
-          className="w-full pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
+          /* Added max-w-xl mx-auto to center and match system profile layout standards */
+          className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
         >
           <ConceptDetail concept={selectedConcept} onBack={() => window.history.back()}/>
         </motion.div>
@@ -95,19 +88,12 @@ export default function ConceptsExplorer({ onBack }) {
         // EXPLORER LIST VIEW CONTAINER MATCHING SYSTEM WIDTH
         <motion.div
           key="list"
-          // drag="x"
-          // dragConstraints={{ left: 0, right: 0 }}
-          // dragElastic={{ left: 0.1, right: 0.6 }}
-          // onDragEnd={(event, info) => {
-          //   if (info.offset.x > 80 || info.velocity.x > 300) {
-          //     onBack();
-          //   }
-          // }}
           initial={{ x: -16, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -16, opacity: 0 }}
           transition={mobileTransition}
-          className="w-full pb-20 space-y-6 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
+          /* Added max-w-xl mx-auto to prevent infinite horizontal stretching on laptops */
+          className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
         >
           {/* Structural Header Layout - Matches Settings Screen Alignment perfectly */}
           <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">
@@ -149,14 +135,14 @@ export default function ConceptsExplorer({ onBack }) {
                 <div 
                   key={`${item.conceptId || item.conceptName}-${i}`} 
                   onClick={() => {
-  window.history.pushState(
-    null,
-    '',
-    `#dashboard/concepts/${item.conceptId}`
-  );
+                    window.history.pushState(
+                      null,
+                      '',
+                      `#dashboard/concepts/${item.conceptId}`
+                    );
 
-  setSelectedConcept(item);
-}}
+                    setSelectedConcept(item);
+                  }}
                   className="flex justify-between items-center group cursor-pointer py-3.5 bg-transparent transition-all active:translate-x-0.5"
                 >
                   <div className="truncate pr-4 space-y-0.5">

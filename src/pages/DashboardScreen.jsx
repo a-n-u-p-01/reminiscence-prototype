@@ -304,7 +304,7 @@ return (
       exit={{ x: -50, opacity: 0 }} // Smooth slide-out to the left
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
     >
-     <div className="space-y-6 animate-[fadeIn_0.15s_ease-out] pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out">
+     <div className="space-y-6 max-w-xl mx-auto animate-[fadeIn_0.15s_ease-out] pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out">
 
       {/* Visual Header */}
       <div className="border-b border-theme pb-4">

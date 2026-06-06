@@ -80,7 +80,8 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   };
 
   return (
-    <div className={`w-full pb-20 relative transform will-change-transform antialiased selection:bg-zinc-800 selection:text-white transition-all duration-[240ms] ease-[cubic-bezier(0.16,1,0.3,1)]
+    /* Changed layout target from width full-unbound to max-w-xl centered wrapper to snap nicely on laptops */
+    <div className={`w-full max-w-xl mx-auto pb-20 relative transform will-change-transform antialiased selection:bg-zinc-800 selection:text-white transition-all duration-[240ms] ease-[cubic-bezier(0.16,1,0.3,1)]
       ${animateIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.98]'}`}
     >
       

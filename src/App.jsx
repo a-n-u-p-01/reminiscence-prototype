@@ -45,7 +45,6 @@ function usePullToRefresh(
     const THRESHOLD = 52;
 
     const onTouchStart = (e) => {
-      // FIX: If the user touches a textarea that is already scrolled down, do not initialize pull
       const targetTextarea = e.target.closest('textarea');
       if (targetTextarea && targetTextarea.scrollTop > 0) {
         return;
@@ -60,7 +59,6 @@ function usePullToRefresh(
     const onTouchMove = (e) => {
       if (!isPulling.current || isRefreshing) return;
 
-      // FIX: If user is scrolling downwards inside a textarea element, block the pull-to-refresh hook
       const targetTextarea = e.target.closest('textarea');
       if (targetTextarea && targetTextarea.scrollTop > 0) {
         isPulling.current = false;
@@ -70,7 +68,6 @@ function usePullToRefresh(
       }
 
       const delta = Math.max(0, e.touches[0].clientY - startY.current);
-      
       const damped = Math.min(55 * (1 - Math.exp(-delta / 55)), 55);
 
       setPullDistance(damped);
@@ -110,7 +107,6 @@ function usePullToRefresh(
       }
     };
 
-    // Note: To allow proper event canceling if needed, passive is kept true but we short-circuit via logic flags
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchmove', onTouchMove, { passive: true });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
@@ -183,45 +179,39 @@ export default function App() {
     if (Capacitor.getPlatform() !== 'android') return;
 
     const setupBackButtonLogic = async () => {
-     const backListener = await CapacitorApp.addListener('backButton', () => {
-  const hash = window.location.hash.replace('#', '');
+      const backListener = await CapacitorApp.addListener('backButton', () => {
+        const hash = window.location.hash.replace('#', '');
 
-  // Handle dashboard child routes first
-  if (
-    hash.startsWith('dashboard/concepts')
-  ) {
-    window.history.back();
-    return;
-  }
+        if (hash.startsWith('dashboard/concepts')) {
+          window.history.back();
+          return;
+        }
 
-  // Main tab navigation
-  if (currentTab !== 'home') {
-    navigateTo('home');
-    return;
-  }
+        if (currentTab !== 'home') {
+          navigateTo('home');
+          return;
+        }
 
-  // Exit app logic
-  if (backPressExitFlag) {
-    CapacitorApp.exitApp();
-  } else {
-    setBackPressExitFlag(true);
+        if (backPressExitFlag) {
+          CapacitorApp.exitApp();
+        } else {
+          setBackPressExitFlag(true);
 
-    if (setStatusMessage) {
-      setStatusMessage({
-        text: 'Press back again to close app',
-        type: 'warn'
+          if (setStatusMessage) {
+            setStatusMessage({
+              text: 'Press back again to close app',
+              type: 'warn'
+            });
+          }
+
+          setTimeout(() => {
+            setBackPressExitFlag(false);
+            if (setStatusMessage) {
+              setStatusMessage(null);
+            }
+          }, 1500);
+        }
       });
-    }
-
-    setTimeout(() => {
-      setBackPressExitFlag(false);
-
-      if (setStatusMessage) {
-        setStatusMessage(null);
-      }
-    }, 1500);
-  }
-});
       return backListener;
     };
 
@@ -264,14 +254,12 @@ export default function App() {
       }
 
       if (rawHash === 'dashboard' || rawHash.startsWith('dashboard/')) {
-  setCurrentTab('dashboard');
-}
-else if (TAB_SEQUENCE.includes(rawHash)) {
-  setCurrentTab(rawHash);
-}
-else {
-  setCurrentTab('home');
-}
+        setCurrentTab('dashboard');
+      } else if (TAB_SEQUENCE.includes(rawHash)) {
+        setCurrentTab(rawHash);
+      } else {
+        setCurrentTab('home');
+      }
     };
 
     sanitizeAndRoute();
@@ -299,37 +287,10 @@ else {
   const revisionRef = useRef(null);
   const settingsRef = useRef(null);
 
-  const isHomeRefreshing = usePullToRefresh(
-    mainContentRef,
-    handleGlobalRefresh,
-    pullDistance,
-    setPullDistance,
-    setPullMessage
-  );
-
-  const isDashRefreshing = usePullToRefresh(
-    dashboardRef,
-    handleGlobalRefresh,
-    pullDistance,
-    setPullDistance,
-    setPullMessage
-  );
-
-  const isRevRefreshing = usePullToRefresh(
-    revisionRef,
-    handleGlobalRefresh,
-    pullDistance,
-    setPullDistance,
-    setPullMessage
-  );
-
-  const isSetRefreshing = usePullToRefresh(
-    settingsRef,
-    handleGlobalRefresh,
-    pullDistance,
-    setPullDistance,
-    setPullMessage
-  );
+  const isHomeRefreshing = usePullToRefresh(mainContentRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage);
+  const isDashRefreshing = usePullToRefresh(dashboardRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage);
+  const isRevRefreshing = usePullToRefresh(revisionRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage);
+  const isSetRefreshing = usePullToRefresh(settingsRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage);
 
   const isAnyRefreshing = isHomeRefreshing || isDashRefreshing || isRevRefreshing || isSetRefreshing;
 
@@ -362,28 +323,21 @@ else {
 
   const activeMessage = statusMessage || (isManualRefreshing ? "Syncing" : null);
   const activeType = statusMessage ? (statusMessage.type || 'success') : 'sync';
-
   const activeTabOffsetIndex = TAB_SEQUENCE.indexOf(currentTab);
 
   const dynamicSlideTransformStyle = {
     transform: `translateY(${pullDistance}px) translateX(-${activeTabOffsetIndex * 25}%)`,
-    transition: pullDistance === 0
-      ? 'transform 330ms cubic-bezier(0.19, 1, 0.22, 1), filter 250ms ease'
-      : 'none',
-
-    filter: isAnyRefreshing
-      ? 'blur(0.5px) saturate(0.98)'
-      : 'blur(0px) saturate(1)',
-
+    transition: pullDistance === 0 ? 'transform 330ms cubic-bezier(0.19, 1, 0.22, 1), filter 250ms ease' : 'none',
+    filter: isAnyRefreshing ? 'blur(0.5px) saturate(0.98)' : 'blur(0px) saturate(1)',
     contain: 'layout style'
   };
 
   return (
-    <div className="flex flex-col flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
+    <div className="flex flex-col md:flex-row flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
 
       <div
         style={{ height: 'env(safe-area-inset-top, 24px)' }}
-        className="fixed top-0 left-0 right-0 bg-theme z-[90] w-full"
+        className="fixed top-0 left-0 right-0 bg-theme z-[90] w-full md:hidden"
       />
 
       <style>{`
@@ -397,7 +351,6 @@ else {
           background: color-mix(in srgb, var(--theme-bg, #000) 8%, transparent);
           animation: refreshOverlayIn 180ms ease;
         }
-
         .refresh-lock-overlay::before {
           content: "";
           position: absolute;
@@ -416,11 +369,11 @@ else {
         type={activeType}
       />
 
+      {/* Main Slide Track Viewport Wrapper */}
       <div
-        className="flex-1 overflow-hidden relative"
+        className="flex-1 overflow-hidden relative h-full w-full"
         style={{ touchAction: 'pan-y' }}
       >
-
         <div
           className="absolute top-0 left-0 right-0 z-20 flex justify-center pointer-events-none"
           style={{
@@ -444,7 +397,7 @@ else {
         >
           <main
             ref={mainContentRef}
-            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
+            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] md:pb-12 scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
           >
             <HomePage pendingCount={globalCount} onNavigateToReview={() => navigateTo('revision')} mainContentRef={mainContentRef} />
@@ -452,7 +405,7 @@ else {
 
           <main
             ref={dashboardRef}
-            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
+            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] md:pb-12 scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
           >
             <DashboardScreen />
@@ -460,7 +413,7 @@ else {
 
           <main
             ref={revisionRef}
-            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
+            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] md:pb-12 scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
           >
             <ReviewScreen onBackToHome={() => navigateTo('home')} />
@@ -468,7 +421,7 @@ else {
 
           <main
             ref={settingsRef}
-            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
+            className={`w-1/4 h-full overflow-y-auto px-5 pt-6 pb-[140px] md:pb-12 scroll-smooth min-h-screen relative ${isAnyRefreshing ? 'overflow-hidden' : ''}`}
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
           >
             <SettingsScreen />
@@ -476,13 +429,19 @@ else {
         </div>
       </div>
 
+      {/* ULTRA-PREMIUM INTERACTION NAVIGATION COMPONENT:
+        Mobile: Snaps cleanly to screen bottom edge as standard bottom tab layout.
+        Laptop/Desktop: Pulls to the center-screen container line with modern glassy round structures.
+      */}
       <nav
         className={`
-          fixed bottom-0 left-0 right-0 bg-theme-card backdrop-blur-md border-t border-theme h-[74px] 
-          justify-around items-center z-50 px-4 shadow-2xl pb-[env(safe-area-inset-bottom)] 
-          will-change-transform transition-all duration-300 
+          fixed bottom-0 left-0 right-0 isolate
+          md:bottom-5 md:left-1/2 md:-translate-x-1/2 md:rounded-2xl md:border md:border-zinc-800/60
+          bg-theme-card/90 backdrop-blur-xl backdrop-saturate-150 border-t border-theme h-[74px] 
+          w-full max-w-xl justify-around items-center z-50 px-5 shadow-2xl pb-[env(safe-area-inset-bottom)] 
+          will-change-transform transition-all duration-300 ease-out
           ${isKeyboardVisible ? 'hidden' : 'flex'}
-          ${isAnyRefreshing ? 'pointer-events-none' : ''}
+          ${isAnyRefreshing ? 'pointer-events-none opacity-40' : 'opacity-100'}
         `}
       >
         <NavBtn
@@ -502,20 +461,21 @@ else {
           disabled={isAnyRefreshing}
           onClick={() => navigateTo('revision')}
           className={`
-            flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 relative
-            ${currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'}
+            flex flex-col items-center justify-center w-16 h-full relative group
+            transition-all duration-150 active:scale-95 outline-none select-none
+            ${currentTab === 'revision' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'}
             ${isAnyRefreshing ? 'cursor-not-allowed' : ''}
           `}
         >
-          <div className="relative p-1">
-            <BookOpen size={20} />
+          <div className="relative p-1 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95">
+            <BookOpen size={20} className="stroke-[1.8]" />
             {globalCount > 0 && (
-              <span className="absolute top-0 -right-2 bg-blue-500 text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center border-2 border-theme shadow-md">
+              <span className="absolute -top-0.5 -right-2.5 bg-blue-500 text-white text-[9px] font-black rounded-full h-4 min-w-[16px] px-1 flex items-center justify-center border-2 border-zinc-950 shadow-lg tracking-tighter">
                 {globalCount}
               </span>
             )}
           </div>
-          <span className="text-[10px] font-medium tracking-tight mt-0.5">Review</span>
+          <span className="text-[10px] font-semibold tracking-wide mt-0.5 font-mono uppercase text-center">Review</span>
         </button>
 
         <NavBtn
@@ -541,12 +501,14 @@ function NavBtn({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-150 ${
-        active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-400'
+      className={`flex flex-col items-center justify-center w-16 h-full group relative transition-all duration-150 active:scale-95 outline-none select-none ${
+        active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'
       }`}
     >
-      <Icon size={20} className="p-0.5" />
-      <span className="text-[10px] font-medium tracking-tight mt-0.5">{label}</span>
+      <div className="p-1 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95">
+        <Icon size={20} className="stroke-[1.8]" />
+      </div>
+      <span className="text-[10px] font-semibold tracking-wide mt-0.5 font-mono uppercase text-center">{label}</span>
     </button>
   );
 }
