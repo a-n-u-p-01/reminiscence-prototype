@@ -17,9 +17,7 @@ export default function DashboardScreen() {
     metrics,
     activeDayDetails,
     isLoadingHeatmap,
-    isLoadingActivity,
-    isPullToRefresh,
-    setIsPullToRefresh,
+    isLoadingActivity
   } = useDashboard();
 
   // Premium Management State for Topic Customization

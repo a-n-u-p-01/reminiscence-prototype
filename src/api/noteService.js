@@ -44,5 +44,14 @@ export const noteService = {
 async upsertConcept(userConceptRequest) {
   const response = await apiClient.post('/concepts/upsert', userConceptRequest);
   return response.data;
-}
+},
+/**
+   * Dispatches a network mutation signature to permanently purge a unique concept instance.
+   * Maps onto the HTTP DELETE '/concepts/{conceptId}' endpoint.
+   * * @param {string} conceptId - UUID matching the record targeted for deletion
+   */
+  async deleteConcept(conceptId) {
+    const response = await apiClient.delete(`/concept/${conceptId}`);
+    return response.data;
+  }
 };

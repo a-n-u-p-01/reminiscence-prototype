@@ -13,8 +13,6 @@ export default function ConceptsExplorer({ onBack }) {
 
   const [concepts, setConcepts] = useState([]);
   const [search, setSearch] = useState('');
-  
-  // Authoritative query state that actually triggers the API side effect
   const [activeQuery, setActiveQuery] = useState('');
   
   const [page, setPage] = useState(1);
@@ -22,45 +20,40 @@ export default function ConceptsExplorer({ onBack }) {
   const [sortNewest, setSortNewest] = useState(true);
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Cache invalidation state variable used to trigger database re-evaluation on command
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const syncRoute = () => {
       const hash = window.location.hash.replace('#', '');
-
       if (hash === 'dashboard/concepts') {
         setSelectedConcept(null);
       }
     };
-
     window.addEventListener('hashchange', syncRoute);
-
-    return () => {
-      window.removeEventListener('hashchange', syncRoute);
-    };
+    return () => { window.removeEventListener('hashchange', syncRoute) };
   }, []);
 
-  // Unified Trigger for explicit submissions (Button click or Enter Key)
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault(); 
-    setPage(1);                 // Force reset to page 1 on a fresh query criteria
-    setActiveQuery(search);     // This change will wake up the fetching useEffect
+    setPage(1); 
+    setActiveQuery(search); 
   };
 
-  // 1. Listen exclusively to pull-to-refresh indicators to cleanly force reset pagination parameters
   useEffect(() => {
     if (isPullToRefresh) {
       setPage(1);
     }
   }, [isPullToRefresh]);
 
-  // 2. Authoritative database persistence and chunk retrieval execution loop
+  // Main data layer synchronization worker
   useEffect(() => {
     let isMounted = true;
 
     async function fetchServerData() {
       setIsLoading(true);
       try {
-        // If pull-to-refresh happens on a different page, ensure we use page 1 explicitly
         const targetPage = isPullToRefresh ? 1 : page;
         const response = await dashboardService.getConceptsExplorer(targetPage, activeQuery, sortNewest);
         
@@ -73,7 +66,6 @@ export default function ConceptsExplorer({ onBack }) {
       } finally {
         if (isMounted) {
           setIsLoading(false);
-          // Turn off the spinner wrapper safely once data stream resolves
           if (isPullToRefresh) {
             setIsPullToRefresh(false);
           }
@@ -83,19 +75,22 @@ export default function ConceptsExplorer({ onBack }) {
 
     fetchServerData();
     return () => { isMounted = false; };
-    // Inclusion of isPullToRefresh triggers fetch exactly once when pulled, avoiding double renders
-  }, [page, activeQuery, sortNewest, isPullToRefresh, setIsPullToRefresh]);
+    // Adding refreshTrigger dependency handles deletion-initiated layout updates instantly
+  }, [page, activeQuery, sortNewest, isPullToRefresh, setIsPullToRefresh, refreshTrigger]);
 
-  // Native Mobile Velocity Timing Curves
-  const mobileTransition = { 
-    duration: 0.2, 
-    ease: [0.16, 1, 0.3, 1] 
+  // Clean intercept worker node triggered upon successful API deletions downstream
+  const handleConceptDeletedEvent = (deletedId) => {
+    // 1. Kick query evaluation page parameter back down to 1 cleanly
+    setPage(1);
+    // 2. Increment seed token variable to force trigger fetching pipeline side effects
+    setRefreshTrigger(prev => prev + 1);
+    // 3. Clear selected view state locally to slide window safely back to Explorer list layout
+    setSelectedConcept(null);
   };
 
   return (
     <AnimatePresence mode="wait">
       {selectedConcept ? (
-        // DETAIL VIEW CONTAINER
         <motion.div
           key="detail"
           initial={{ opacity: 0, scale: 0.98 }}
@@ -107,10 +102,14 @@ export default function ConceptsExplorer({ onBack }) {
           <ConceptDetail 
             concept={selectedConcept} 
             onBack={() => window.history.back()}
+            onDelete={handleConceptDeletedEvent}
+            onSave={(updated) => {
+              setSelectedConcept(updated);
+              setRefreshTrigger(prev => prev + 1); // Refresh list underlying data as well on edit save
+            }}
           />
         </motion.div>
       ) : (
-        // EXPLORER LIST VIEW CONTAINER
         <motion.div
           key="list"
           initial={{ opacity: 0, scale: 0.98 }}
@@ -119,7 +118,6 @@ export default function ConceptsExplorer({ onBack }) {
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
         >
-          {/* Structural Header Layout - Matches Settings Screen Alignment perfectly */}
           <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">
             <div className="flex items-center gap-2.5">
               <button onClick={onBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
@@ -138,7 +136,6 @@ export default function ConceptsExplorer({ onBack }) {
             </button>
           </div>
 
-          {/* Minimal Micro-Loading Bar */}
           <div className="absolute top-[55px] left-0 right-0 h-[1px] bg-zinc-900 overflow-hidden">
             {isLoading && (
               <motion.div 
@@ -150,7 +147,6 @@ export default function ConceptsExplorer({ onBack }) {
             )}
           </div>
 
-          {/* List Matrix Display Container */}
           <div className={`bg-zinc-900/20 border border-zinc-800/60 rounded-xl px-4 divide-y divide-zinc-800/40 min-h-[220px] transition-all duration-150 pointer-events-auto ${isLoading ? 'opacity-50 pointer-events-none filter blur-[0.3px]' : 'opacity-100'}`}>
             {concepts.length === 0 ? (
               <div className="text-s1 text-zinc-600 font-mono py-12 text-center tracking-widest">
@@ -166,7 +162,6 @@ export default function ConceptsExplorer({ onBack }) {
                       '',
                       `#dashboard/concepts/${item.conceptId}`
                     );
-
                     setSelectedConcept(item);
                   }}
                   className="flex justify-between items-center group cursor-pointer py-3.5 bg-transparent transition-all active:translate-x-0.5"
@@ -191,7 +186,6 @@ export default function ConceptsExplorer({ onBack }) {
             )}
           </div>
 
-          {/* Pagination Navigation Elements */}
           {totalPages > 1 && (
             <div className="flex justify-between items-center pt-2 font-mono text-s1 text-zinc-500 pointer-events-auto">
               <button 

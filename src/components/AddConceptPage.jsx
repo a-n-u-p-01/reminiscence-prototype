@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { noteService } from '../api/noteService'; 
 import { useHomeEngine } from '../context/HomeContext';
-import { useDashboard } from '../context/DashboardContext';
 
 export default function AddConceptPage({ onBack, onSave }) {
   const defaultFormState = {
@@ -12,10 +11,6 @@ export default function AddConceptPage({ onBack, onSave }) {
     question: ''
   };
   
-  const {
-    isPullToRefresh,
-    setIsPullToRefresh,
-  } = useDashboard();
 
   const [form, setForm] = useState(defaultFormState);
 
@@ -31,23 +26,6 @@ export default function AddConceptPage({ onBack, onSave }) {
     const frame = requestAnimationFrame(() => setAnimateIn(true));
     return () => cancelAnimationFrame(frame);
   }, []);
-
-  // Sync and clear page parameters when global Pull-To-Refresh engine fires
-  useEffect(() => {
-    if (isPullToRefresh) {
-      // 1. Wipe form inputs smoothly back to fresh baseline state
-      setForm(defaultFormState);
-      
-      // 2. Trigger micro-flash success text notice capsule if context allows
-      if (setStatusMessage) {
-        setStatusMessage({ text: 'Form Cleared', type: 'success' });
-        setTimeout(() => setStatusMessage(null), 1000);
-      }
-      
-      // 3. Immediately disengage the gesture spinner inside the dashboard controller layout
-      setIsPullToRefresh(false);
-    }
-  }, [isPullToRefresh, setIsPullToRefresh]);
 
   const handleAnimatedBack = () => {
     if (isSaving) return; // Prevent navigation leaks during active network operations

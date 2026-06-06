@@ -9,6 +9,8 @@ export function DashboardProvider({ children }) {
   const { isManualRefreshing } = useReviewEngine();
   const { isAuthenticated } = useAuth(); // 🔑 Extract authentication state to monitor access rights
 
+  const [isPullToRefresh,setIsPullToRefresh] = useState(false);
+
   // Dynamic System Date Anchor
   const todayStr = useMemo(() => {
     const d = new Date();
@@ -109,10 +111,13 @@ export function DashboardProvider({ children }) {
     isLoadingActivity,
     // 3. Centralized Refresh: Explicitly executes both fetches together cleanly
     refreshDashboard: () => {
+      setIsPullToRefresh(true);
       if (!isAuthenticated) return Promise.resolve([null, null]);
       return Promise.all([loadCoreDashboardData(), loadDateDetails(selectedDate)]);
     },
-    resetDashboardState
+    resetDashboardState,
+    isPullToRefresh,
+    setIsPullToRefresh
   };
 
   return (
