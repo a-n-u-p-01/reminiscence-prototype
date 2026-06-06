@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ArrowLeft, History, Calendar, Edit2, Check, X, Trash2 } from 'lucide-react';
+import { ArrowLeft, History, Calendar, Edit2, Check, X, Trash2, ChevronDown } from 'lucide-react';
 
 export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const [animateIn, setAnimateIn] = useState(false);
@@ -14,6 +14,10 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   });
   const [tempValue, setTempValue] = useState('');
 
+  // Track scroll position to dynamically manage the visual indicator layout
+  const textareaRef = useRef(null);
+  const [hasMoreContentBelow, setHasMoreContentBelow] = useState(false);
+
   useEffect(() => {
     const frame = requestAnimationFrame(() => setAnimateIn(true));
     return () => cancelAnimationFrame(frame);
@@ -23,6 +27,37 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   useEffect(() => {
     if (activeField) setIsConfirmingDelete(false);
   }, [activeField]);
+
+  // Auditor to check if content exceeds the viewport boundary limits
+  const checkScrollOverflow = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    
+    // Check if total height of text content is greater than visible box height
+    const isOverflowing = el.scrollHeight > el.clientHeight;
+    // Check if the user has scrolled near the absolute bottom boundary
+    const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 6;
+    
+    setHasMoreContentBelow(isOverflowing && !isAtBottom);
+  };
+
+  // Click handler to smoothly scroll the textarea viewport directly to the bottom
+  const scrollToBottom = () => {
+    const el = textareaRef.current;
+    if (el) {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Re-run the overflow check whenever workspace text edits happen
+  useEffect(() => {
+    if (activeField) {
+      setTimeout(checkScrollOverflow, 50);
+    }
+  }, [activeField, tempValue]);
 
   if (!concept) return null;
 
@@ -80,7 +115,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   };
 
   return (
-    /* Changed layout target from width full-unbound to max-w-xl centered wrapper to snap nicely on laptops */
     <div className={`w-full max-w-xl mx-auto pb-20 relative transform will-change-transform antialiased selection:bg-zinc-800 selection:text-white transition-all duration-[240ms] ease-[cubic-bezier(0.16,1,0.3,1)]
       ${animateIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.98]'}`}
     >
@@ -178,7 +212,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
             {draft.extraNote ? renderKeyNotes(formattedNotes) : <div className="text-s2 font-mono text-zinc-600 tracking-wide pt-1">No modular segments mapped.</div>}
           </div>
 
-          {/* Mastery Segment */}
+          {/* Mastery Score UI Component */}
           <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl p-4 space-y-2.5">
             <div className="flex justify-between items-baseline font-mono">
               <span className="text-s2 text-zinc-500 uppercase tracking-widest font-bold">Current Mastery</span>
@@ -206,15 +240,37 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               Editing {activeField === 'mainNote' ? 'Notes' : 'Architecture Insights'}
             </span>
           </div>
-          <div className="space-y-2 bg-zinc-950/40 border border-zinc-800/80 rounded-xl p-3.5 focus-within:border-zinc-700/60 transition-colors duration-200">
+
+          {/* Main Input Framework Container Card */}
+          <div className="relative bg-zinc-950/40 border border-zinc-800/80 rounded-xl p-3.5 pb-2 focus-within:border-zinc-700/60 transition-colors duration-200 overflow-hidden">
+            
+            {/* Height is forced exact via rows={6}, content flows internally */}
             <textarea
+              ref={textareaRef}
               rows={6}
               value={tempValue}
               onChange={(e) => setTempValue(e.target.value)}
-              className="w-full bg-transparent text-s3 text-zinc-300 leading-relaxed font-normal font-sans focus:outline-none resize-none"
+              onScroll={checkScrollOverflow}
+              className="w-full bg-transparent text-s3 text-zinc-300 leading-relaxed font-normal font-sans focus:outline-none resize-none overflow-y-auto scrollbar-none pb-8"
+              style={{ WebkitOverflowScrolling: 'touch' }}
               placeholder={activeField === 'extraNote' ? "Separate distinct points with a period." : ""}
             />
-            <div className="flex justify-end gap-3 pt-2.5 border-t border-zinc-900/60">
+
+            {/* INTERACTIVE FLOATING SCROLL NOTICE BUTTON PANEL */}
+            <button 
+              type="button"
+              onClick={scrollToBottom}
+              className={`absolute bottom-[48px] left-1/2 -translate-x-1/2 flex items-center justify-center bg-zinc-900/95 hover:bg-zinc-800 border border-zinc-800/80 rounded-full p-1.5 shadow-lg transform z-20 transition-all duration-300 ease-out active:scale-90
+                ${hasMoreContentBelow 
+                  ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' 
+                  : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
+                }`}
+            >
+              <ChevronDown size={11} className="text-zinc-400 animate-bounce" />
+            </button>
+
+            {/* Bottom Action Footer Control Panel Strip */}
+            <div className="flex justify-end gap-3 pt-2 border-t border-zinc-900/60 relative z-10 bg-transparent">
               <button 
                 onClick={() => setActiveField(null)} 
                 className="text-zinc-500 hover:text-zinc-400 p-1.5 rounded-lg transition-colors active:scale-90"
@@ -228,6 +284,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
                 <Check size={16} />
               </button>
             </div>
+
           </div>
         </div>
 

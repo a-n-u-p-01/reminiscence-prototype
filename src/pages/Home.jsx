@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { BookOpen, Flame, Plus, Sparkles, Brain, Target, CalendarDays, Edit2 } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { BookOpen, Flame, Plus, Sparkles, Brain, Target, CalendarDays, Edit2, ChevronDown } from 'lucide-react';
 import { useHomeEngine } from '../context/HomeContext';
 import StatusCapsule from '../components/StatusCapsule';
 import AddConceptPage from '../components/AddConceptPage';
@@ -23,8 +23,38 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
   const textareaRef = useRef(null);
 
-  // New self-contained state switcher with zero internal layout side effects
+  // States for self-contained layout control and text overflow monitoring
   const [showAddConcept, setShowAddConcept] = useState(false);
+  const [hasMoreContentBelow, setHasMoreContentBelow] = useState(false);
+
+  // Monitor text scrolling or editing to see if content extends below the crease line
+  const checkScrollOverflow = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+
+    const isOverflowing = el.scrollHeight > el.clientHeight;
+    const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 6;
+
+    setHasMoreContentBelow(isOverflowing && !isAtBottom);
+  };
+
+  // Click handler to smoothly scroll the textarea to the bottom
+  const scrollToBottom = () => {
+    const el = textareaRef.current;
+    if (el) {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Re-run the layout scanner whenever notes text values change or edit mode toggles
+  useEffect(() => {
+    if (!showDashboardMode && isEditing) {
+      setTimeout(checkScrollOverflow, 50);
+    }
+  }, [noteText, isEditing, forceShowInput, pendingCount]);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -52,19 +82,16 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   const showDashboardMode = pendingCount > 0 && !forceShowInput;
   const isInputDisabled = loading || isInitialFetching || !isEditing;
 
-  // Intercept editor shortcuts anywhere in the text based on cursor position
   const handleKeyDown = (e) => {
     const textarea = e.target;
     const { selectionStart, value } = textarea;
 
-    // Find exactly which line the cursor is currently sitting on
     const textBeforeCursor = value.substring(0, selectionStart);
     const textAfterCursor = value.substring(selectionStart);
     const linesBefore = textBeforeCursor.split('\n');
     const currentLine = linesBefore[linesBefore.length - 1];
 
     if (e.key === 'Enter') {
-      // If the current line is empty or just an empty bullet point, prevent making another empty bullet line
       if (currentLine.trim() === '-' || currentLine.trim() === '') {
         e.preventDefault();
         return;
@@ -72,26 +99,22 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
       e.preventDefault();
       
-      // Inject a line break and automatically start the new middle line with a bullet point
       const newLineAddition = '\n- ';
       const newText = textBeforeCursor + newLineAddition + textAfterCursor;
       const newCursorPos = selectionStart + newLineAddition.length;
 
       setNoteText(newText);
 
-      // Restore cursor position on the next frame loop and scroll to bottom if at the end
       setTimeout(() => {
         textarea.setSelectionRange(newCursorPos, newCursorPos);
-        
-        // Only scroll to bottom if the cursor is actually at the very end of the text area string
         if (textAfterCursor.length === 0) {
           textarea.scrollTop = textarea.scrollHeight;
         }
+        checkScrollOverflow();
       }, 0);
     }
 
     if (e.key === 'Backspace') {
-      // If backspacing on a bullet layout line that has no text, clear out the bullet prefix entirely
       if (currentLine === '- ' || currentLine === '-') {
         e.preventDefault();
         
@@ -102,6 +125,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
         setTimeout(() => {
           textarea.setSelectionRange(lineStartIndex, lineStartIndex);
+          checkScrollOverflow();
         }, 0);
       }
     }
@@ -113,22 +137,20 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
     
     if (!inputValue || inputValue.trim() === '') {
       setNoteText('');
+      setHasMoreContentBelow(false);
       return;
     }
     
-    // Ensure the very first line starts with a bullet point and capitalizes its first character
     if (inputValue.length === 1 && inputValue !== '-') {
       setNoteText('- ' + inputValue.toUpperCase());
       setTimeout(() => {
         textarea.setSelectionRange(3, 3);
+        checkScrollOverflow();
       }, 0);
       return;
     }
 
-    // Capture current cursor references before updating state string formats
     const originalSelectionStart = textarea.selectionStart;
-
-    // Process all lines to guarantee bullet prefixing and auto-capitalization on typed entries
     const lines = inputValue.split('\n');
     const formattedLines = lines.map((line) => {
       if (line === '') return line;
@@ -136,12 +158,10 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
       let processedLine = line;
       const trimmed = line.trimStart();
       
-      // 1. Ensure line begins structural design syntax with a hyphen
       if (trimmed.length > 0 && !trimmed.startsWith('-')) {
         processedLine = '- ' + line;
       }
 
-      // 2. Auto-capitalize the first alphabetical character following the "- " bullet prefix
       if (processedLine.startsWith('- ')) {
         const contentText = processedLine.substring(2);
         if (contentText.length > 0) {
@@ -160,11 +180,11 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
     const finalValue = formattedLines.join('\n');
     setNoteText(finalValue);
 
-    // Calculate length variations to prevent jumping lines or jumping to bottom on middle modifications
     const lengthDifference = finalValue.length - inputValue.length;
     setTimeout(() => {
       const adjustedCursorPos = originalSelectionStart + lengthDifference;
       textarea.setSelectionRange(adjustedCursorPos, adjustedCursorPos);
+      checkScrollOverflow();
     }, 0);
   };
 
@@ -175,7 +195,6 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
     setShowAddConcept(false);
   };
 
-  // Safe Short Circuit: Intercepts render execution to show Concept View without updating existing DOM elements below
   if (showAddConcept) {
     return (
       <AddConceptPage
@@ -188,7 +207,6 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   return (
     <div className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-12 text-theme-primary select-none transition-all duration-300 ease-in-out">
 
-      {/* 🔮 Ultra-Minimal Loading Accent Tint Keyframes */}
       <style>{`
         @keyframes mini-accent-pulse {
           0%, 100% { background-color: var(--bg-theme-card, #1c1c1e); opacity: 0.95; }
@@ -212,7 +230,6 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
           </p>
         </div>
 
-        {/* Action button to switch safely into Concept View */}
         <button
           type="button"
           onClick={() => setShowAddConcept(true)}
@@ -222,7 +239,6 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
           <span>Concept</span>
         </button>
       </div>
-
 
       {/* Core Dynamic Screen Modes Layout Container */}
       <div className="relative transition-all duration-300 ease-in-out grid grid-cols-1">
@@ -281,8 +297,9 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         >
           <div className="space-y-4">
             <form onSubmit={handleSave} className="space-y-4">
-              {/* CHANGED: Added overscroll-contain directly to the card container component to completely block refresh hooks */}
-              <div className="bg-theme-card border border-theme rounded-2xl p-5 focus-within:border-theme transition-colors relative select-text shadow-sm overscroll-contain">
+              
+              {/* Workspace Container Card */}
+              <div className="bg-theme-card border border-theme rounded-2xl p-5 pb-2 focus-within:border-theme transition-colors relative select-text shadow-sm overscroll-contain overflow-hidden">
                 <div className="flex justify-between items-center mb-3 select-none">
                   <label className="block text-s1 font-mono tracking-wider text-theme-muted uppercase">
                     Input Workspace Note
@@ -299,7 +316,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   )}
                 </div>
 
-                {/* CHANGED: Added overscroll-contain to the textarea block as well for secondary native overflow protection */}
+                {/* Fixed visual box footprint: Content scrolls smoothly inside rows={5} */}
                 <textarea
                   ref={textareaRef}
                   required
@@ -308,16 +325,31 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                   disabled={isInputDisabled}
                   onKeyDown={handleKeyDown}
                   onChange={handleTextareaChange}
+                  onScroll={checkScrollOverflow}
                   placeholder={isInitialFetching ? "Syncing baseline..." : "- Type topics learned today.."}
                   inputMode="text"
                   autoComplete="on"
                   autoCorrect="on"
                   spellCheck={true}
-                  className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/50 resize-none focus:outline-none leading-relaxed tracking-wide disabled:opacity-50 select-text font-sans overscroll-contain"
+                  className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/50 resize-none focus:outline-none leading-relaxed tracking-wide disabled:opacity-50 select-text font-sans overscroll-contain overflow-y-auto scrollbar-none pb-7"
+                  style={{ WebkitOverflowScrolling: 'touch' }}
                 />
+
+                {/* INTERACTIVE FLOATING SCROLL NOTICE BUTTON */}
+                <button 
+                  type="button"
+                  onClick={scrollToBottom}
+                  className={`absolute bottom-[10px] left-1/2 -translate-x-1/2 flex items-center justify-center bg-zinc-900/95 hover:bg-zinc-800 border border-zinc-800/80 rounded-full p-1.5 shadow-lg transform z-20 transition-all duration-300 ease-out active:scale-90
+                    ${hasMoreContentBelow 
+                      ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' 
+                      : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
+                    }`}
+                >
+                  <ChevronDown size={12} className="text-zinc-400 animate-bounce" />
+                </button>
               </div>
 
-              {/* 🎯 Minimal Button Layer with Static Text */}
+              {/* Minimal Action Button Layer */}
               <button
                 type="submit"
                 disabled={isInputDisabled || !hasUnsavedChanges}
@@ -340,7 +372,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
             </form>
           </div>
 
-          {(pendingCount > 0 && hasExistingEntry)&& (
+          {(pendingCount > 0 && hasExistingEntry) && (
             <div className="mb-3 px-3 py-2 rounded-xl bg-amber-500/5 border border-amber-500/15">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
