@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dashboardService } from '../api/dashboardService';
@@ -16,6 +16,10 @@ export default function ConceptsExplorer({ onBack }) {
   const [sortNewest, setSortNewest] = useState(true);
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // References to safely track horizontal swipe vectors over content screens
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
 
   // 1. Unified Trigger for explicit submissions (Button click or Enter Key)
   const handleSearchSubmit = (e) => {
@@ -47,29 +51,57 @@ export default function ConceptsExplorer({ onBack }) {
     return () => { isMounted = false; };
   }, [page, activeQuery, sortNewest]);
 
+  // Handle touch starting parameters
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  // Parse horizontal swipe metrics to transition route nodes cleanly
+  const handleTouchEnd = (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+
+    const deltaX = touchEndX - touchStartX.current;
+    const deltaY = Math.abs(touchEndY - touchStartY.current);
+
+    // Validate a clean horizontal swipe-right trajectory (Threshold: 70px)
+    if (deltaX > 70 && deltaX > deltaY) {
+      if (selectedConcept) {
+        setSelectedConcept(null); // Return from Detail back to Explorer list
+      } else {
+        onBack();                 // Return from Explorer list back to Dashboard context
+      }
+    }
+  };
+
   return (
     <AnimatePresence mode="wait">
       {selectedConcept ? (
-        // DETAIL VIEW CONTAINER
+        // DETAIL VIEW CONTAINER WITH GESTURE CAPTURE
         <motion.div
           key="detail"
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 50, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-xs mx-auto py-6 px-1"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="max-w-xs mx-auto py-6 px-1 touch-pan-y"
         >
           <ConceptDetail concept={selectedConcept} onBack={() => setSelectedConcept(null)} />
         </motion.div>
       ) : (
-        // EXPLORER LIST VIEW CONTAINER
+        // EXPLORER LIST VIEW CONTAINER WITH GESTURE CAPTURE
         <motion.div
           key="list"
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -50, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-xs mx-auto py-6"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="max-w-xs mx-auto py-6 touch-pan-y"
         >
           <nav className="flex justify-between items-center mb-10">
             <button onClick={onBack} className="text-zinc-500 hover:text-white transition-all active:scale-90">

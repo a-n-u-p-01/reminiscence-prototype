@@ -330,7 +330,7 @@ export default function App() {
           Initializing Engine...
         </div>
         <div className="text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
-          v1.0.1
+          v1.1.0
         </div>
       </div>
     );

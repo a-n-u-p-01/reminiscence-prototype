@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ArrowLeft, History, Calendar } from 'lucide-react';
 
 export default function ConceptDetail({ concept, onBack }) {
+  // Use a ref to track where the touch interaction started
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
   if (!concept) return null;
 
   // Formats period-separated sentences into fresh line breaks for rendering
@@ -27,8 +31,34 @@ export default function ConceptDetail({ concept, onBack }) {
     );
   };
 
+  // Capture touch start coordinates
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  // Evaluate gesture path at touch end
+  const handleTouchEnd = (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+
+    const deltaX = touchEndX - touchStartX.current;
+    const deltaY = Math.abs(touchEndY - touchStartY.current);
+
+    // Threshold rules: 
+    // 1. Right swipe direction (deltaX > 70 pixels)
+    // 2. Mostly horizontal movement (deltaX must be greater than vertical shift to prevent scrolling mixups)
+    if (deltaX > 70 && deltaX > deltaY) {
+      onBack();
+    }
+  };
+
   return (
-    <div className="max-w-xs mx-auto py-6 antialiased selection:bg-zinc-800 selection:text-white">
+    <div 
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="max-w-xs mx-auto py-6 antialiased selection:bg-zinc-800 selection:text-white touch-pan-y"
+    >
       {/* Navigation Row */}
       <nav className="flex items-center mb-8">
         <button 
