@@ -101,7 +101,7 @@ export default function ConceptsExplorer({ onBack }) {
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="max-w-xs mx-auto py-6 touch-pan-y"
+          className="max-w-xs mx-auto py-6 touch-pan-y relative"
         >
           <nav className="flex justify-between items-center mb-10">
             <button onClick={onBack} className="text-zinc-500 hover:text-white transition-all active:scale-90">
@@ -114,6 +114,18 @@ export default function ConceptsExplorer({ onBack }) {
               {sortNewest ? 'Newest' : 'Older'}
             </button>
           </nav>
+
+          {/* Minimal Micro-Loading Bar */}
+          <div className="absolute top-12 left-0 right-0 h-[1px] bg-zinc-900 overflow-hidden">
+            {isLoading && (
+              <motion.div 
+                initial={{ left: "-100%" }}
+                animate={{ left: "100%" }}
+                transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-zinc-400 to-transparent"
+              />
+            )}
+          </div>
 
           {/* Form wrapper catches explicit click and native keyboard enter submissions */}
           {/* <form onSubmit={handleSearchSubmit} className="relative flex items-center border-b border-zinc-700 focus-within:border-zinc-500 transition-all group">
@@ -133,7 +145,7 @@ export default function ConceptsExplorer({ onBack }) {
           </form> */}
 
           {/* List items map container */}
-          <div className={`mt-8 space-y-6 min-h-[220px] transition-opacity duration-200 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+          <div className={`mt-8 space-y-6 min-h-[220px] transition-all duration-300 ${isLoading ? 'opacity-50 select-none pointer-events-none filter blur-[0.5px]' : 'opacity-100'}`}>
             {concepts.length === 0 ? (
               <div className="text-s1 text-zinc-600 font-mono py-4 text-center">NO MATCHES FOUND</div>
             ) : (
@@ -169,7 +181,7 @@ export default function ConceptsExplorer({ onBack }) {
             <div className="flex justify-between items-center mt-10 pt-4 border-t border-zinc-900 font-mono text-s1 text-zinc-500">
               <button 
                 type="button"
-                disabled={page <= 1}
+                disabled={page <= 1 || isLoading}
                 onClick={() => setPage(prev => prev - 1)}
                 className="flex items-center space-x-1 disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
               >
@@ -183,7 +195,7 @@ export default function ConceptsExplorer({ onBack }) {
 
               <button 
                 type="button"
-                disabled={page >= totalPages}
+                disabled={page >= totalPages || isLoading}
                 onClick={() => setPage(prev => prev + 1)}
                 className="flex items-center space-x-1 disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
               >

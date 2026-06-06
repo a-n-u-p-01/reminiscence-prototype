@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect, useState } from 'react';
-import { Calendar, Flame, Layers, Trophy, Activity, ChevronLeft, ChevronRight, Eye, Cpu, Terminal, Loader2, Plus, X, Save, Check, AlertCircle } from 'lucide-react';
+import { ArrowUpRight,Calendar, Flame, Layers, Trophy, Activity, ChevronLeft, ChevronRight, Eye, Cpu, Terminal, Loader2, Plus, X, Save, Check, AlertCircle } from 'lucide-react';
 import { useDashboard } from '../context/DashboardContext';
 import { noteService } from '../api/noteService';
 import ConceptsExplorer from '../components/ConceptsExplorer';
@@ -292,7 +292,7 @@ return (
         <p className="text-s2 text-theme-secondary mt-0.5">Your daily knowledge streaks, stats, and pending reviews at a glance.</p>
       </div>
 
-      {/* Grid Stats */}
+     {/* Grid Stats */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-theme-card border border-theme rounded-xl p-4 flex flex-col justify-between h-24 transition-all hover:scale-[1.01]">
           <div className="flex items-center gap-2 text-theme-secondary">
@@ -305,10 +305,18 @@ return (
           </div>
         </div>
 
-        <div onClick={()=>setShowConcepts(true)} className="bg-theme-card border border-theme rounded-xl p-4 flex flex-col justify-between h-24 transition-all hover:scale-[1.01]">
-          <div className="flex items-center gap-2 text-theme-secondary" >
-            <Layers size={15} className="text-blue-400 shrink-0" />
-            <span className="text-s1 font-bold tracking-widest uppercase font-mono truncate">Concepts</span>
+        {/* CLICKABLE CONCEPTS BOX */}
+        <div 
+          onClick={() => setShowConcepts(true)} 
+          className="bg-theme-card border border-zinc-700/60 rounded-xl p-4 flex flex-col justify-between h-24 transition-all active:scale-[0.97] active:bg-zinc-900/40 select-none cursor-pointer"
+        >
+          <div className="flex items-center justify-between text-theme-secondary w-full">
+            <div className="flex items-center gap-1.5 truncate">
+              <Layers size={15} className="text-blue-400 shrink-0" />
+              <span className="text-s1 font-bold tracking-widest uppercase font-mono truncate text-zinc-100">Concepts</span>
+            </div>
+            {/* Action target indicator */}
+            <ArrowUpRight size={12} className="text-zinc-500 shrink-0" />
           </div>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-s7 font-bold font-mono text-theme-primary">{metrics.totalConceptsCount}</span>
