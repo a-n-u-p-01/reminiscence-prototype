@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { BookOpen, Flame, Plus, Sparkles, Brain, Target, CalendarDays, Edit2 } from 'lucide-react';
 import { useHomeEngine } from '../context/HomeContext';
 import StatusCapsule from '../components/StatusCapsule';
+import AddConceptPage from '../components/AddConceptPage';
 
-export default function HomePage({ pendingCount, onNavigateToReview, mainContentRef }) {
+export default function HomePage({ pendingCount, onNavigateToReview, mainContentRef, onAddConcept }) {
   const {
     noteText,
     setNoteText,
@@ -21,6 +22,9 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   } = useHomeEngine();
 
   const textareaRef = useRef(null);
+
+  // New self-contained state switcher with zero internal layout side effects
+  const [showAddConcept, setShowAddConcept] = useState(false);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -164,6 +168,23 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
     }, 0);
   };
 
+  const handleConceptSave = (conceptData) => {
+    if (onAddConcept) {
+      onAddConcept(conceptData);
+    }
+    setShowAddConcept(false);
+  };
+
+  // Safe Short Circuit: Intercepts render execution to show Concept View without updating existing DOM elements below
+  if (showAddConcept) {
+    return (
+      <AddConceptPage
+        onBack={() => setShowAddConcept(false)} 
+        onSave={handleConceptSave} 
+      />
+    );
+  }
+
   return (
     <div className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-12 text-theme-primary select-none transition-all duration-300 ease-in-out">
 
@@ -179,15 +200,27 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
       `}</style>
 
       {/* Header Blocks */}
-      <div className="border-b border-theme pb-5 transition-all duration-300">
-        <h1 className="text-s6 font-semibold tracking-tight text-theme-primary transition-opacity duration-200">
-          {showDashboardMode ? 'Workspace Dashboard' : 'Knowledge Logging'}
-        </h1>
-        <p className="text-s2 text-theme-muted font-sans tracking-wide mt-1 transition-opacity duration-200">
-          {showDashboardMode
-            ? 'Knowledge baseline status update.'
-            : 'Convert natural language daily logs into review anchors.'}
-        </p>
+      <div className="border-b border-theme pb-5 flex justify-between items-end gap-4 transition-all duration-300">
+        <div>
+          <h1 className="text-s6 font-semibold tracking-tight text-theme-primary transition-opacity duration-200">
+            {showDashboardMode ? 'Workspace Dashboard' : 'Knowledge Logging'}
+          </h1>
+          <p className="text-s2 text-theme-muted font-sans tracking-wide mt-1 transition-opacity duration-200">
+            {showDashboardMode
+              ? 'Knowledge baseline status update.'
+              : 'Convert natural language daily logs into review anchors.'}
+          </p>
+        </div>
+
+        {/* Action button to switch safely into Concept View */}
+        <button
+          type="button"
+          onClick={() => setShowAddConcept(true)}
+          className="text-s1 font-mono uppercase tracking-widest text-theme-muted hover:text-theme-accent transition-colors flex items-center gap-1 px-2.5 py-1.5 bg-theme-card border border-theme rounded-lg shrink-0 active:scale-[0.98]"
+        >
+          <Plus size={11} />
+          <span>Concept</span>
+        </button>
       </div>
 
 
