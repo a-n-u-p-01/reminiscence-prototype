@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dashboardService } from '../api/dashboardService';
 import ConceptDetail from './ConceptDetail';
@@ -17,18 +17,14 @@ export default function ConceptsExplorer({ onBack }) {
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // References to safely track horizontal swipe vectors over content screens
-  const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
-
-  // 1. Unified Trigger for explicit submissions (Button click or Enter Key)
+  // Unified Trigger for explicit submissions (Button click or Enter Key)
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault(); 
     setPage(1);                 // Force reset to page 1 on a fresh query criteria
     setActiveQuery(search);     // This change will wake up the fetching useEffect
   };
 
-  // 2. Fetch server-side concepts dataset (Fires ONLY on page, sort, or explicit activeQuery changes)
+  // Fetch server-side concepts dataset (Fires ONLY on page, sort, or explicit activeQuery changes)
   useEffect(() => {
     let isMounted = true;
 
@@ -51,116 +47,99 @@ export default function ConceptsExplorer({ onBack }) {
     return () => { isMounted = false; };
   }, [page, activeQuery, sortNewest]);
 
-  // Handle touch starting parameters
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-  };
-
-  // Parse horizontal swipe metrics to transition route nodes cleanly
-  const handleTouchEnd = (e) => {
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-
-    const deltaX = touchEndX - touchStartX.current;
-    const deltaY = Math.abs(touchEndY - touchStartY.current);
-
-    // Validate a clean horizontal swipe-right trajectory (Threshold: 70px)
-    if (deltaX > 70 && deltaX > deltaY) {
-      if (selectedConcept) {
-        setSelectedConcept(null); // Return from Detail back to Explorer list
-      } else {
-        onBack();                 // Return from Explorer list back to Dashboard context
-      }
-    }
+  // Native Mobile Velocity Timing Curves
+  const mobileTransition = { 
+    duration: 0.2, 
+    ease: [0.16, 1, 0.3, 1] 
   };
 
   return (
     <AnimatePresence mode="wait">
       {selectedConcept ? (
-        // DETAIL VIEW CONTAINER WITH GESTURE CAPTURE
+        // DETAIL VIEW CONTAINER MATCHING SYSTEM WIDTH
         <motion.div
           key="detail"
-          initial={{ x: 50, opacity: 0 }}
+          // drag="x"
+          // dragConstraints={{ left: 0, right: 0 }}
+          // dragElastic={{ left: 0.1, right: 0.6 }}
+          // onDragEnd={(event, info) => {
+          //   if (info.offset.x > 80 || info.velocity.x > 300) {
+          //     setSelectedConcept(null);
+          //   }
+          // }}
+          initial={{ x: 16, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 50, opacity: 0 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          className="max-w-xs mx-auto py-6 px-1 touch-pan-y"
+          exit={{ x: 16, opacity: 0 }}
+          transition={mobileTransition}
+          className="w-full pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
         >
           <ConceptDetail concept={selectedConcept} onBack={() => setSelectedConcept(null)} />
         </motion.div>
       ) : (
-        // EXPLORER LIST VIEW CONTAINER WITH GESTURE CAPTURE
+        // EXPLORER LIST VIEW CONTAINER MATCHING SYSTEM WIDTH
         <motion.div
           key="list"
-          initial={{ x: -50, opacity: 0 }}
+          // drag="x"
+          // dragConstraints={{ left: 0, right: 0 }}
+          // dragElastic={{ left: 0.1, right: 0.6 }}
+          // onDragEnd={(event, info) => {
+          //   if (info.offset.x > 80 || info.velocity.x > 300) {
+          //     onBack();
+          //   }
+          // }}
+          initial={{ x: -16, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          exit={{ x: -50, opacity: 0 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          className="max-w-xs mx-auto py-6 touch-pan-y relative"
+          exit={{ x: -16, opacity: 0 }}
+          transition={mobileTransition}
+          className="w-full pb-20 space-y-6 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
         >
-          <nav className="flex justify-between items-center mb-10">
-            <button onClick={onBack} className="text-zinc-500 hover:text-white transition-all active:scale-90">
-              <ArrowLeft size={22} />
-            </button>
+          {/* Structural Header Layout - Matches Settings Screen Alignment perfectly */}
+          <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">
+            <div className="flex items-center gap-2.5">
+              <button onClick={onBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
+                <ArrowLeft size={22} />
+              </button>
+              <h1 className="font-semibold tracking-tight text-zinc-100 text-s4">
+                Concepts Explorer
+              </h1>
+            </div>
+            
             <button 
               onClick={() => { setSortNewest(!sortNewest); setPage(1); }} 
-              className="text-s1 uppercase tracking-[0.25em] text-zinc-400 font-bold"
+              className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold bg-zinc-950 border border-zinc-800/80 hover:bg-zinc-900 px-3 py-1.5 rounded-lg transition-all"
             >
               {sortNewest ? 'Newest' : 'Older'}
             </button>
-          </nav>
+          </div>
 
           {/* Minimal Micro-Loading Bar */}
-          <div className="absolute top-12 left-0 right-0 h-[1px] bg-zinc-900 overflow-hidden">
+          <div className="absolute top-[55px] left-0 right-0 h-[1px] bg-zinc-900 overflow-hidden">
             {isLoading && (
               <motion.div 
                 initial={{ left: "-100%" }}
                 animate={{ left: "100%" }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                 className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-zinc-400 to-transparent"
               />
             )}
           </div>
 
-          {/* Form wrapper catches explicit click and native keyboard enter submissions */}
-          {/* <form onSubmit={handleSearchSubmit} className="relative flex items-center border-b border-zinc-700 focus-within:border-zinc-500 transition-all group">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search..."
-              className="w-full bg-transparent pb-2 pr-8 text-s2 text-zinc-100 placeholder:text-zinc-800 focus:outline-none transition-all"
-            />
-            <button 
-              type="submit"
-              className="absolute right-0 bottom-2 text-zinc-600 hover:text-zinc-300 transition-colors active:scale-90"
-              aria-label="Execute Search"
-            >
-              <Search size={16} />
-            </button>
-          </form> */}
-
-          {/* List items map container */}
-          <div className={`mt-8 space-y-6 min-h-[220px] transition-all duration-300 ${isLoading ? 'opacity-50 select-none pointer-events-none filter blur-[0.5px]' : 'opacity-100'}`}>
+          {/* List Matrix Display Container (Now fills out the layout width cleanly) */}
+          <div className={`bg-zinc-900/20 border border-zinc-800/60 rounded-xl px-4 divide-y divide-zinc-800/40 min-h-[220px] transition-all duration-150 pointer-events-auto ${isLoading ? 'opacity-50 pointer-events-none filter blur-[0.3px]' : 'opacity-100'}`}>
             {concepts.length === 0 ? (
-              <div className="text-s1 text-zinc-600 font-mono py-4 text-center">NO MATCHES FOUND</div>
+              <div className="text-s1 text-zinc-600 font-mono py-12 text-center tracking-widest">NO MATCHES FOUND</div>
             ) : (
               concepts.map((item, i) => (
                 <div 
                   key={`${item.conceptId || item.conceptName}-${i}`} 
                   onClick={() => setSelectedConcept(item)}
-                  className="flex justify-between items-center group cursor-pointer hover:translate-x-1 transition-all"
+                  className="flex justify-between items-center group cursor-pointer py-3.5 bg-transparent transition-all active:translate-x-0.5"
                 >
-                  <div className="truncate pr-4">
-                    <div className="text-s3 text-zinc-300 group-hover:text-white truncate">
+                  <div className="truncate pr-4 space-y-0.5">
+                    <div className="text-s3 font-medium text-zinc-300 group-hover:text-blue-400 transition-colors duration-150 truncate">
                       {item.conceptName}
                     </div>
-                    {/* CHANGED: Replaced revision counts with formatted dynamic creation date */}
-                    <div className="text-s1 text-zinc-600 font-mono mt-0.5 uppercase tracking-wider">
+                    <div className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
                       {new Date(item.createdAt).toLocaleDateString(undefined, { 
                         month: 'short', 
                         day: 'numeric',
@@ -168,7 +147,7 @@ export default function ConceptsExplorer({ onBack }) {
                       })}
                     </div>
                   </div>
-                  <div className="text-s2 text-zinc-500 font-mono group-hover:text-zinc-300">
+                  <div className="text-s1 text-zinc-300 font-mono bg-zinc-950 border border-zinc-800/60 group-hover:border-zinc-700/80 px-2.5 py-1 rounded-md transition-colors shrink-0">
                     {item.masteryScore}%
                   </div>
                 </div>
@@ -178,18 +157,18 @@ export default function ConceptsExplorer({ onBack }) {
 
           {/* Pagination Navigation Elements */}
           {totalPages > 1 && (
-            <div className="flex justify-between items-center mt-10 pt-4 border-t border-zinc-900 font-mono text-s1 text-zinc-500">
+            <div className="flex justify-between items-center pt-2 font-mono text-s1 text-zinc-500 pointer-events-auto">
               <button 
                 type="button"
                 disabled={page <= 1 || isLoading}
                 onClick={() => setPage(prev => prev - 1)}
-                className="flex items-center space-x-1 disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
+                className="flex items-center space-x-1 bg-zinc-950 border border-zinc-800/80 p-2 rounded-lg disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
               >
-                <ChevronLeft size={16} />
-                <span>PREV</span>
+                <ChevronLeft size={14} />
+                <span className="px-1 text-[10px] font-bold">PREV</span>
               </button>
               
-              <span className="text-zinc-600 text-s0 tracking-widest uppercase">
+              <span className="text-zinc-500 text-s1 font-bold bg-zinc-900/40 border border-zinc-800/40 px-3 py-1.5 rounded-lg tracking-widest">
                 {page} / {totalPages}
               </span>
 
@@ -197,10 +176,10 @@ export default function ConceptsExplorer({ onBack }) {
                 type="button"
                 disabled={page >= totalPages || isLoading}
                 onClick={() => setPage(prev => prev + 1)}
-                className="flex items-center space-x-1 disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
+                className="flex items-center space-x-1 bg-zinc-950 border border-zinc-800/80 p-2 rounded-lg disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
               >
-                <span>NEXT</span>
-                <ChevronRight size={16} />
+                <span className="px-1 text-[10px] font-bold">NEXT</span>
+                <ChevronRight size={14} />
               </button>
             </div>
           )}
