@@ -1,16 +1,48 @@
-import React, { useRef } from 'react';
-import { ArrowLeft, History, Calendar } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { ArrowLeft, History, Calendar, Edit2, Check, X } from 'lucide-react';
 
-export default function ConceptDetail({ concept, onBack }) {
-  // Use a ref to track where the touch interaction started
+export default function ConceptDetail({ concept, onBack, onSave }) {
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
 
+  // Tracks which specific text block is actively undergoing mutation
+  const [activeField, setActiveField] = useState(null); // 'mainNote' | 'extraNote' | null
+
+  // Central tracking state variables for the fields
+  const [draft, setDraft] = useState({
+    mainNote: concept?.mainNote || '',
+    extraNote: concept?.extraNote || ''
+  });
+
+  // Temporary local state for the block currently being edited
+  const [tempValue, setTempValue] = useState('');
+
   if (!concept) return null;
 
+  const startEditing = (field, currentVal) => {
+    setTempValue(currentVal);
+    setActiveField(field);
+  };
+
+  const commitFieldUpdate = (field) => {
+    setDraft(prev => ({ ...prev, [field]: tempValue }));
+    setActiveField(null);
+  };
+
+  const handleGlobalSave = () => {
+    setActiveField(null);
+    if (onSave) {
+      onSave({
+        ...concept,
+        mainNote: draft.mainNote,
+        extraNote: draft.extraNote
+      });
+    }
+  };
+
   // Formats period-separated sentences into fresh line breaks for rendering
-  const formattedNotes = concept.extraNote 
-    ? concept.extraNote.replace(/\. /g, '.\n') 
+  const formattedNotes = draft.extraNote 
+    ? draft.extraNote.replace(/\. /g, '.\n') 
     : '';
 
   const renderKeyNotes = (notes) => {
@@ -30,49 +62,27 @@ export default function ConceptDetail({ concept, onBack }) {
     );
   };
 
-  // Capture touch start coordinates
-  const handleTouchStart = (e) => {
-    // touchStartX.current = e.touches[0].clientX;
-    // touchStartY.current = e.touches[0].clientY;
-  };
-
-  // Evaluate gesture path at touch end
-  const handleTouchEnd = (e) => {
-    // const touchEndX = e.changedTouches[0].clientX;
-    // const touchEndY = e.changedTouches[0].clientY;
-
-    // const deltaX = touchEndX - touchStartX.current;
-    // const deltaY = Math.abs(touchEndY - touchStartY.current);
-
-    // // Threshold rules: 
-    // // 1. Right swipe direction (deltaX > 70 pixels)
-    // // 2. Mostly horizontal movement (deltaX must be greater than vertical shift to prevent scrolling mixups)
-    // if (deltaX > 70 && deltaX > deltaY) {
-    //   onBack();
-    // }
-  };
-
   return (
-    <div 
-      // onTouchStart={handleTouchStart}
-      // onTouchEnd={handleTouchEnd}
-      className="w-full pb-20 space-y-6 touch-pan-y relative will-change-transform antialiased selection:bg-zinc-800 selection:text-white"
-    >
-      {/* Structural Header Layout - Matches Explorer perfectly */}
+    <div className="w-full pb-20 space-y-6 touch-pan-y relative will-change-transform antialiased selection:bg-zinc-800 selection:text-white">
+      
+      {/* Structural Header Layout - Static Title Only */}
       <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-1 min-w-0">
           <button onClick={onBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
             <ArrowLeft size={22} />
           </button>
-          <h1 className="font-semibold tracking-tight text-zinc-100 text-s4 truncate max-w-[200px] sm:max-w-none">
+          <h1 className="font-semibold tracking-tight text-zinc-100 text-s4 truncate max-w-[220px] sm:max-w-none">
             {concept.conceptName}
           </h1>
         </div>
         
-        {/* Dynamic Context Meta Badge */}
-        <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-bold px-1">
-          Detail
-        </div>
+        {/* Unified Save Action */}
+        <button 
+          onClick={handleGlobalSave}
+          className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold hover:text-zinc-200 transition-colors shrink-0 px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-md shadow-sm"
+        >
+          Save
+        </button>
       </div>
 
       {/* Primary Content Grid Space */}
@@ -92,36 +102,98 @@ export default function ConceptDetail({ concept, onBack }) {
         </div>
 
         {/* Primary Main Content Section */}
-        <div className="px-0.5">
-          <p className="text-s3 text-zinc-300 leading-relaxed font-normal font-sans">
-            {concept.mainNote || "No detailed notes recorded for this study node."}
-          </p>
+        <div className="px-0.5 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest font-bold">Notes</span>
+            {activeField !== 'mainNote' && (
+              <button 
+                onClick={() => startEditing('mainNote', draft.mainNote)}
+                className="text-zinc-600 hover:text-zinc-400 transition-colors p-1"
+              >
+                <Edit2 size={12} />
+              </button>
+            )}
+          </div>
+          
+          {activeField === 'mainNote' ? (
+            <div className="space-y-2 bg-zinc-950/40 border border-zinc-800/80 rounded-xl p-2.5">
+              <textarea
+                rows={4}
+                autoFocus
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="w-full bg-transparent text-s3 text-zinc-300 leading-relaxed font-normal font-sans focus:outline-none resize-none"
+              />
+              <div className="flex justify-end gap-2 pt-1.5 border-t border-zinc-900/60">
+                <button onClick={() => setActiveField(null)} className="text-zinc-500 hover:text-zinc-400 p-1 rounded">
+                  <X size={14} />
+                </button>
+                <button onClick={() => commitFieldUpdate('mainNote')} className="text-zinc-400 hover:text-zinc-200 p-1 rounded">
+                  <Check size={14} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-s3 text-zinc-300 leading-relaxed font-normal font-sans">
+              {draft.mainNote || "No detailed notes recorded for this study node."}
+            </p>
+          )}
         </div>
 
         {/* Extra Context Segment */}
-        {concept.extraNote && (
-          <div className="space-y-3.5 pt-5 border-t border-zinc-800/40 px-0.5">
+        <div className="space-y-3.5 pt-5 border-t border-zinc-800/40 px-0.5">
+          <div className="flex justify-between items-center">
             <h3 className="text-s2 text-zinc-500 uppercase tracking-widest font-bold font-mono">
               Key Architecture Insights
             </h3>
-            {renderKeyNotes(formattedNotes)}
+            {activeField !== 'extraNote' && (
+              <button 
+                onClick={() => startEditing('extraNote', draft.extraNote)}
+                className="text-zinc-600 hover:text-zinc-400 transition-colors p-1"
+              >
+                <Edit2 size={12} />
+              </button>
+            )}
           </div>
-        )}
-      </div>
-       {/* Mastery Segment - Clean Glass Card Layout Match */}
-        <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl p-4 space-y-2.5">
-          <div className="flex justify-between items-baseline font-mono">
-            <span className="text-s2 text-zinc-500 uppercase tracking-widest font-bold">Current Mastery</span>
-            <span className="text-sm font-semibold text-zinc-300">{concept.masteryScore}%</span>
-          </div>
-          {/* Progress bar accent layout tracks */}
-          <div className="w-full h-[2px] bg-zinc-950 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-zinc-400 rounded-full transition-all duration-500" 
-              style={{ width: `${concept.masteryScore}%` }}
-            />
-          </div>
+
+          {activeField === 'extraNote' ? (
+            <div className="space-y-2 bg-zinc-950/40 border border-zinc-800/80 rounded-xl p-2.5">
+              <textarea
+                rows={4}
+                autoFocus
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="w-full bg-transparent text-s3 text-zinc-300 leading-relaxed font-normal font-sans focus:outline-none resize-none"
+                placeholder="Separate distinct points with a period."
+              />
+              <div className="flex justify-end gap-2 pt-1.5 border-t border-zinc-900/60">
+                <button onClick={() => setActiveField(null)} className="text-zinc-500 hover:text-zinc-400 p-1 rounded">
+                  <X size={14} />
+                </button>
+                <button onClick={() => commitFieldUpdate('extraNote')} className="text-zinc-400 hover:text-zinc-200 p-1 rounded">
+                  <Check size={14} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            draft.extraNote ? renderKeyNotes(formattedNotes) : <div className="text-s2 font-mono text-zinc-600 tracking-wide pt-1">No modular segments mapped.</div>
+          )}
         </div>
+      </div>
+
+      {/* Mastery Segment - Clean Glass Card Layout Match */}
+      <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl p-4 space-y-2.5">
+        <div className="flex justify-between items-baseline font-mono">
+          <span className="text-s2 text-zinc-500 uppercase tracking-widest font-bold">Current Mastery</span>
+          <span className="text-sm font-semibold text-zinc-300">{concept.masteryScore}%</span>
+        </div>
+        <div className="w-full h-[2px] bg-zinc-950 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-zinc-400 rounded-full transition-all duration-500" 
+            style={{ width: `${concept.masteryScore}%` }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
