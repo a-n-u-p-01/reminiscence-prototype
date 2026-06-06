@@ -1,9 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ArrowLeft, History, Calendar, Edit2, Check, X } from 'lucide-react';
+import { ArrowLeft, History, Calendar, Edit2, Check, X, Trash2 } from 'lucide-react';
 
-export default function ConceptDetail({ concept, onBack, onSave }) {
+export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const [animateIn, setAnimateIn] = useState(false);
   const [activeField, setActiveField] = useState(null); // 'mainNote' | 'extraNote' | null
+
+  // Protective temporary state to confirm delete on a dual-tap cycle
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const [draft, setDraft] = useState({
     mainNote: concept?.mainNote || '',
@@ -15,6 +18,11 @@ export default function ConceptDetail({ concept, onBack, onSave }) {
     const frame = requestAnimationFrame(() => setAnimateIn(true));
     return () => cancelAnimationFrame(frame);
   }, []);
+
+  // Reset delete confirmation safety latch if workspace editing is activated
+  useEffect(() => {
+    if (activeField) setIsConfirmingDelete(false);
+  }, [activeField]);
 
   if (!concept) return null;
 
@@ -41,6 +49,17 @@ export default function ConceptDetail({ concept, onBack, onSave }) {
         mainNote: draft.mainNote,
         extraNote: draft.extraNote
       });
+    }
+  };
+
+  const handleDeleteClick = () => {
+    if (!isConfirmingDelete) {
+      setIsConfirmingDelete(true);
+    } else {
+      setAnimateIn(false);
+      setTimeout(() => {
+        if (onDelete) onDelete(concept.id || concept);
+      }, 240);
     }
   };
 
@@ -71,18 +90,35 @@ export default function ConceptDetail({ concept, onBack, onSave }) {
           <button onClick={handleAnimatedBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
             <ArrowLeft size={22} />
           </button>
-          <h1 className="font-semibold tracking-tight text-zinc-100 text-s4 truncate max-w-[220px] sm:max-w-none">
+          <h1 className="font-semibold tracking-tight text-zinc-100 text-s4 truncate max-w-[160px] sm:max-w-none">
             {concept.conceptName}
           </h1>
         </div>
         
-        <button 
-          onClick={handleGlobalSave}
-          className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0"
-        >
-          <Check size={12} className="text-theme-accent" />
-          <span>Save Concept</span>
-        </button>
+        {/* Actions Cluster: Minimal Destructive and Save Utility */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={handleDeleteClick}
+            onMouseLeave={() => setIsConfirmingDelete(false)}
+            className={`p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border
+              ${isConfirmingDelete 
+                ? 'bg-red-950/30 border-red-800/60 text-red-400' 
+                : 'bg-transparent border-transparent text-zinc-500 hover:text-zinc-400'
+              }`}
+            title={isConfirmingDelete ? "Click again to confirm delete" : "Delete concept"}
+          >
+            <Trash2 size={16} />
+          </button>
+
+          <button 
+            onClick={handleGlobalSave}
+            className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0"
+          >
+            <Check size={12} className="text-theme-accent" />
+            <span>Save Concept</span>
+          </button>
+        </div>
       </div>
 
       {/* Shared Absolute Presentation Track Wrapper */}
