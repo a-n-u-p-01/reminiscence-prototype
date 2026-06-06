@@ -41,13 +41,19 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   }, [activeField, tempValue]);
 
   if (!concept) return null;
+  useEffect(() => {
+  console.log('TEMP VALUE');
+  console.log(JSON.stringify(tempValue));
+}, [tempValue]);
 
-  const startEditing = (field, currentVal) => {
-    setTempValue(currentVal);
-    setActiveField(field);
-  };
+const startEditing = (field, currentVal) => {
+  setTempValue(formatForEditor(currentVal));
+  setActiveField(field);
+};
 
   const commitFieldUpdate = (field) => {
+    console.log(field);
+    
     setDraft(prev => ({ ...prev, [field]: tempValue }));
     setActiveField(null);
   };
@@ -71,22 +77,43 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     }
   };
 
-  const renderKeyNotes = (notes) => {
-    if (!notes) return null;
-    const sanitized = notes.replace(/(\d+\.)\n/g, '$1 ');
-    const points = sanitized.split('\n').filter(p => p.trim() !== '');
-    return (
-      <ul className="space-y-3">
-        {points.map((point, index) => (
-          <li key={index} className="flex gap-3 text-s3 text-zinc-400 leading-relaxed font-sans items-start">
-            <span className="flex-1 text-zinc-400 whitespace-pre-wrap">
-              {point.trim()}
-            </span>
-          </li>
-        ))}
-      </ul>
-    );
-  };
+const formatForEditor = (text) => {
+  if (!text) return '';
+
+  return text
+    .replace(/\r\n/g, ' ')
+    .replace(/\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\. (?=[A-Z])/g, '.\n\n');
+};
+
+const renderKeyNotes = (notes) => {
+  if (!notes) return null;
+
+  const cleanedText = notes
+    .replace(/\r\n/g, ' ')
+    .replace(/\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const points = cleanedText
+    .split(/(?<=\.)\s+(?=[A-Z])/)
+    .filter(Boolean);
+
+  return (
+    <ul className="space-y-3">
+      {points.map((point, index) => (
+        <li
+          key={index}
+          className="text-s3 text-zinc-400 leading-relaxed"
+        >
+          {point.trim()}
+        </li>
+      ))}
+    </ul>
+  );
+};
 
   return (
     <div className="w-full max-w-xl mx-auto pb-20 relative antialiased selection:bg-zinc-800 selection:text-white">
