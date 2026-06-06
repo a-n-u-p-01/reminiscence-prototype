@@ -98,19 +98,22 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     }
   };
 
-  // Keep the display logic consistent
+  // Updated display logic to merge number lines with text lines
   const renderKeyNotes = (notes) => {
     if (!notes) return null;
-    // Split by newline and filter empty lines
-    const points = notes.split('\n').filter(p => p.trim() !== '');
+    
+    // 1. Sanitize: Replace "Number.\n" with "Number. " so they become one line
+    const sanitized = notes.replace(/(\d+\.)\n/g, '$1 ');
+    
+    // 2. Split by newline to get clean items
+    const points = sanitized.split('\n').filter(p => p.trim() !== '');
     
     return (
       <ul className="space-y-3">
         {points.map((point, index) => (
           <li key={index} className="flex gap-3 text-s3 text-zinc-400 leading-relaxed font-sans items-start">
-            {/* Added whitespace-pre-wrap to force mobile to respect \n characters */}
             <span className="flex-1 text-zinc-400 whitespace-pre-wrap">
-              {point.replace(/^[•\-\d.\s]+/, '')}
+              {point.trim()}
             </span>
           </li>
         ))}
@@ -175,7 +178,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
                 <Edit2 size={12} />
               </button>
             </div>
-            {/* Added whitespace-pre-wrap here too for main display */}
             <p className="text-s3 text-zinc-300 leading-relaxed font-normal font-sans whitespace-pre-wrap">
               {draft.mainNote || "No detailed notes recorded for this study node."}
             </p>
@@ -207,7 +209,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               value={tempValue}
               onChange={(e) => setTempValue(e.target.value)}
               onScroll={checkScrollOverflow}
-              // Added whitespace-pre-wrap to textarea class
               className="w-full bg-transparent text-s3 text-zinc-300 leading-relaxed font-normal font-sans focus:outline-none resize-none overflow-y-auto scrollbar-none pb-8 whitespace-pre-wrap"
               style={{ WebkitOverflowScrolling: 'touch' }}
             />

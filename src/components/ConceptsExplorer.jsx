@@ -73,28 +73,28 @@ export default function ConceptsExplorer({ onBack }) {
     <AnimatePresence mode="wait">
       {selectedConcept ? (
         // DETAIL VIEW CONTAINER MATCHING SYSTEM WIDTH
-        <motion.div
-          key="detail"
-          initial={{ x: 16, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 16, opacity: 0 }}
-          transition={mobileTransition}
-          /* Added max-w-xl mx-auto to center and match system profile layout standards */
-          className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
-        >
+       <motion.div
+  key="detail"
+  initial={{ x: 16, opacity: 0 }}
+  animate={{ x: 0, opacity: 1 }}
+  exit={{ x: 16, opacity: 0 }}
+  transition={mobileTransition}
+  layout // <--- Add this
+  className="w-full max-w-xl mx-auto ..."
+>
           <ConceptDetail concept={selectedConcept} onBack={() => window.history.back()}/>
         </motion.div>
       ) : (
         // EXPLORER LIST VIEW CONTAINER MATCHING SYSTEM WIDTH
-        <motion.div
-          key="list"
-          initial={{ x: -16, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: -16, opacity: 0 }}
-          transition={mobileTransition}
-          /* Added max-w-xl mx-auto to prevent infinite horizontal stretching on laptops */
-          className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
-        >
+     <motion.div
+  key="list"
+  initial={{ x: -16, opacity: 0 }}
+  animate={{ x: 0, opacity: 1 }}
+  exit={{ x: -16, opacity: 0 }}
+  transition={mobileTransition}
+  layout // <--- Add this
+  className="w-full max-w-xl mx-auto ..."
+>
           {/* Structural Header Layout - Matches Settings Screen Alignment perfectly */}
           <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">
             <div className="flex items-center gap-2.5">

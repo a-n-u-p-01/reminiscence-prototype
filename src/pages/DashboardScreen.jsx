@@ -280,32 +280,34 @@ export default function DashboardScreen() {
 
   // Inside your DashboardScreen component
 return (
-  <AnimatePresence mode="wait">
+ <AnimatePresence mode="wait">
   {showConcepts ? (
     <motion.div
       key="concepts"
-      initial={{ x: 50, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 50, opacity: 0 }} // Smooth slide-out to the right
-      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full"
     >
-     <ConceptsExplorer
-  revisionLogs={activeDayDetails?.revisionLogs || []}
-  onBack={() => {
-    window.history.back();
-    setShowConcepts(false);
-  }}
-/>
+      <ConceptsExplorer
+        revisionLogs={activeDayDetails?.revisionLogs || []}
+        onBack={() => {
+          window.history.back();
+          setShowConcepts(false);
+        }}
+      />
     </motion.div>
   ) : (
     <motion.div
       key="dashboard"
-      initial={{ x: -50, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: -50, opacity: 0 }} // Smooth slide-out to the left
-      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full"
     >
-     <div className="space-y-6 max-w-xl mx-auto animate-[fadeIn_0.15s_ease-out] pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out">
+     <div className="space-y-6 max-w-xl mx-auto pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out">
 
       {/* Visual Header */}
       <div className="border-b border-theme pb-4">
@@ -514,7 +516,7 @@ return (
         </div>
 
         {activeDayDetails.dailyLog || activeDayDetails.revisionLogs.length > 0 ? (
-          <div className="space-y-4 animate-[fadeIn_0.2s_ease-out]">
+          <div className="space-y-4 ">
             {activeDayDetails.dailyLog && (
               <div className="bg-theme-card border border-theme rounded-xl p-4 space-y-3.5 shadow-sm transition-all">
                 <div className="flex justify-between items-center border-b border-theme pb-2">
@@ -542,7 +544,7 @@ return (
 
                   {!isTodayActive ? (
                     /* Premium Minimal Read-Only Mode for Past Days */
-                    <div className="flex flex-wrap gap-1.5 min-h-[28px] animate-[fadeIn_0.15s_ease-out]">
+                    <div className="flex flex-wrap gap-1.5 min-h-[28px]">
                       {activeDayDetails.dailyLog.extractedTopics && activeDayDetails.dailyLog.extractedTopics.length > 0 ? (
                         activeDayDetails.dailyLog.extractedTopics.map((topic, index) => (
                           <div
@@ -574,7 +576,7 @@ return (
                               key={index}
                               // CHANGE THIS:
                               onMouseDown={(e) => { e.preventDefault(); handleRemoveTopic(topic); }}
-                              className="flex items-center gap-1.5 text-s1 font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                              className="flex items-center gap-1.5 text-s1 font-mono bg-blue-950/40 text-blue-400 border border-blue-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-red-400/60 hover:bg-red-950/20 transition-all shadow-sm group "
                               title={`Remove ${topic}`}
                             >
                               <span>{topic}</span>
@@ -584,7 +586,7 @@ return (
                             </button>
                           ))
                         ) : (
-                          <span className="text-s1 text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
+                          <span className="text-s1 text-theme-muted font-mono italic self-center">
                             No structural study topics mapped yet.
                           </span>
                         )}
@@ -608,7 +610,7 @@ return (
                                 key={index}
                                 // Updated to onMouseDown to preserve input focus
                                 onMouseDown={(e) => { e.preventDefault(); handleRestoreTopic(topic); }}
-                                className="flex items-center gap-1.5 text-s1 font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group animate-[fadeIn_0.15s_ease-out]"
+                                className="flex items-center gap-1.5 text-s1 font-mono bg-red-950/40 text-red-400 border border-red-900/40 pl-2.5 pr-1.5 py-0.5 rounded-md hover:border-emerald-400/60 hover:bg-emerald-950/20 transition-all shadow-sm group "
                                 title={`Restore ${topic}`}
                               >
                                 <span>{topic}</span>
@@ -618,7 +620,7 @@ return (
                               </button>
                             ))
                           ) : (
-                            <span className="text-s1 text-theme-muted font-mono italic self-center animate-[fadeIn_0.15s_ease-out]">
+                            <span className="text-s1 text-theme-muted font-mono italic self-center">
                               No excluded study nodes.
                             </span>
                           )}
