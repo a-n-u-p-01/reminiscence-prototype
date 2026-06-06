@@ -39,5 +39,10 @@ export const noteService = {
   async updateExtractedTopics(topics) {
     const response = await apiClient.post('/save/extracted-topic', { topics });
     return response.data;
-  }
+  },
+  // Add this method inside your noteService object instance:
+async upsertConcept(userConceptRequest) {
+  const response = await apiClient.post('/concepts/upsert', userConceptRequest);
+  return response.data;
+}
 };

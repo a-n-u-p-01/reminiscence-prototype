@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { BookOpen, Flame, Plus, Sparkles, Brain, Target, CalendarDays, Edit2, ChevronDown } from 'lucide-react';
 import { useHomeEngine } from '../context/HomeContext';
-import StatusCapsule from '../components/StatusCapsule';
 import AddConceptPage from '../components/AddConceptPage';
 
 export default function HomePage({ pendingCount, onNavigateToReview, mainContentRef, onAddConcept }) {

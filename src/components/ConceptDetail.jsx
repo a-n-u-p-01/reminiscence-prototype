@@ -1,9 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ArrowLeft, Edit2, Check, X, Trash2, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Edit2, Check, X, Trash2, ChevronDown, Loader2 } from 'lucide-react';
+import { noteService } from '../api/noteService'; // Ensure this matches your file path
+import { useHomeEngine } from '../context/HomeContext';
+
 
 export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const [activeField, setActiveField] = useState(null); // 'mainNote' | 'extraNote' | null
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // Global saving micro-state indicator
+  const {
+      setStatusMessage,
+    } = useHomeEngine();
 
   const [draft, setDraft] = useState({
     mainNote: concept?.mainNote || '',
@@ -13,6 +20,14 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
   const textareaRef = useRef(null);
   const [hasMoreContentBelow, setHasMoreContentBelow] = useState(false);
+
+  // Keep internal draft synchronized if the parent pass-down context updates dynamically
+  useEffect(() => {
+    setDraft({
+      mainNote: concept?.mainNote || '',
+      extraNote: concept?.extraNote || ''
+    });
+  }, [concept]);
 
   // Reset delete confirmation safety latch if workspace editing is activated
   useEffect(() => {
@@ -41,31 +56,51 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   }, [activeField, tempValue]);
 
   if (!concept) return null;
-  useEffect(() => {
-  console.log('TEMP VALUE');
-  console.log(JSON.stringify(tempValue));
-}, [tempValue]);
 
-const startEditing = (field, currentVal) => {
-  setTempValue(formatForEditor(currentVal));
-  setActiveField(field);
-};
+  const startEditing = (field, currentVal) => {
+    setTempValue(formatForEditor(currentVal));
+    setActiveField(field);
+  };
 
   const commitFieldUpdate = (field) => {
-    console.log(field);
-    
     setDraft(prev => ({ ...prev, [field]: tempValue }));
     setActiveField(null);
   };
 
-  const handleGlobalSave = () => {
+  // --- UPDATED: Integrated Async Pipeline Handler ---
+  const handleGlobalSave = async () => {
     setActiveField(null);
-    if (onSave) {
-      onSave({
-        ...concept,
-        mainNote: draft.mainNote,
-        extraNote: draft.extraNote
-      });
+    setIsSaving(true);
+
+    // Payload formatted to map exactly onto the @RequestBody UserConceptRequest 
+    const payload = {
+      conceptId: concept.conceptId || concept.id, // Support fallback parameter schemes
+      conceptName: concept.conceptName || concept.name,
+      mainNote: draft.mainNote,
+      extraNote: draft.extraNote
+    };
+
+    try {
+      // 1. Fire persistence pipeline through the network bridge layer
+      await noteService.upsertConcept(payload);
+
+      // 2. Propagate mutations upstream to notify structural containers
+      if (onSave) {
+        onSave({
+          ...concept,
+          mainNote: draft.mainNote,
+          extraNote: draft.extraNote
+        });
+      }
+      setStatusMessage({ text: 'Concept Updated', type: 'success' });
+    } catch (error) {
+      console.error('Failed to update the concept node layout:', error);
+      // Optional: Add local error toast or error notification here if needed
+      setStatusMessage({ text: 'Unable to update', type: 'error' });
+    } finally {
+      setIsSaving(false);
+
+      setTimeout(()=> setStatusMessage(null),600);
     }
   };
 
@@ -77,54 +112,54 @@ const startEditing = (field, currentVal) => {
     }
   };
 
-const formatForEditor = (text) => {
-  if (!text) return '';
+  const formatForEditor = (text) => {
+    if (!text) return '';
+    return text
+      .replace(/\r\n/g, ' ')
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\. (?=[A-Z])/g, '.\n\n');
+  };
 
-  return text
-    .replace(/\r\n/g, ' ')
-    .replace(/\n/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/\. (?=[A-Z])/g, '.\n\n');
-};
+  const renderKeyNotes = (notes) => {
+    if (!notes) return null;
 
-const renderKeyNotes = (notes) => {
-  if (!notes) return null;
+    const cleanedText = notes
+      .replace(/\r\n/g, ' ')
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
 
-  const cleanedText = notes
-    .replace(/\r\n/g, ' ')
-    .replace(/\n/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+    const points = cleanedText
+      .split(/(?<=\.)\s+(?=[A-Z])/)
+      .filter(Boolean);
 
-  const points = cleanedText
-    .split(/(?<=\.)\s+(?=[A-Z])/)
-    .filter(Boolean);
-
-  return (
-    <ul className="space-y-3">
-      {points.map((point, index) => (
-        <li
-          key={index}
-          className="text-s3 text-zinc-400 leading-relaxed"
-        >
-          {point.trim()}
-        </li>
-      ))}
-    </ul>
-  );
-};
+    return (
+      <ul className="space-y-3">
+        {points.map((point, index) => (
+          <li key={index} className="text-s3 text-zinc-400 leading-relaxed">
+            {point.trim()}
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   return (
     <div className="w-full max-w-xl mx-auto pb-20 relative antialiased selection:bg-zinc-800 selection:text-white">
       {/* Structural Header Layout */}
       <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] relative z-20 bg-transparent">
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <button onClick={onBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
+          <button 
+            onClick={onBack} 
+            disabled={isSaving}
+            className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0 disabled:opacity-40"
+          >
             <ArrowLeft size={22} />
           </button>
           <h1 className="font-semibold tracking-tight text-zinc-100 text-s4 truncate max-w-[160px] sm:max-w-none">
-            {concept.conceptName}
+            {concept.conceptName || concept.name}
           </h1>
         </div>
         
@@ -132,8 +167,9 @@ const renderKeyNotes = (notes) => {
           <button
             type="button"
             onClick={handleDeleteClick}
+            disabled={isSaving}
             onMouseLeave={() => setIsConfirmingDelete(false)}
-            className={`p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border
+            className={`p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border disabled:opacity-40
               ${isConfirmingDelete 
                 ? 'bg-red-950/30 border-red-800/60 text-red-400' 
                 : 'bg-transparent border-transparent text-zinc-500 hover:text-zinc-400'
@@ -144,10 +180,15 @@ const renderKeyNotes = (notes) => {
 
           <button 
             onClick={handleGlobalSave}
-            className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0"
+            disabled={isSaving}
+            className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0 disabled:opacity-60"
           >
-            <Check size={12} className="text-theme-accent" />
-            <span>Save Concept</span>
+            {isSaving ? (
+              <Loader2 size={12} className="animate-spin text-theme-accent" />
+            ) : (
+              <Check size={12} className="text-theme-accent" />
+            )}
+            <span>{'Save Concept'}</span>
           </button>
         </div>
       </div>
@@ -164,7 +205,11 @@ const renderKeyNotes = (notes) => {
           <div className="px-0.5 space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest font-bold">Notes</span>
-              <button onClick={() => startEditing('mainNote', draft.mainNote)} className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90">
+              <button 
+                onClick={() => startEditing('mainNote', draft.mainNote)} 
+                disabled={isSaving}
+                className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90 disabled:opacity-30"
+              >
                 <Edit2 size={12} />
               </button>
             </div>
@@ -176,7 +221,11 @@ const renderKeyNotes = (notes) => {
           <div className="space-y-3.5 pt-5 border-t border-zinc-800/40 px-0.5">
             <div className="flex justify-between items-center">
               <h3 className="text-s2 text-zinc-500 uppercase tracking-widest font-bold font-mono">Key Architecture Insights</h3>
-              <button onClick={() => startEditing('extraNote', draft.extraNote)} className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90">
+              <button 
+                onClick={() => startEditing('extraNote', draft.extraNote)} 
+                disabled={isSaving}
+                className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90 disabled:opacity-30"
+              >
                 <Edit2 size={12} />
               </button>
             </div>
