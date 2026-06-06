@@ -1,11 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ArrowLeft, History, Calendar, Edit2, Check, X, Trash2, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Edit2, Check, X, Trash2, ChevronDown } from 'lucide-react';
 
 export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
-  const [animateIn, setAnimateIn] = useState(false);
   const [activeField, setActiveField] = useState(null); // 'mainNote' | 'extraNote' | null
-
-  // Protective temporary state to confirm delete on a dual-tap cycle
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const [draft, setDraft] = useState({
@@ -14,45 +11,29 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   });
   const [tempValue, setTempValue] = useState('');
 
-  // Track scroll position to dynamically manage the visual indicator layout
   const textareaRef = useRef(null);
   const [hasMoreContentBelow, setHasMoreContentBelow] = useState(false);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => setAnimateIn(true));
-    return () => cancelAnimationFrame(frame);
-  }, []);
 
   // Reset delete confirmation safety latch if workspace editing is activated
   useEffect(() => {
     if (activeField) setIsConfirmingDelete(false);
   }, [activeField]);
 
-  // Auditor to check if content exceeds the viewport boundary limits
   const checkScrollOverflow = () => {
     const el = textareaRef.current;
     if (!el) return;
-    
-    // Check if total height of text content is greater than visible box height
     const isOverflowing = el.scrollHeight > el.clientHeight;
-    // Check if the user has scrolled near the absolute bottom boundary
     const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 6;
-    
     setHasMoreContentBelow(isOverflowing && !isAtBottom);
   };
 
-  // Click handler to smoothly scroll the textarea viewport directly to the bottom
   const scrollToBottom = () => {
     const el = textareaRef.current;
     if (el) {
-      el.scrollTo({
-        top: el.scrollHeight,
-        behavior: 'smooth'
-      });
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     }
   };
 
-  // Re-run the overflow check whenever workspace text edits happen
   useEffect(() => {
     if (activeField) {
       setTimeout(checkScrollOverflow, 50);
@@ -60,11 +41,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   }, [activeField, tempValue]);
 
   if (!concept) return null;
-
-  const handleAnimatedBack = () => {
-    setAnimateIn(false);
-    setTimeout(onBack, 240);
-  };
 
   const startEditing = (field, currentVal) => {
     setTempValue(currentVal);
@@ -91,23 +67,14 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     if (!isConfirmingDelete) {
       setIsConfirmingDelete(true);
     } else {
-      setAnimateIn(false);
-      setTimeout(() => {
-        if (onDelete) onDelete(concept.id || concept);
-      }, 240);
+      if (onDelete) onDelete(concept.id || concept);
     }
   };
 
-  // Updated display logic to merge number lines with text lines
   const renderKeyNotes = (notes) => {
     if (!notes) return null;
-    
-    // 1. Sanitize: Replace "Number.\n" with "Number. " so they become one line
     const sanitized = notes.replace(/(\d+\.)\n/g, '$1 ');
-    
-    // 2. Split by newline to get clean items
     const points = sanitized.split('\n').filter(p => p.trim() !== '');
-    
     return (
       <ul className="space-y-3">
         {points.map((point, index) => (
@@ -122,14 +89,11 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   };
 
   return (
-    <div className={`w-full max-w-xl mx-auto pb-20 relative transform will-change-transform antialiased selection:bg-zinc-800 selection:text-white transition-all duration-[240ms] ease-[cubic-bezier(0.16,1,0.3,1)]
-      ${animateIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.98]'}`}
-    >
-      
+    <div className="w-full max-w-xl mx-auto pb-20 relative antialiased selection:bg-zinc-800 selection:text-white">
       {/* Structural Header Layout */}
       <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] relative z-20 bg-transparent">
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <button onClick={handleAnimatedBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
+          <button onClick={onBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
             <ArrowLeft size={22} />
           </button>
           <h1 className="font-semibold tracking-tight text-zinc-100 text-s4 truncate max-w-[160px] sm:max-w-none">
@@ -162,7 +126,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       </div>
 
       <div className="relative mt-6 min-h-[400px] overflow-visible">
-        
         {/* VIEW 1: Main Content */}
         <div 
           className={`w-full space-y-6 transition-all duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] transform will-change-transform
