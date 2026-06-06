@@ -413,7 +413,7 @@ export default function ReviewScreen({ onBackToHome }) {
         Evaluate Performance
       </span>
       <span className="text-[9px] font-mono text-zinc-500 tracking-wider bg-zinc-900/40 px-2 py-0.5 rounded border border-zinc-900">
-        FSRS v5.0
+        FSRS v5.1
       </span>
     </div>
 

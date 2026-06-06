@@ -293,6 +293,7 @@ return (
   revisionLogs={activeDayDetails?.revisionLogs || []}
   onBack={() => {
     window.history.back();
+    setShowConcepts(false);
   }}
 />
     </motion.div>
