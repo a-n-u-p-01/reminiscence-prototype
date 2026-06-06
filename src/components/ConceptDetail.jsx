@@ -1,16 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ArrowLeft, Edit2, Check, X, Trash2, ChevronDown, Loader2 } from 'lucide-react';
-import { noteService } from '../api/noteService'; // Ensure this matches your file path
+import { noteService } from '../api/noteService'; 
 import { useHomeEngine } from '../context/HomeContext';
-
 
 export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const [activeField, setActiveField] = useState(null); // 'mainNote' | 'extraNote' | null
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // Global saving micro-state indicator
-  const {
-      setStatusMessage,
-    } = useHomeEngine();
+  const [isSaving, setIsSaving] = useState(false); 
+  const { setStatusMessage } = useHomeEngine();
 
   const [draft, setDraft] = useState({
     mainNote: concept?.mainNote || '',
@@ -21,7 +18,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const textareaRef = useRef(null);
   const [hasMoreContentBelow, setHasMoreContentBelow] = useState(false);
 
-  // Keep internal draft synchronized if the parent pass-down context updates dynamically
+  // Sync internal draft state if the parent entity changes downstream
   useEffect(() => {
     setDraft({
       mainNote: concept?.mainNote || '',
@@ -29,7 +26,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     });
   }, [concept]);
 
-  // Reset delete confirmation safety latch if workspace editing is activated
   useEffect(() => {
     if (activeField) setIsConfirmingDelete(false);
   }, [activeField]);
@@ -67,24 +63,30 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     setActiveField(null);
   };
 
-  // --- UPDATED: Integrated Async Pipeline Handler ---
+  const formatForEditor = (text) => {
+    if (!text) return '';
+    return text
+      .replace(/\r\n/g, ' ')
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\. (?=[A-Z])/g, '.\n\n');
+  };
+
   const handleGlobalSave = async () => {
     setActiveField(null);
     setIsSaving(true);
 
-    // Payload formatted to map exactly onto the @RequestBody UserConceptRequest 
     const payload = {
-      conceptId: concept.conceptId || concept.id, // Support fallback parameter schemes
+      conceptId: concept.conceptId || concept.id, 
       conceptName: concept.conceptName || concept.name,
       mainNote: draft.mainNote,
       extraNote: draft.extraNote
     };
 
     try {
-      // 1. Fire persistence pipeline through the network bridge layer
       await noteService.upsertConcept(payload);
 
-      // 2. Propagate mutations upstream to notify structural containers
       if (onSave) {
         onSave({
           ...concept,
@@ -95,12 +97,10 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       setStatusMessage({ text: 'Concept Updated', type: 'success' });
     } catch (error) {
       console.error('Failed to update the concept node layout:', error);
-      // Optional: Add local error toast or error notification here if needed
       setStatusMessage({ text: 'Unable to update', type: 'error' });
     } finally {
       setIsSaving(false);
-
-      setTimeout(()=> setStatusMessage(null),600);
+      setTimeout(() => setStatusMessage(null), 600);
     }
   };
 
@@ -110,16 +110,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     } else {
       if (onDelete) onDelete(concept.id || concept);
     }
-  };
-
-  const formatForEditor = (text) => {
-    if (!text) return '';
-    return text
-      .replace(/\r\n/g, ' ')
-      .replace(/\n/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .replace(/\. (?=[A-Z])/g, '.\n\n');
   };
 
   const renderKeyNotes = (notes) => {
@@ -146,9 +136,15 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     );
   };
 
+  // Compute dirty matching state flag
+  const hasUnsavedChanges = 
+    draft.mainNote !== (concept?.mainNote || '') || 
+    draft.extraNote !== (concept?.extraNote || '') ||
+    (activeField && tempValue !== formatForEditor(draft[activeField]));
+
   return (
     <div className="w-full max-w-xl mx-auto pb-20 relative antialiased selection:bg-zinc-800 selection:text-white">
-      {/* Structural Header Layout */}
+      
       <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] relative z-20 bg-transparent">
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           <button 
@@ -178,10 +174,11 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
             <Trash2 size={16} />
           </button>
 
+          {/* Conditional lock handler triggered here */}
           <button 
             onClick={handleGlobalSave}
-            disabled={isSaving}
-            className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0 disabled:opacity-60"
+            disabled={isSaving || !hasUnsavedChanges}
+            className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-theme-card disabled:hover:text-theme-secondary"
           >
             {isSaving ? (
               <Loader2 size={12} className="animate-spin text-theme-accent" />
@@ -194,7 +191,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       </div>
 
       <div className="relative mt-6 min-h-[400px] overflow-visible">
-        {/* VIEW 1: Main Content */}
+        {/* VIEW 1: Main Content Viewport */}
         <div 
           className={`w-full space-y-6 transition-all duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] transform will-change-transform
             ${activeField 
@@ -233,7 +230,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
           </div>
         </div>
 
-        {/* VIEW 2: Editor */}
+        {/* VIEW 2: Inline Editor Context Container */}
         <div 
           className={`w-full space-y-3 transition-all duration-[220ms] ease-[cubic-bezier(0.16,1,0.3,1)] transform will-change-transform absolute inset-x-0 top-0
             ${activeField 

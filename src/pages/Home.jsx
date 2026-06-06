@@ -191,7 +191,6 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
     if (onAddConcept) {
       onAddConcept(conceptData);
     }
-    setShowAddConcept(false);
   };
 
   if (showAddConcept) {

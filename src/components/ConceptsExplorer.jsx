@@ -3,8 +3,14 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dashboardService } from '../api/dashboardService';
 import ConceptDetail from './ConceptDetail';
+import { useDashboard } from '../context/DashboardContext';
 
 export default function ConceptsExplorer({ onBack }) {
+  const {
+    isPullToRefresh,
+    setIsPullToRefresh
+  } = useDashboard();
+
   const [concepts, setConcepts] = useState([]);
   const [search, setSearch] = useState('');
   
@@ -40,14 +46,24 @@ export default function ConceptsExplorer({ onBack }) {
     setActiveQuery(search);     // This change will wake up the fetching useEffect
   };
 
-  // Fetch server-side concepts dataset (Fires ONLY on page, sort, or explicit activeQuery changes)
+  // 1. Listen exclusively to pull-to-refresh indicators to cleanly force reset pagination parameters
+  useEffect(() => {
+    if (isPullToRefresh) {
+      setPage(1);
+    }
+  }, [isPullToRefresh]);
+
+  // 2. Authoritative database persistence and chunk retrieval execution loop
   useEffect(() => {
     let isMounted = true;
 
     async function fetchServerData() {
       setIsLoading(true);
       try {
-        const response = await dashboardService.getConceptsExplorer(page, activeQuery, sortNewest);
+        // If pull-to-refresh happens on a different page, ensure we use page 1 explicitly
+        const targetPage = isPullToRefresh ? 1 : page;
+        const response = await dashboardService.getConceptsExplorer(targetPage, activeQuery, sortNewest);
+        
         if (isMounted) {
           setConcepts(response.data || []);
           setTotalPages(response.totalPages || 1);
@@ -55,13 +71,20 @@ export default function ConceptsExplorer({ onBack }) {
       } catch (error) {
         console.error("Failed fetching concepts matrix chunk:", error);
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+          // Turn off the spinner wrapper safely once data stream resolves
+          if (isPullToRefresh) {
+            setIsPullToRefresh(false);
+          }
+        }
       }
     }
 
     fetchServerData();
     return () => { isMounted = false; };
-  }, [page, activeQuery, sortNewest]);
+    // Inclusion of isPullToRefresh triggers fetch exactly once when pulled, avoiding double renders
+  }, [page, activeQuery, sortNewest, isPullToRefresh, setIsPullToRefresh]);
 
   // Native Mobile Velocity Timing Curves
   const mobileTransition = { 
@@ -70,32 +93,32 @@ export default function ConceptsExplorer({ onBack }) {
   };
 
   return (
-  <AnimatePresence mode="wait">
-  {selectedConcept ? (
-    // DETAIL VIEW CONTAINER
-    <motion.div
-      key="detail"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
-    >
-      <ConceptDetail 
-        concept={selectedConcept} 
-        onBack={() => window.history.back()}
-      />
-    </motion.div>
-  ) : (
-    // EXPLORER LIST VIEW CONTAINER
-    <motion.div
-      key="list"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
-    >
+    <AnimatePresence mode="wait">
+      {selectedConcept ? (
+        // DETAIL VIEW CONTAINER
+        <motion.div
+          key="detail"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+          className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
+        >
+          <ConceptDetail 
+            concept={selectedConcept} 
+            onBack={() => window.history.back()}
+          />
+        </motion.div>
+      ) : (
+        // EXPLORER LIST VIEW CONTAINER
+        <motion.div
+          key="list"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+          className="w-full max-w-xl mx-auto pb-20 space-y-6 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
+        >
           {/* Structural Header Layout - Matches Settings Screen Alignment perfectly */}
           <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">
             <div className="flex items-center gap-2.5">
@@ -127,11 +150,11 @@ export default function ConceptsExplorer({ onBack }) {
             )}
           </div>
 
-          {/* List Matrix Display Container (Now fills out the layout width cleanly) */}
+          {/* List Matrix Display Container */}
           <div className={`bg-zinc-900/20 border border-zinc-800/60 rounded-xl px-4 divide-y divide-zinc-800/40 min-h-[220px] transition-all duration-150 pointer-events-auto ${isLoading ? 'opacity-50 pointer-events-none filter blur-[0.3px]' : 'opacity-100'}`}>
             {concepts.length === 0 ? (
               <div className="text-s1 text-zinc-600 font-mono py-12 text-center tracking-widest">
-               {isLoading? "Loading...":"NO MATCHES FOUND"} 
+                {isLoading ? "Loading..." : "NO MATCHES FOUND"} 
               </div>
             ) : (
               concepts.map((item, i) => (

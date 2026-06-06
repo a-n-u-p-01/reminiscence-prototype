@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { noteService } from '../api/noteService'; 
+import { useHomeEngine } from '../context/HomeContext';
+import { useDashboard } from '../context/DashboardContext';
 
 export default function AddConceptPage({ onBack, onSave }) {
-  const [form, setForm] = useState({
+  const defaultFormState = {
     title: '',
     note: '',
     extraInfo: '',
     question: ''
-  });
+  };
+  
+  const {
+    isPullToRefresh,
+    setIsPullToRefresh,
+  } = useDashboard();
 
-  // Structural lifecycle flag for premium CSS state transitions
+  const [form, setForm] = useState(defaultFormState);
+
+  // Structural state flags
   const [animateIn, setAnimateIn] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Pull context hook for global status notification capsule
+  const { setStatusMessage } = useHomeEngine();
 
   useEffect(() => {
     // Snap smooth state on paint frame loop
@@ -18,25 +32,83 @@ export default function AddConceptPage({ onBack, onSave }) {
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  // Sync and clear page parameters when global Pull-To-Refresh engine fires
+  useEffect(() => {
+    if (isPullToRefresh) {
+      // 1. Wipe form inputs smoothly back to fresh baseline state
+      setForm(defaultFormState);
+      
+      // 2. Trigger micro-flash success text notice capsule if context allows
+      if (setStatusMessage) {
+        setStatusMessage({ text: 'Form Cleared', type: 'success' });
+        setTimeout(() => setStatusMessage(null), 1000);
+      }
+      
+      // 3. Immediately disengage the gesture spinner inside the dashboard controller layout
+      setIsPullToRefresh(false);
+    }
+  }, [isPullToRefresh, setIsPullToRefresh]);
+
   const handleAnimatedBack = () => {
+    if (isSaving) return; // Prevent navigation leaks during active network operations
     setAnimateIn(false);
     // Smooth delay allows down-drift motion before unmounting view completely
     setTimeout(onBack, 200);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.note.trim()) return;
+    if (!form.title.trim() || !form.note.trim() || isSaving) return;
     
-    setAnimateIn(false);
-    setTimeout(() => {
-      if (onSave) onSave(form);
-    }, 200);
+    setIsSaving(true);
+
+    // Map the form state fields to meet your backend @RequestBody payload structure
+    const payload = {
+      conceptName: form.title.trim(),
+      mainNote: form.note.trim(),
+      extraNote: form.extraInfo.trim(),
+      question: form.question.trim() 
+    };
+
+    try {
+      // 1. Fire network persistence pipeline via apiClient bridge layer
+      await noteService.upsertConcept(payload);
+
+      // 2. Propagate mutations upstream to notify home collection states
+      if (onSave) {
+        await onSave(form);
+      }
+
+      // 3. Trigger premium floating StatusCapsule feedback alert
+      if (setStatusMessage) {
+        setStatusMessage({ text: 'Concept Added', type: 'success' });
+      }
+
+      // 4. Reset form inputs cleanly to allow consecutive additions without popping back
+      setForm(defaultFormState);
+
+    } catch (error) {
+      console.error('Failed to create and persist concept layout node:', error);
+      
+      if (setStatusMessage) {
+        setStatusMessage({ text: 'Unable to save concept', type: 'error' });
+      }
+    } finally {
+      setIsSaving(false);
+
+      // Dismiss capsule instance context cleanly after a short visible delay
+      setTimeout(() => {
+        if (setStatusMessage) setStatusMessage(null);
+      }, 1200); // Extended slightly so user can view confirmation clearly while remaining on-page
+    }
   };
 
   const handleInputChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Lock save operations until necessary validation parameters are filled
+  const isFormValid = form.title.trim() && form.note.trim();
 
   return (
     <div className={`max-w-xl mx-auto text-theme-primary transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] transform will-change-transform
@@ -52,7 +124,8 @@ export default function AddConceptPage({ onBack, onSave }) {
           <button
             type="button"
             onClick={handleAnimatedBack}
-            className="text-theme-muted hover:text-theme-primary p-1.5 -ml-1.5 rounded-lg transition-colors active:scale-95"
+            disabled={isSaving}
+            className="text-theme-muted hover:text-theme-primary p-1.5 -ml-1.5 rounded-lg transition-colors active:scale-95 disabled:opacity-40"
           >
             <ArrowLeft size={16} />
           </button>
@@ -65,10 +138,15 @@ export default function AddConceptPage({ onBack, onSave }) {
         <button
           type="submit"
           form="concept-form"
-          className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide"
+          disabled={isSaving || !isFormValid}
+          className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-theme-card disabled:hover:text-theme-secondary"
         >
-          <Check size={12} className="text-theme-accent" />
-          <span>Add </span>
+          {isSaving ? (
+            <Loader2 size={12} className="animate-spin text-theme-accent" />
+          ) : (
+            <Check size={12} className="text-theme-accent" />
+          )}
+          <span>Add</span>
         </button>
       </div>
 
@@ -84,9 +162,10 @@ export default function AddConceptPage({ onBack, onSave }) {
             <input
               type="text"
               required
+              disabled={isSaving}
               value={form.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/35 focus:outline-none select-text font-sans"
+              className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/35 focus:outline-none select-text font-sans disabled:opacity-50"
             />
           </div>
 
@@ -96,9 +175,10 @@ export default function AddConceptPage({ onBack, onSave }) {
             </label>
             <input
               type="text"
+              disabled={isSaving}
               value={form.question}
               onChange={(e) => handleInputChange('question', e.target.value)}
-              className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/35 focus:outline-none select-text font-sans"
+              className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/35 focus:outline-none select-text font-sans disabled:opacity-50"
             />
           </div>
         </div>
@@ -111,9 +191,10 @@ export default function AddConceptPage({ onBack, onSave }) {
           <textarea
             required
             rows={3}
+            disabled={isSaving}
             value={form.note}
             onChange={(e) => handleInputChange('note', e.target.value)}
-            className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/35 focus:outline-none resize-none leading-relaxed select-text font-sans"
+            className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/35 focus:outline-none resize-none leading-relaxed select-text font-sans disabled:opacity-50"
           />
         </div>
 
@@ -124,9 +205,10 @@ export default function AddConceptPage({ onBack, onSave }) {
           </label>
           <textarea
             rows={2}
+            disabled={isSaving}
             value={form.extraInfo}
             onChange={(e) => handleInputChange('extraInfo', e.target.value)}
-            className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/35 focus:outline-none resize-none leading-relaxed select-text font-sans"
+            className="w-full bg-transparent text-s3 text-theme-primary placeholder-theme-muted/35 focus:outline-none resize-none leading-relaxed select-text font-sans disabled:opacity-50"
           />
         </div>
 
