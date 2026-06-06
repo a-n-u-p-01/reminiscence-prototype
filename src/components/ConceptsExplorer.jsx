@@ -129,7 +129,9 @@ export default function ConceptsExplorer({ onBack }) {
           {/* List Matrix Display Container (Now fills out the layout width cleanly) */}
           <div className={`bg-zinc-900/20 border border-zinc-800/60 rounded-xl px-4 divide-y divide-zinc-800/40 min-h-[220px] transition-all duration-150 pointer-events-auto ${isLoading ? 'opacity-50 pointer-events-none filter blur-[0.3px]' : 'opacity-100'}`}>
             {concepts.length === 0 ? (
-              <div className="text-s1 text-zinc-600 font-mono py-12 text-center tracking-widest">NO MATCHES FOUND</div>
+              <div className="text-s1 text-zinc-600 font-mono py-12 text-center tracking-widest">
+               {isLoading? "Loading...":"NO MATCHES FOUND"} 
+              </div>
             ) : (
               concepts.map((item, i) => (
                 <div 
