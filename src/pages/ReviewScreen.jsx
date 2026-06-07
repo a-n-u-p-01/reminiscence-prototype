@@ -303,24 +303,16 @@ export default function ReviewScreen({ onBackToHome }) {
         {/* Dynamic Card Container Area */}
         {loading ? (
           <div className="min-h-[260px] flex items-center justify-center">
-            <p className="text-xs font-mono tracking-[0.2em] text-zinc-400 dark:text-zinc-500 animate-pulse">
+            <p className="text-xs font-mono tracking-[0.2em] text-zinc-400 dark:text-zinc-500 uppercase animate-pulse">
               Loading...
             </p>
           </div>
         ) : !concepts || concepts.length === 0 ? (
           initialCheckDone && (
-            <div className="flex flex-col items-center justify-center text-center py-24 px-6 space-y-4 max-w-sm mx-auto">
-              <div className="p-4 bg-emerald-500/10 rounded-full border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
-                <CheckCircle2 size={32} className="text-emerald-500 dark:text-emerald-400" />
-              </div>
-              <div className="space-y-1">
-                <h2 className="text-s5 font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-                  Review Queue Cleared
-                </h2>
-                <p className="text-s2 text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Your memory baselines are secure. No concept cards are due right now.
-                </p>
-              </div>
+            <div className="min-h-[260px] flex items-center justify-center">
+              <p className="text-xs font-mono tracking-[0.2em] text-zinc-400 dark:text-zinc-500 uppercase">
+                No Revision Pending
+              </p>
             </div>
           )
         ) : (
