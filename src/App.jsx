@@ -139,7 +139,7 @@ export default function App() {
   } = useReviewEngine();
 
   const { refreshDashboard } = useDashboard();
-  const { refreshHomeNote, statusMessage, setStatusMessage } = useHomeEngine(); 
+  const { refreshHomeNote, statusMessage, setStatusMessage,setIsPullToRefresh } = useHomeEngine(); 
 
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
@@ -315,7 +315,7 @@ export default function App() {
           Initializing Engine...
         </div>
         <div className="text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
-          v1.1.0
+          v1.2.0
         </div>
       </div>
     );
