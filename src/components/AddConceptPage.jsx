@@ -97,7 +97,7 @@ export default function AddConceptPage({ onBack, onSave }) {
     >
       
       {/* Premium Compact Header */}
-      <div className="flex items-center justify-between pb-4 mb-5 border-b border-theme/60">
+      <div className="flex items-center justify-between pb-4 mb-5 border-b border-zinc-800/60">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
