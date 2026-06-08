@@ -436,12 +436,12 @@ export default function SettingsScreen() {
         {/* Minimal Footer Link */}
         <div className="pt-4 px-1 flex justify-center">
           <a 
-            href="https://reminiscence-prototype.vercel.app/" 
+            href="https://drive.google.com/drive/folders/1mI_t7jWKKQYe87ivAm-ouAkX1FkbMJlW?usp=drive_link" 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-zinc-500 hover:text-blue-400 transition-colors text-s2 font-medium"
           >
-            <span>Open Reminiscence in browser</span>
+            <span>Download for Android</span>
             <ExternalLink size={12} strokeWidth={2.5} />
           </a>
         </div>
