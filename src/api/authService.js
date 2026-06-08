@@ -22,5 +22,11 @@ export const authService = {
     // Make sure this matches your backend @RequestBody expected structure
     const response = await apiClient.post('/auth/verify-otp', { email, otp });
     return response.data;
+  },
+
+  async getVersion() {
+    // Make sure this matches your backend @RequestBody expected structure
+    const response = await apiClient.get('/auth/version');
+    return response.data;
   }
 };

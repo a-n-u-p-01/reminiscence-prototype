@@ -152,7 +152,6 @@ export default function DashboardScreen() {
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
-      console.error("Failed to commit topic customization matrix update:", error);
       setSaveStatus('error');
       setTimeout(() => setSaveStatus('idle'), 4000);
     }
@@ -284,9 +283,6 @@ useEffect(() => {
     }
   }, [saveStatus, isSaveActiveAndValid]);
 
-  console.log("selectedDate =", selectedDate);
-console.log("todayStr =", todayStr);
-console.log("heatmapData =", Object.keys(heatmapData || {}).length);
 
   // Inside your DashboardScreen component
 return (

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Settings, User, LogOut, Sliders, BrainCircuit,
-  Palette, Check, Save, ChevronDown, Type
+  Palette, Check, Save, ChevronDown, Type, ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
@@ -155,7 +155,7 @@ export default function SettingsScreen() {
   }
 
   // Dynamic Typography Scale Map
- 
+  
 
   const algoMetadata = {
     fsrs: {
@@ -431,6 +431,19 @@ export default function SettingsScreen() {
             </div>
 
           </div>
+        </div>
+
+        {/* Minimal Footer Link */}
+        <div className="pt-4 px-1 flex justify-center">
+          <a 
+            href="https://reminiscence-prototype.vercel.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-zinc-500 hover:text-blue-400 transition-colors text-s2 font-medium"
+          >
+            <span>Open Reminiscence in browser</span>
+            <ExternalLink size={12} strokeWidth={2.5} />
+          </a>
         </div>
 
       </div>

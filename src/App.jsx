@@ -18,6 +18,9 @@ import { useAppReset } from './hooks/useAppReset';
 
 import { getItem, setItem } from '../src/storage/storageService';
 import WelcomeSheet from './components/WelcomeSheet';
+import VersionGuard from './components/VersionGuard';
+import { authService } from './api/authService';
+import pkg from '../package.json'
 
 const TAB_SEQUENCE = ['home', 'dashboard', 'revision', 'settings'];
 
@@ -90,8 +93,8 @@ function usePullToRefresh(
       if (finalDistance >= THRESHOLD && !isRefreshing) {
         setIsRefreshing(true);
         setPullMessage('');
-        setPullDistance(0); 
-        
+        setPullDistance(0);
+
         try {
           await onRefresh();
         } catch (error) {
@@ -127,8 +130,10 @@ export default function App() {
   const clearAppContext = useAppReset();
   const [pullDistance, setPullDistance] = useState(0);
   const [pullMessage, setPullMessage] = useState('');
+  const [latestVersion, setlatestVersion] = useState('');
 
   const [showWelcome, setShowWelcome] = useState(false);
+  const localVersion = pkg.version;
 
   const {
     globalCount,
@@ -139,7 +144,7 @@ export default function App() {
   } = useReviewEngine();
 
   const { refreshDashboard } = useDashboard();
-  const { refreshHomeNote, statusMessage, setStatusMessage,setIsPullToRefresh } = useHomeEngine(); 
+  const { refreshHomeNote, statusMessage, setStatusMessage, setIsPullToRefresh } = useHomeEngine();
 
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
@@ -147,7 +152,7 @@ export default function App() {
   });
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [backPressExitFlag, setBackPressExitFlag] = useState(false); 
+  const [backPressExitFlag, setBackPressExitFlag] = useState(false);
 
   useEffect(() => {
     async function initOnboardingCheck() {
@@ -283,6 +288,21 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    async function fetchLatesAppVersion() {
+      try {
+        const data = await authService.getVersion();
+        
+        const remoteVersion = typeof data === 'object' ? data.version : data;
+        setlatestVersion(remoteVersion);
+
+      } catch (err) {
+        console.error("Failed to sync version configuration:", err);
+      }
+    }
+    fetchLatesAppVersion();
+  }, []);
+
   const dashboardRef = useRef(null);
   const revisionRef = useRef(null);
   const settingsRef = useRef(null);
@@ -315,7 +335,7 @@ export default function App() {
           Initializing Engine...
         </div>
         <div className="text-[9px] font-mono text-theme-muted/30 tracking-widest uppercase">
-          v1.2.0
+          {localVersion}
         </div>
       </div>
     );
@@ -331,6 +351,10 @@ export default function App() {
     filter: isAnyRefreshing ? 'blur(0.5px) saturate(0.98)' : 'blur(0px) saturate(1)',
     contain: 'layout style'
   };
+  if (latestVersion && String(latestVersion).trim() !== String(localVersion).trim()) {
+    return <VersionGuard localVersion={localVersion} latestVersion={latestVersion}/>
+  }
+
 
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
@@ -387,7 +411,7 @@ export default function App() {
             </div>
           )}
         </div>
-        
+
         <div
           style={{
             ...dynamicSlideTransformStyle,
@@ -501,9 +525,8 @@ function NavBtn({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center w-16 h-full group relative transition-all duration-150 active:scale-95 outline-none select-none ${
-        active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'
-      }`}
+      className={`flex flex-col items-center justify-center w-16 h-full group relative transition-all duration-150 active:scale-95 outline-none select-none ${active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'
+        }`}
     >
       <div className="p-1 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95">
         <Icon size={20} className="stroke-[1.8]" />
