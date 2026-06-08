@@ -187,25 +187,31 @@ export default function DashboardScreen() {
     return cells;
   }, [heatmapData]);
 
-  // Handle auto-scroll positioning
-  useEffect(() => {
-    const container = heatmapScrollContainerRef.current;
-    if (!container || isLoadingHeatmap) return;
+useEffect(() => {
+  const container = heatmapScrollContainerRef.current;
+  if (!container || isLoadingHeatmap) return;
 
-    const scrollTimer = setTimeout(() => {
-      requestAnimationFrame(() => {
-        const maxScrollLeft = container.scrollWidth - container.clientWidth;
-        if (maxScrollLeft > 0) {
-          container.scrollTo({
-            left: maxScrollLeft + 100,
-            behavior: 'instant'
-          });
-        }
-      });
-    }, 100);
+  const scrollTimer = setTimeout(() => {
+    const target = container.scrollWidth - container.clientWidth + 100;
+    if (target <= 0) return;
 
-    return () => clearTimeout(scrollTimer);
-  }, [heatmapCells, isLoadingHeatmap]);
+    container.scrollLeft = 0;
+
+    const duration = 700;
+    const startTime = performance.now();
+    const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+
+    const tick = (now) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      container.scrollLeft = target * easeOutQuart(progress);
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+
+    requestAnimationFrame(tick);
+  }, 100);
+
+  return () => clearTimeout(scrollTimer);
+}, [heatmapCells, isLoadingHeatmap]);
 
   const handleStepDate = (direction) => {
     const [year, month, day] = selectedDate.split('-').map(Number);
@@ -278,6 +284,10 @@ export default function DashboardScreen() {
     }
   }, [saveStatus, isSaveActiveAndValid]);
 
+  console.log("selectedDate =", selectedDate);
+console.log("todayStr =", todayStr);
+console.log("heatmapData =", Object.keys(heatmapData || {}).length);
+
   // Inside your DashboardScreen component
 return (
  <AnimatePresence mode="wait">
@@ -299,14 +309,38 @@ return (
       />
     </motion.div>
   ) : (
-    <motion.div
-      key="dashboard"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full"
-    >
+   <motion.div
+  key="dashboard"
+  initial={{ opacity: 0, scale: 0.98 }}
+  animate={{ opacity: 1, scale: 1 }}
+  exit={{ opacity: 0, scale: 0.98 }}
+  transition={{ duration: 0.2, ease: "easeInOut" }}
+ onAnimationComplete={() => {
+  const container = heatmapScrollContainerRef.current;
+  if (!container) return;
+
+  const target = container.scrollWidth - container.clientWidth + 100;
+  if (target <= 0) return;
+
+  // Reset to left so the reveal always plays from the start
+  container.scrollLeft = 0;
+
+  const duration = 700; // ms — tune to taste
+  const startTime = performance.now();
+
+  // Fast start, graceful deceleration at the end
+  const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+
+  const tick = (now) => {
+    const progress = Math.min((now - startTime) / duration, 1);
+    container.scrollLeft = target * easeOutQuart(progress);
+    if (progress < 1) requestAnimationFrame(tick);
+  };
+
+  requestAnimationFrame(tick);
+}}
+  className="w-full"
+>
      <div className="space-y-6 max-w-xl mx-auto pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out">
 
       {/* Visual Header */}
@@ -334,6 +368,7 @@ return (
         <div 
           onClick={() => {
     window.location.hash = 'dashboard/concepts';
+    setShowConcepts(true);
   }} 
           className="bg-theme-card border border-zinc-700/60 rounded-xl p-4 flex flex-col justify-between h-24 transition-all active:scale-[0.97] active:bg-zinc-900/40 select-none cursor-pointer"
         >
