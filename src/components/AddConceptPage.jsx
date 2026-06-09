@@ -89,7 +89,7 @@ export default function AddConceptPage({ onBack, onSave }) {
   const isFormValid = form.title.trim() && form.note.trim();
 
   return (
-    <div className={`max-w-xl mx-auto text-theme-primary transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] transform will-change-transform
+    <div className={`max-w-xl lg:max-w-2xl mx-auto text-theme-primary transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] transform will-change-transform
       ${animateIn 
         ? 'opacity-100 translate-y-0 scale-100' 
         : 'opacity-0 translate-y-3 scale-[0.99]'

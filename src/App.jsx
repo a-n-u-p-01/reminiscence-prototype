@@ -357,7 +357,7 @@ export default function App() {
 
 
   return (
-    <div className="flex flex-col md:flex-row flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
+    <div className="flex flex-col  md:flex-row flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
 
       <div
         style={{ height: 'env(safe-area-inset-top, 24px)' }}
@@ -462,7 +462,7 @@ export default function App() {
           fixed bottom-0 left-0 right-0 isolate
           md:bottom-5 md:left-1/2 md:-translate-x-1/2 md:rounded-2xl md:border md:border-zinc-800/60
           bg-theme-card/90 backdrop-blur-xl backdrop-saturate-150 border-t border-theme h-[74px] 
-          w-full max-w-xl justify-around items-center z-50 px-5 shadow-2xl pb-[env(safe-area-inset-bottom)] 
+          w-full max-w-xl lg:max-w-2xl justify-around items-center z-50 px-5 shadow-2xl pb-[env(safe-area-inset-bottom)] 
           will-change-transform transition-all duration-300 ease-out
           ${isKeyboardVisible ? 'hidden' : 'flex'}
           ${isAnyRefreshing ? 'pointer-events-none opacity-40' : 'opacity-100'}

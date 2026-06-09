@@ -158,7 +158,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     (activeField && tempValue !== formatForEditor(draft[activeField]));
 
   return (
-    <div className="w-full max-w-xl mx-auto pb-20 relative antialiased selection:bg-zinc-800 selection:text-white rounded-2xl overflow-hidden">
+    <div className="w-full max-w-xl lg:max-w-2xl mx-auto pb-20 relative antialiased selection:bg-zinc-800 selection:text-white rounded-2xl overflow-hidden">
       
       {/* 1. IMMERSIVE COMPONENT-WIDE GLASS OVERLAY */}
       <div 

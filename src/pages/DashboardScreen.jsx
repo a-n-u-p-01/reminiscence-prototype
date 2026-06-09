@@ -337,7 +337,7 @@ return (
 }}
   className="w-full"
 >
-     <div className="space-y-6 max-w-xl mx-auto pb-12 text-theme-primary max-w-4xl mx-auto relative select-none transition-all duration-300 ease-in-out">
+     <div className="space-y-6 max-w-2xl lg:max-w-2xl mx-auto pb-12 text-theme-primary mx-auto relative select-none transition-all duration-300 ease-in-out">
 
       {/* Visual Header */}
       <div className="border-b border-theme pb-4">

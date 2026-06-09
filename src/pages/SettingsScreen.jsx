@@ -175,7 +175,7 @@ export default function SettingsScreen() {
   const activeAlgoInfo = algoMetadata[draftAlgoEngine] || algoMetadata.fsrs;
 
   return (
-    <div className={`text-zinc-100 pb-20 max-w-xl mx-auto space-y-6 transition-all duration-150 ease-in-out text-s3 animate-[fadeIn_0.2s_ease-out]`}>
+    <div className={`text-zinc-100 pb-20 max-w-xl lg:max-w-2xl mx-auto space-y-6 transition-all duration-150 ease-in-out text-s3 animate-[fadeIn_0.2s_ease-out]`}>
 
       {/* Structural Header */}
       <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px]">

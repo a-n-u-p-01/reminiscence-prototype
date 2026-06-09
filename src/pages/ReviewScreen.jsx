@@ -270,7 +270,7 @@ export default function ReviewScreen({ onBackToHome }) {
         document.body
       )}
 
-      <div ref={containerRef} className="space-y-6 min-h-[350px] max-w-xl mx-auto pb-8 text-zinc-800 dark:text-zinc-100 select-none">
+      <div ref={containerRef} className="space-y-6 min-h-[350px] max-w-xl lg:max-w-2xl mx-auto pb-8 text-zinc-800 dark:text-zinc-100 select-none">
         
         {/* Persistent Header Section */}
         <div className="relative border-b border-zinc-200 dark:border-zinc-900 pb-4">
