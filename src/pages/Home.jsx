@@ -370,7 +370,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
             </form>
           </div>
 
-          {(pendingCount > 0 && hasExistingEntry) && (
+          {(pendingCount > 10 && hasExistingEntry) && (
             <div className="mb-3 px-3 py-2 rounded-xl bg-amber-500/5 border border-amber-500/15">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
@@ -380,7 +380,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
               </div>
 
               <p className="text-s1 text-theme-muted mt-1 leading-relaxed">
-                This note is currently a draft. Complete all pending revisions before midnight to keep it. Unfinished draft notes are automatically deleted at the end of the day.
+                This note is currently a draft. Complete {pendingCount-10} revisions before midnight to keep it. This draft notes are automatically deleted at the end of the day.
               </p>
             </div>
           )}
