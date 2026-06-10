@@ -203,7 +203,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   }
 
   return (
-    <div className="space-y-6 min-h-[350px] max-w-xl lg:max-w-2xl mx-auto pb-12 text-theme-primary select-none transition-all duration-300 ease-in-out">
+    <div className="space-y-6 min-h-[350px] lg:max-w-2xl max-w-xl  mx-auto pb-12 text-theme-primary select-none transition-all duration-300 ease-in-out">
 
       <style>{`
         @keyframes mini-accent-pulse {
