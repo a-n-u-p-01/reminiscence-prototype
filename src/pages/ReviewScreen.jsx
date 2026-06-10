@@ -270,7 +270,8 @@ export default function ReviewScreen({ onBackToHome }) {
         document.body
       )}
 
-      <div ref={containerRef} className="space-y-6 min-h-[350px] max-w-xl lg:max-w-2xl mx-auto pb-8 text-zinc-800 dark:text-zinc-100 select-none">
+      {/* FIXED CONTAINER: Added w-full */}
+      <div ref={containerRef} className="w-full space-y-6 min-h-[350px] max-w-xl lg:max-w-2xl mx-auto pb-32 text-zinc-800 dark:text-zinc-100 select-none">
         
         {/* Persistent Header Section */}
         <div className="relative border-b border-zinc-200 dark:border-zinc-900 pb-4">
@@ -287,7 +288,6 @@ export default function ReviewScreen({ onBackToHome }) {
             </span>
           </div>
 
-          {/* Thin, White Left-to-Right Edge-to-Edge Glowing Loader */}
           <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-transparent overflow-hidden">
             {loading && (
               <motion.div 
@@ -320,9 +320,10 @@ export default function ReviewScreen({ onBackToHome }) {
             className={`w-full transition-all duration-300 ${isExiting ? 'opacity-0 scale-98 blur-[1px]' : 'opacity-100 scale-100'}`}
             style={{ perspective: '1200px' }}
           >
+            {/* FIXED 3D ROOT: Changed from relative to absolute/grid stack engine */}
             <div
               key={activeCard?.userConceptId}
-              className="relative w-full transition-transform duration-500"
+              className="grid grid-cols-1 grid-rows-1 w-full transition-transform duration-500"
               style={{
                 transform: showAnswer ? 'rotateY(180deg)' : 'rotateY(0deg)',
                 transformStyle: 'preserve-3d',
@@ -330,10 +331,10 @@ export default function ReviewScreen({ onBackToHome }) {
             >
               {/* FRONT CONTAINER VIEW */}
               <div
-                className="w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-start transition-all duration-300"
+                className="col-start-1 row-start-1 w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-start transition-all duration-300"
                 style={{
                   backfaceVisibility: 'hidden',
-                  position: showAnswer ? 'absolute' : 'relative',
+                  pointerEvents: showAnswer ? 'none' : 'auto',
                   visibility: showAnswer ? 'hidden' : 'visible'
                 }}
               >
@@ -424,11 +425,11 @@ export default function ReviewScreen({ onBackToHome }) {
 
               {/* BACK CONTAINER VIEW */}
               <div
-                className="w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-between transition-all duration-300"
+                className="col-start-1 row-start-1 w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-between transition-all duration-300"
                 style={{
                   transform: 'rotateY(180deg)',
                   backfaceVisibility: 'hidden',
-                  position: showAnswer ? 'absolute' : 'relative',
+                  pointerEvents: showAnswer ? 'auto' : 'none',
                   visibility: showAnswer ? 'visible' : 'hidden'
                 }}
               >
@@ -466,7 +467,7 @@ export default function ReviewScreen({ onBackToHome }) {
                       
                       <div 
                         className={`transition-all duration-300 ease-[0.22,1,0.36,1] overflow-hidden ${
-                          showNotes ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+                          showNotes ? 'max-h-[1000px] opacity-100 mt-2' : 'max-h-0 opacity-0'
                         }`}
                       >
                         <div className="text-xs text-zinc-400 font-sans tracking-wide leading-relaxed w-full pt-1">
