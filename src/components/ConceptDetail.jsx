@@ -237,7 +237,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               type="button"
               disabled={isSaving}
               onClick={() => setIsConfirmingDelete(false)}
-              className="flex-1 text-s2 font-mono uppercase tracking-wider font-bold text-zinc-400 bg-zinc-950 border border-zinc-800/60 hover:bg-zinc-800/40 py-2.5 rounded-xl transition-all active:scale-95 disabled:opacity-40"
+              className="flex-1 text-s2 font-mono uppercase tracking-wider font-bold text-zinc-400 bg-zinc-950 border border-zinc-800/60 hover:bg-zinc-800/40 py-2.5 rounded-xl transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
             >
               Cancel
             </button>
@@ -245,7 +245,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               type="button"
               disabled={isSaving}
               onClick={handleExecuteDeletion}
-              className="flex-1 text-s2 font-mono uppercase tracking-wider font-bold text-red-400 bg-red-950/20 border border-red-900/40 hover:bg-red-950/40 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-40"
+              className="flex-1 text-s2 font-mono uppercase tracking-wider font-bold text-red-400 bg-red-950/20 border border-red-900/40 hover:bg-red-950/40 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-40 cursor-pointer"
             >
               {isSaving ? <Loader2 size={12} className="animate-spin text-red-400" /> : 'Delete'}
             </button>
@@ -283,21 +283,21 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 disabled={isSaving || isRegenerating || isConfirmingDelete}
-                className="flex items-center justify-between gap-2 bg-zinc-900/90 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700/80 rounded-xl px-3 py-1.5 focus:outline-none focus:border-zinc-700 focus:ring-1 focus:ring-zinc-800/50 transition-all duration-200 select-none disabled:opacity-40"
+                className="flex items-center justify-between gap-2 bg-zinc-900/90 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700/80 rounded-xl px-3 py-1.5 focus:outline-none focus:border-zinc-700 focus:ring-1 focus:ring-zinc-800/50 transition-all duration-200 select-none disabled:opacity-40 cursor-pointer"
               >
-                <span className="text-zinc-300 text-[11px] font-mono tracking-wider font-semibold min-w-[90px] text-left">
+                <span className="text-zinc-300 text-[11px] font-mono tracking-wider font-semibold min-w-[90px] text-left cursor-pointer">
                   {selectedProvider}
                 </span>
                 <ChevronDown 
                   size={11} 
-                  className={`text-zinc-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-zinc-400' : ''}`} 
+                  className={`text-zinc-500 transition-transform duration-200 cursor-pointer ${isDropdownOpen ? 'rotate-180 text-zinc-400' : ''}`} 
                 />
               </button>
 
               {/* Float Panel Layer */}
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-[145px] bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-30 animate-in fade-in slide-in-from-top-1 duration-150 ease-out">
-                  <div className="py-1 flex flex-col">
+                <div className="absolute right-0 mt-1.5 w-[145px] bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-30 animate-in fade-in slide-in-from-top-1 duration-150 ease-out cursor-pointer">
+                  <div className="py-1 flex flex-col cursor-pointer">
                     {providers.map((prov) => (
                       <button
                         key={prov}
@@ -306,10 +306,10 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
                           setSelectedProvider(prov);
                           setIsDropdownOpen(false);
                         }}
-                        className={`w-full text-left font-mono text-[11px] tracking-wide px-3 py-2 transition-colors
+                        className={`w-full text-left font-mono text-[11px] tracking-wide px-3 py-2 transition-colors cursor-pointer block
                           ${selectedProvider === prov 
-                            ? 'bg-zinc-800/80 text-amber-400 font-bold' 
-                            : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/40'
+                            ? 'bg-zinc-800/80 text-amber-400 font-bold cursor-pointer' 
+                            : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/40 cursor-pointer'
                           }`}
                       >
                         {prov}
@@ -326,7 +326,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               onClick={handleAIRegenerate}
               disabled={isSaving || isRegenerating || isConfirmingDelete}
               title="Regenerate context content using selected model"
-              className={`p-2 rounded-xl transition-all duration-300 border bg-zinc-900 shrink-0
+              className={`p-2 rounded-xl transition-all duration-300 border bg-zinc-900 shrink-0 cursor-pointer
                 ${isRegenerating 
                   ? 'border-amber-500/40 bg-amber-950/10 shadow-[0_0_12px_rgba(245,158,11,0.1)]' 
                   : 'border-zinc-800 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800/50 active:scale-90'
@@ -334,7 +334,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
             >
               <Sparkles 
                 size={15} 
-                className={`transition-all duration-500 
+                className={`transition-all duration-500 cursor-pointer
                   ${isRegenerating ? 'animate-spin text-amber-400 scale-110 ease-in-out' : 'text-inherit'}`} 
               />
             </button>
@@ -345,22 +345,22 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               type="button"
               onClick={() => setIsConfirmingDelete(true)}
               disabled={isSaving || isRegenerating || isConfirmingDelete}
-              className="p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border bg-transparent border-transparent text-zinc-500 hover:text-red-400 hover:bg-zinc-900/40 disabled:opacity-20"
+              className="p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border bg-transparent border-transparent text-zinc-500 hover:text-red-400 hover:bg-zinc-900/40 disabled:opacity-20 cursor-pointer"
             >
-              <Trash2 size={16} />
+              <Trash2 size={16} className="cursor-pointer" />
             </button>
 
             <button 
               onClick={handleGlobalSave}
               disabled={isSaving || isRegenerating || !hasUnsavedChanges || isConfirmingDelete}
-              className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSaving && !isConfirmingDelete ? (
-                <Loader2 size={12} className="animate-spin text-theme-accent" />
+                <Loader2 size={12} className="animate-spin text-theme-accent shrink-0" />
               ) : (
-                <Check size={12} className="text-theme-accent" />
+                <Check size={12} className="text-theme-accent shrink-0" />
               )}
-              <span>{'Save Concept'}</span>
+              <span className="cursor-pointer">{'Save Concept'}</span>
             </button>
           </div>
         </div>
@@ -380,9 +380,9 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
                 <button 
                   onClick={() => startEditing('mainNote', draft.mainNote)} 
                   disabled={isSaving || isRegenerating}
-                  className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90 disabled:opacity-30"
+                  className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90 disabled:opacity-30 cursor-pointer"
                 >
-                  <Edit2 size={12} />
+                  <Edit2 size={12} className="cursor-pointer" />
                 </button>
               </div>
               <p className="text-s3 text-zinc-300 leading-relaxed font-normal font-sans whitespace-pre-wrap">
@@ -396,9 +396,9 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
                 <button 
                   onClick={() => startEditing('extraNote', draft.extraNote)} 
                   disabled={isSaving || isRegenerating}
-                  className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90 disabled:opacity-30"
+                  className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90 disabled:opacity-30 cursor-pointer"
                 >
-                  <Edit2 size={12} />
+                  <Edit2 size={12} className="cursor-pointer" />
                 </button>
               </div>
               {draft.extraNote ? renderKeyNotes(draft.extraNote) : <div className="text-s2 font-mono text-zinc-600 tracking-wide pt-1">No modular segments mapped.</div>}
@@ -425,8 +425,8 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               />
 
               <div className="flex justify-end gap-3 pt-2 border-t border-zinc-900/60 relative z-10 bg-transparent">
-                <button onClick={() => setActiveField(null)} className="text-zinc-500 hover:text-zinc-400 p-1.5 rounded-lg transition-colors active:scale-90"><X size={16} /></button>
-                <button onClick={() => commitFieldUpdate(activeField)} className="text-zinc-400 hover:text-zinc-200 p-1.5 rounded-lg transition-colors active:scale-90"><Check size={16} /></button>
+                <button onClick={() => setActiveField(null)} className="text-zinc-500 hover:text-zinc-400 p-1.5 rounded-lg transition-colors active:scale-90 cursor-pointer"><X size={16} className="cursor-pointer" /></button>
+                <button onClick={() => commitFieldUpdate(activeField)} className="text-zinc-400 hover:text-zinc-200 p-1.5 rounded-lg transition-colors active:scale-90 cursor-pointer"><Check size={16} className="cursor-pointer" /></button>
               </div>
             </div>
           </div>
