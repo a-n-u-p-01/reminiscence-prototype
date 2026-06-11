@@ -8,7 +8,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isSaving, setIsSaving] = useState(false); 
   const [isRegenerating, setIsRegenerating] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState('SILICONFLOW');
+  const [selectedProvider, setSelectedProvider] = useState('GROQ');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { setStatusMessage } = useHomeEngine();
 
@@ -23,7 +23,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const dropdownRef = useRef(null);
   const [hasMoreContentBelow, setHasMoreContentBelow] = useState(false);
 
-  const providers = ['SILICONFLOW', 'GROQ', 'GEMINI', 'GITHUBMODELS','CLOUDFLARE','MISTRAL_AI'];
+  const providers = ['CLOUDFLARE','MISTRAL_AI','SILICONFLOW', 'GROQ', 'GEMINI', 'GITHUBMODELS'];
 
   // Close dropdown if clicked outside
   useEffect(() => {
