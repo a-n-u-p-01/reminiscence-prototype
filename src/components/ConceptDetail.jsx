@@ -56,13 +56,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     setHasMoreContentBelow(isOverflowing && !isAtBottom);
   };
 
-  const scrollToBottom = () => {
-    const el = textareaRef.current;
-    if (el) {
-      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    }
-  };
-
   useEffect(() => {
     if (activeField) {
       setTimeout(checkScrollOverflow, 50);
@@ -76,9 +69,45 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     setActiveField(field);
   };
 
-  const commitFieldUpdate = (field) => {
-    setDraft(prev => ({ ...prev, [field]: tempValue }));
+  const commitFieldUpdate = async (field) => {
+    // 1. Calculate the next draft state layout locally
+    const nextDraft = {
+      ...draft,
+      [field]: tempValue
+    };
+
+    // 2. Clear out editor views and trigger visual loader state
     setActiveField(null);
+    setIsSaving(true);
+
+    const payload = {
+      conceptId: concept.conceptId || concept.id, 
+      conceptName: concept.conceptName || concept.name,
+      question: nextDraft.question,
+      mainNote: nextDraft.mainNote,
+      extraNote: nextDraft.extraNote
+    };
+
+    try {
+      await noteService.upsertConcept(payload);
+      
+      // Update local draft tracking state
+      setDraft(nextDraft);
+
+      if (onSave) {
+        onSave({
+          ...concept,
+          ...nextDraft
+        });
+      }
+      setStatusMessage({ text: 'Changes Saved', type: 'success' });
+    } catch (error) {
+      console.error('Failed to auto-save field update context:', error);
+      setStatusMessage({ text: 'Unable to save field changes', type: 'error' });
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setStatusMessage(null), 600);
+    }
   };
 
   const formatForEditor = (text) => {
@@ -89,39 +118,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       .replace(/\s+/g, ' ')
       .trim()
       .replace(/\. (?=[A-Z])/g, '.\n\n');
-  };
-
-  const handleGlobalSave = async () => {
-    setActiveField(null);
-    setIsSaving(true);
-
-    const payload = {
-      conceptId: concept.conceptId || concept.id, 
-      conceptName: concept.conceptName || concept.name,
-      question: draft.question,
-      mainNote: draft.mainNote,
-      extraNote: draft.extraNote
-    };
-
-    try {
-      await noteService.upsertConcept(payload);
-
-      if (onSave) {
-        onSave({
-          ...concept,
-          question: draft.question,
-          mainNote: draft.mainNote,
-          extraNote: draft.extraNote
-        });
-      }
-      setStatusMessage({ text: 'Concept Updated', type: 'success' });
-    } catch (error) {
-      console.error('Failed to update the concept node layout:', error);
-      setStatusMessage({ text: 'Unable to update', type: 'error' });
-    } finally {
-      setIsSaving(false);
-      setTimeout(() => setStatusMessage(null), 600);
-    }
   };
 
   const handleAIRegenerate = async () => {
@@ -210,12 +206,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     );
   };
 
-  const hasUnsavedChanges = 
-    draft.question !== (concept?.question || '') ||
-    draft.mainNote !== (concept?.mainNote || '') || 
-    draft.extraNote !== (concept?.extraNote || '') ||
-    (activeField && tempValue !== formatForEditor(draft[activeField]));
-
   return (
     <div className="cursor-text select-text w-full max-w-xl lg:max-w-2xl mx-auto pb-20 relative antialiased selection:bg-zinc-800 selection:text-white rounded-2xl overflow-hidden">
       
@@ -282,7 +272,13 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
           
           {/* Action Row - Integrated Dropdown and Regenerate controls */}
           <div className="flex items-center justify-end gap-2 shrink-0">
-            
+            {isSaving && (
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-zinc-900/60 border border-zinc-800/40 rounded-lg text-[11px] font-mono text-zinc-500">
+                <Loader2 size={11} className="animate-spin text-amber-500/80" />
+                <span>Saving...</span>
+              </div>
+            )}
+
             {/* Fully Custom High-Aesthetic Dropdown Menu Selection Layer */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -354,19 +350,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               className="p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border bg-transparent border-transparent text-zinc-500 hover:text-red-400 hover:bg-zinc-900/40 disabled:opacity-20 cursor-pointer"
             >
               <Trash2 size={16} className="cursor-pointer" />
-            </button>
-
-            <button 
-              onClick={handleGlobalSave}
-              disabled={isSaving || isRegenerating || !hasUnsavedChanges || isConfirmingDelete}
-              className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {isSaving && !isConfirmingDelete ? (
-                <Loader2 size={12} className="animate-spin text-theme-accent shrink-0" />
-              ) : (
-                <Check size={12} className="text-theme-accent shrink-0" />
-              )}
-              <span className="cursor-pointer">{'Save Concept'}</span>
             </button>
           </div>
         </div>
@@ -444,14 +427,23 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
                 rows={6}
                 value={tempValue}
                 onChange={(e) => setTempValue(e.target.value)}
-                onScroll={checkScrollOverflow}
                 className="w-full bg-transparent text-s3 text-zinc-300 leading-relaxed font-normal font-sans focus:outline-none resize-none overflow-y-auto scrollbar-none pb-8 whitespace-pre-wrap"
                 style={{ WebkitOverflowScrolling: 'touch' }}
               />
 
               <div className="flex justify-end gap-3 pt-2 border-t border-zinc-900/60 relative z-10 bg-transparent">
-                <button onClick={() => setActiveField(null)} className="text-zinc-500 hover:text-zinc-400 p-1.5 rounded-lg transition-colors active:scale-90 cursor-pointer"><X size={16} className="cursor-pointer" /></button>
-                <button onClick={() => commitFieldUpdate(activeField)} className="text-zinc-400 hover:text-zinc-200 p-1.5 rounded-lg transition-colors active:scale-90 cursor-pointer"><Check size={16} className="cursor-pointer" /></button>
+                <button 
+                  onClick={() => setActiveField(null)} 
+                  className="text-zinc-500 hover:text-zinc-400 p-1.5 rounded-lg transition-colors active:scale-90 cursor-pointer"
+                >
+                  <X size={16} className="cursor-pointer" />
+                </button>
+                <button 
+                  onClick={() => commitFieldUpdate(activeField)} 
+                  className="text-zinc-400 hover:text-zinc-200 p-1.5 rounded-lg transition-colors active:scale-90 cursor-pointer"
+                >
+                  <Check size={16} className="cursor-pointer" />
+                </button>
               </div>
             </div>
           </div>
