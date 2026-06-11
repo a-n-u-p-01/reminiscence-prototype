@@ -70,13 +70,11 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   };
 
   const commitFieldUpdate = async (field) => {
-    // 1. Calculate the next draft state layout locally
     const nextDraft = {
       ...draft,
       [field]: tempValue
     };
 
-    // 2. Clear out editor views and trigger visual loader state
     setActiveField(null);
     setIsSaving(true);
 
@@ -90,8 +88,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
     try {
       await noteService.upsertConcept(payload);
-      
-      // Update local draft tracking state
       setDraft(nextDraft);
 
       if (onSave) {
@@ -257,21 +253,23 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
         
         {/* Standardized Header Utility Interface */}
         <div className="border-b border-zinc-800/60 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-h-[56px] relative z-20 bg-transparent">
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          <div className="flex items-start gap-2.5 flex-1 min-w-0">
             <button 
               onClick={onBack} 
               disabled={isSaving || isRegenerating}
-              className="cursor-pointer text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0 disabled:opacity-40"
+              className="cursor-pointer text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0 disabled:opacity-40 mt-0.5"
             >
               <ArrowLeft className='cursor-pointer' size={22} />
             </button>
-            <h1 className="select-text cursor-text font-semibold tracking-tight text-zinc-100 text-s4 truncate max-w-[160px] sm:max-w-none">
-              {concept.conceptName || concept.name}
-            </h1>
+            <div className="flex-1 min-w-0">
+              <h1 className="select-text cursor-text font-semibold tracking-tight text-zinc-100 text-s4 break-words leading-snug">
+                {concept.conceptName || concept.name}
+              </h1>
+            </div>
           </div>
           
           {/* Action Row - Integrated Dropdown and Regenerate controls */}
-          <div className="flex items-center justify-end gap-2 shrink-0">
+          <div className="flex items-center justify-end gap-2 shrink-0 self-end sm:self-center">
             {isSaving && (
               <div className="flex items-center gap-1.5 px-2 py-1 bg-zinc-900/60 border border-zinc-800/40 rounded-lg text-[11px] font-mono text-zinc-500">
                 <Loader2 size={11} className="animate-spin text-amber-500/80" />
