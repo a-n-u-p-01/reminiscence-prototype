@@ -164,10 +164,9 @@ export default function AddConceptPage({ onBack, onSave }) {
         {/* Row 2: Deep Core Note */}
         <div className="bg-theme-card border border-theme rounded-xl p-3.5 focus-within:border-theme-accent/40 transition-all relative">
           <label className="block text-s1 font-mono tracking-wider text-theme-muted uppercase mb-1 select-none">
-            Core Anchoring Note *
+            Core Anchoring Note
           </label>
           <textarea
-            required
             rows={3}
             disabled={isSaving}
             value={form.note}
