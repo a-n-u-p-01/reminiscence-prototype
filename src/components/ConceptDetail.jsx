@@ -23,7 +23,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const dropdownRef = useRef(null);
   const [hasMoreContentBelow, setHasMoreContentBelow] = useState(false);
 
-  const providers = ['SILICONFLOW', 'GROQ', 'GEMINI', 'GITHUBMODELS'];
+  const providers = ['SILICONFLOW', 'GROQ', 'GEMINI', 'GITHUBMODELS','CLOUDFLARE','MISTRAL_AI'];
 
   // Close dropdown if clicked outside
   useEffect(() => {
