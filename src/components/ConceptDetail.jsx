@@ -4,7 +4,7 @@ import { noteService } from '../api/noteService';
 import { useHomeEngine } from '../context/HomeContext';
 
 export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
-  const [activeField, setActiveField] = useState(null); // 'mainNote' | 'extraNote' | null
+  const [activeField, setActiveField] = useState(null); // 'question' | 'mainNote' | 'extraNote' | null
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isSaving, setIsSaving] = useState(false); 
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -13,6 +13,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const { setStatusMessage } = useHomeEngine();
 
   const [draft, setDraft] = useState({
+    question: concept?.question || '',
     mainNote: concept?.mainNote || '',
     extraNote: concept?.extraNote || ''
   });
@@ -37,6 +38,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
   useEffect(() => {
     setDraft({
+      question: concept?.question || '',
       mainNote: concept?.mainNote || '',
       extraNote: concept?.extraNote || ''
     });
@@ -96,6 +98,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     const payload = {
       conceptId: concept.conceptId || concept.id, 
       conceptName: concept.conceptName || concept.name,
+      question: draft.question,
       mainNote: draft.mainNote,
       extraNote: draft.extraNote
     };
@@ -106,6 +109,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       if (onSave) {
         onSave({
           ...concept,
+          question: draft.question,
           mainNote: draft.mainNote,
           extraNote: draft.extraNote
         });
@@ -132,6 +136,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       const data = await noteService.regenerateConcept(targetId, selectedProvider);
       
       const updatedDraft = {
+        question: data.question || '',
         mainNote: data.mainNote || '',
         extraNote: data.extraNote || ''
       };
@@ -206,6 +211,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   };
 
   const hasUnsavedChanges = 
+    draft.question !== (concept?.question || '') ||
     draft.mainNote !== (concept?.mainNote || '') || 
     draft.extraNote !== (concept?.extraNote || '') ||
     (activeField && tempValue !== formatForEditor(draft[activeField]));
@@ -374,7 +380,25 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
                 : 'opacity-100 translate-y-0 scale-100 relative z-10'
               }`}
           >
+            {/* QUESTION CORE BLOCK */}
             <div className="px-0.5 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest font-bold">Question</span>
+                <button 
+                  onClick={() => startEditing('question', draft.question)} 
+                  disabled={isSaving || isRegenerating}
+                  className="text-zinc-600 hover:text-zinc-400 transition-colors p-1 active:scale-90 disabled:opacity-30 cursor-pointer"
+                >
+                  <Edit2 size={12} className="cursor-pointer" />
+                </button>
+              </div>
+              <p className="text-s3 text-zinc-200 font-medium leading-relaxed font-sans whitespace-pre-wrap">
+                {draft.question || "No primary inquiry assigned to this conceptual space."}
+              </p>
+            </div>
+
+            {/* NOTES CORE BLOCK */}
+            <div className="px-0.5 space-y-2 pt-4 border-t border-zinc-800/40">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest font-bold">Notes</span>
                 <button 
@@ -390,6 +414,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               </p>
             </div>
 
+            {/* INSIGHTS CORE BLOCK */}
             <div className="space-y-3.5 pt-5 border-t border-zinc-800/40 px-0.5">
               <div className="flex justify-between items-center">
                 <h3 className="text-s2 text-zinc-500 uppercase tracking-widest font-bold font-mono">Key Architecture Insights</h3>
