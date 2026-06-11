@@ -11,7 +11,6 @@ export default function AddConceptPage({ onBack, onSave }) {
     question: ''
   };
   
-
   const [form, setForm] = useState(defaultFormState);
 
   // Structural state flags
@@ -36,7 +35,7 @@ export default function AddConceptPage({ onBack, onSave }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.note.trim() || isSaving) return;
+    if (!form.title.trim() || isSaving) return; // Only title is checked here now
     
     setIsSaving(true);
 
@@ -85,8 +84,8 @@ export default function AddConceptPage({ onBack, onSave }) {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Lock save operations until necessary validation parameters are filled
-  const isFormValid = form.title.trim() && form.note.trim();
+  // Lock save operations until necessary validation parameters are filled (Only title required)
+  const isFormValid = !!form.title.trim();
 
   return (
     <div className={`max-w-xl lg:max-w-2xl mx-auto text-theme-primary transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] transform will-change-transform
