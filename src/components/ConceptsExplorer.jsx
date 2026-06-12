@@ -37,7 +37,7 @@ export default function ConceptsExplorer({ onBack }) {
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault(); 
     setPage(1); 
-    setActiveQuery(search); // Updates and fires server data pipeline only on command
+    setActiveQuery(search); 
   };
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function ConceptsExplorer({ onBack }) {
 
     
     setIsLoading(true);
-    setTimeout(()=>fetchServerData(),1000);
+    setTimeout(()=>fetchServerData(),500);
     return () => { isMounted = false; };
   }, [page, activeQuery, sortNewest, isPullToRefresh, setIsPullToRefresh, refreshTrigger]);
 
@@ -116,7 +116,7 @@ export default function ConceptsExplorer({ onBack }) {
           {/* Top Navbar */}
           <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">
             <div className="flex items-center gap-2.5">
-              <button onClick={onBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
+              <button onClick={onBack} className="cursor-pointer text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
                 <ArrowLeft size={22} />
               </button>
               <h1 className="font-semibold tracking-tight text-zinc-100 text-s4">
@@ -126,7 +126,7 @@ export default function ConceptsExplorer({ onBack }) {
             
             <button 
               onClick={() => { setSortNewest(!sortNewest); setPage(1); }} 
-              className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold bg-zinc-950 border border-zinc-800/80 hover:bg-zinc-900 px-3 py-1.5 rounded-lg transition-all"
+              className="cursor-pointer text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold bg-zinc-950 border border-zinc-800/80 hover:bg-zinc-900 px-3 py-1.5 rounded-lg transition-all"
             >
               {sortNewest ? 'Newest' : 'Older'}
             </button>
@@ -159,7 +159,7 @@ export default function ConceptsExplorer({ onBack }) {
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8, x: 5 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 transition-colors active:scale-90 shrink-0"
+                  className="cursor-pointer flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 transition-colors active:scale-90 shrink-0"
                   aria-label="Execute search parameters"
                 >
                   <ArrowRight size={13} />
@@ -181,7 +181,7 @@ export default function ConceptsExplorer({ onBack }) {
           </div>
 
           {/* Concepts Resulting List Matrix */}
-          <div className={`bg-zinc-900/20 border border-zinc-800/60 rounded-xl px-4 divide-y divide-zinc-800/40 min-h-[220px] transition-all duration-150 pointer-events-auto ${isLoading ? 'opacity-50 pointer-events-none filter blur-[0.3px]' : 'opacity-100'}`}>
+          <div className={`bg-zinc-900/20 border border-zinc-800/60 rounded-xl px-4 divide-y divide-zinc-800/40 min-h-sm transition-all duration-150 pointer-events-auto ${isLoading ? 'opacity-50 pointer-events-none filter blur-[0.3px]' : 'opacity-100'}`}>
             {concepts.length === 0 ? (
               <div className="text-s1 text-zinc-600 font-mono py-12 text-center tracking-widest uppercase">
                 {isLoading ? "Loading..." : "NO MATCHES FOUND"} 

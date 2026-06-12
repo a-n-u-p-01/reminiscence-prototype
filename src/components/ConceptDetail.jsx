@@ -1,11 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ArrowLeft, Edit2, Check, X, Trash2, ChevronDown, Loader2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Edit2, Check, X, Trash2, ChevronDown, Loader2, Sparkles, AlertTriangle } from 'lucide-react';
 import { noteService } from '../api/noteService'; 
 import { useHomeEngine } from '../context/HomeContext';
 
 export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const [activeField, setActiveField] = useState(null); // 'question' | 'mainNote' | 'extraNote' | null
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  
+  // Single Unified Modal Engine State
+  // Types: null | 'delete' | 'save' | 'regen' | 'discard'
+  const [activeModalType, setActiveModalType] = useState(null); 
+  
   const [isSaving, setIsSaving] = useState(false); 
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState('MISTRAL_AI');
@@ -24,6 +28,12 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const [hasMoreContentBelow, setHasMoreContentBelow] = useState(false);
 
   const providers = ['MISTRAL_AI','CLOUDFLARE','SILICONFLOW', 'GROQ', 'GEMINI', 'GITHUBMODELS'];
+
+  // Inline reactive dirty state tracking engine
+  const isDirty = 
+    draft.question !== (concept?.question || '') ||
+    draft.mainNote !== (concept?.mainNote || '') ||
+    draft.extraNote !== (concept?.extraNote || '');
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -45,7 +55,9 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   }, [concept]);
 
   useEffect(() => {
-    if (activeField) setIsConfirmingDelete(false);
+    if (activeField) {
+      setActiveModalType(null);
+    }
   }, [activeField]);
 
   const checkScrollOverflow = () => {
@@ -69,41 +81,12 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     setActiveField(field);
   };
 
-  const commitFieldUpdate = async (field) => {
-    const nextDraft = {
-      ...draft,
+  const commitFieldUpdate = (field) => {
+    setDraft(prev => ({
+      ...prev,
       [field]: tempValue
-    };
-
+    }));
     setActiveField(null);
-    setIsSaving(true);
-
-    const payload = {
-      conceptId: concept.conceptId || concept.id, 
-      conceptName: concept.conceptName || concept.name,
-      question: nextDraft.question,
-      mainNote: nextDraft.mainNote,
-      extraNote: nextDraft.extraNote
-    };
-
-    try {
-      await noteService.upsertConcept(payload);
-      setDraft(nextDraft);
-
-      if (onSave) {
-        onSave({
-          ...concept,
-          ...nextDraft
-        });
-      }
-      setStatusMessage({ text: 'Changes Saved', type: 'success' });
-    } catch (error) {
-      console.error('Failed to auto-save field update context:', error);
-      setStatusMessage({ text: 'Unable to save field changes', type: 'error' });
-    } finally {
-      setIsSaving(false);
-      setTimeout(() => setStatusMessage(null), 600);
-    }
   };
 
   const formatForEditor = (text) => {
@@ -116,40 +99,77 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       .replace(/\. (?=[A-Z])/g, '.\n\n');
   };
 
-  const handleAIRegenerate = async () => {
+  const handleGlobalSave = async () => {
+    if (!isDirty) return;
+    
+    setIsSaving(true);
+
+    const payload = {
+      conceptId: concept.conceptId || concept.id, 
+      conceptName: concept.conceptName || concept.name,
+      question: draft.question,
+      mainNote: draft.mainNote,
+      extraNote: draft.extraNote
+    };
+
+    try {
+      await noteService.upsertConcept(payload);
+      setActiveModalType(null);
+
+      if (onSave) {
+        onSave({
+          ...concept,
+          ...draft
+        });
+      }
+      setStatusMessage({ text: 'Changes Saved Successfully', type: 'success' });
+    } catch (error) {
+      console.error('Failed to persist global save node modifications:', error);
+      setStatusMessage({ text: 'Unable to save field alterations', type: 'error' });
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setStatusMessage(null), 1000);
+    }
+  };
+
+  const executeDiscardChanges = () => {
+    setDraft({
+      question: concept?.question || '',
+      mainNote: concept?.mainNote || '',
+      extraNote: concept?.extraNote || ''
+    });
+    setActiveModalType(null);
+    if (setStatusMessage) {
+      setStatusMessage({ text: 'Changes discarded', type: 'success' });
+      setTimeout(() => setStatusMessage(null), 1000);
+    }
+  };
+
+  const executeAIRegeneration = async () => {
     const targetId = concept.conceptId || concept.id;
     if (!targetId) return;
 
     setActiveField(null);
     setIsRegenerating(true);
     setIsDropdownOpen(false);
+    setActiveModalType(null);
 
     try {
       const data = await noteService.regenerateConcept(targetId, selectedProvider);
       
-      const updatedDraft = {
+      setDraft({
         question: data.question || '',
         mainNote: data.mainNote || '',
         extraNote: data.extraNote || ''
-      };
+      });
 
-      setDraft(updatedDraft);
-
-      if (onSave) {
-        onSave({
-          ...concept,
-          question: data.question,
-          mainNote: data.mainNote,
-          extraNote: data.extraNote
-        });
-      }
-      setStatusMessage({ text: 'Regeneration Complete', type: 'success' });
+      setStatusMessage({ text: 'Regenerated! (Unsaved Changes)', type: 'success' });
     } catch (error) {
       console.error('AI regeneration sequence failed:', error);
       setStatusMessage({ text: 'Regeneration failed', type: 'error' });
     } finally {
       setIsRegenerating(false);
-      setTimeout(() => setStatusMessage(null), 1000);
+      setTimeout(() => setStatusMessage(null), 1500);
     }
   };
 
@@ -160,7 +180,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     setIsSaving(true);
     try {
       await noteService.deleteConcept(targetId);
-      setIsConfirmingDelete(false);
+      setActiveModalType(null);
 
       if (onDelete) onDelete(targetId);
       if (onBack) onBack();
@@ -188,7 +208,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       .trim();
 
     const points = cleanedText
-      .split(/(?<=\.)\s+(?=[A-Z])/)
+      .split(/(?<=\.)\s+(?=\[A-Z])/)
       .filter(Boolean);
 
     return (
@@ -202,33 +222,71 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     );
   };
 
+  // Dynamic Configuration Map for Modal Contexts
+  const modalConfigs = {
+    delete: {
+      title: 'Delete Concept',
+      desc: <>Are you sure you want to remove <span className="text-zinc-200 font-medium">"{concept.conceptName || concept.name}"</span>? This action cannot be undone.</>,
+      confirmText: 'Delete',
+      confirmClass: 'text-red-400 bg-red-950/20 border-red-900/40 hover:bg-red-950/40',
+      onConfirm: handleExecuteDeletion,
+      showLoader: isSaving,
+      loaderClass: 'text-red-400'
+    },
+    save: {
+      title: 'Save Changes',
+      desc: <>Are you sure you want to save all updates structural changes to <span className="text-zinc-200 font-medium">"{concept.conceptName || concept.name}"</span>?</>,
+      confirmText: 'Confirm',
+      confirmClass: 'text-amber-400 bg-amber-950/20 border-amber-900/40 hover:bg-amber-950/40',
+      onConfirm: handleGlobalSave,
+      showLoader: isSaving,
+      loaderClass: 'text-amber-400'
+    },
+    regen: {
+      title: 'Unsaved Changes',
+      desc: 'You have modified this concept. Are you sure you want to regenerate? Your current unsaved edits will be lost.',
+      confirmText: 'Regen anyway',
+      confirmClass: 'text-amber-400 bg-amber-950/30 border-amber-800/60 hover:bg-amber-950/50',
+      onConfirm: executeAIRegeneration,
+      showIcon: <AlertTriangle size={24} className="text-amber-500 mb-1" />
+    },
+    discard: {
+      title: 'Discard Changes',
+      desc: <>Are you sure you want to discard all your recent local edits to <span className="text-zinc-200 font-medium">"{concept.conceptName || concept.name}"</span>?</>,
+      confirmText: 'Discard',
+      confirmClass: 'text-red-400 bg-red-950/20 border-red-900/40 hover:bg-red-950/40',
+      onConfirm: executeDiscardChanges
+    }
+  };
+
+  const currentModal = modalConfigs[activeModalType];
+  const isAnyModalOpen = !!activeModalType;
+
   return (
     <div className="cursor-text select-text w-full max-w-xl lg:max-w-2xl mx-auto pb-20 relative antialiased selection:bg-zinc-800 selection:text-white rounded-2xl overflow-hidden">
       
-      {/* 1. IMMERSIVE COMPONENT-WIDE GLASS OVERLAY */}
+      {/* UNIFIED DYNAMIC CONFIRMATION MODAL OVERLAY */}
       <div 
-        className={`absolute inset-0 z-50 bg-zinc-950/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
-          ${isConfirmingDelete 
-            ? 'opacity-100 pointer-events-auto' 
-            : 'opacity-0 pointer-events-none'
-          }`}
+        className={`fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-md flex flex-col items-center justify-start pt-24 sm:pt-32 p-6 text-center transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+          ${isAnyModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       >
         <div 
           className={`w-full max-w-xs bg-zinc-900 border border-zinc-800/90 rounded-2xl p-6 shadow-2xl space-y-5 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] transform
-            ${isConfirmingDelete ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
+            ${isAnyModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
         >
-          <div className="space-y-2">
-            <h4 className="text-s4 font-semibold text-zinc-100 tracking-tight">Delete Concept</h4>
-            <p className="text-s2 text-zinc-400 leading-relaxed px-1">
-              Are you sure you want to remove <span className="text-zinc-200 font-medium">"{concept.conceptName || concept.name}"</span>? This action cannot be undone.
-            </p>
+          <div className="space-y-2 flex flex-col items-center">
+            {currentModal?.showIcon}
+            <h4 className="text-s4 font-semibold text-zinc-100 tracking-tight">{currentModal?.title}</h4>
+            <div className="text-s2 text-zinc-400 leading-relaxed px-1">
+              {currentModal?.desc}
+            </div>
           </div>
           
           <div className="flex items-center gap-3 pt-1">
             <button
               type="button"
               disabled={isSaving}
-              onClick={() => setIsConfirmingDelete(false)}
+              onClick={() => setActiveModalType(null)}
               className="flex-1 text-s2 font-mono uppercase tracking-wider font-bold text-zinc-400 bg-zinc-950 border border-zinc-800/60 hover:bg-zinc-800/40 py-2.5 rounded-xl transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
             >
               Cancel
@@ -236,19 +294,23 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
             <button
               type="button"
               disabled={isSaving}
-              onClick={handleExecuteDeletion}
-              className="flex-1 text-s2 font-mono uppercase tracking-wider font-bold text-red-400 bg-red-950/20 border border-red-900/40 hover:bg-red-950/40 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-40 cursor-pointer"
+              onClick={currentModal?.onConfirm}
+              className={`flex-1 text-s2 font-mono uppercase tracking-wider font-bold border py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-40 cursor-pointer ${currentModal?.confirmClass}`}
             >
-              {isSaving ? <Loader2 size={12} className="animate-spin text-red-400" /> : 'Delete'}
+              {currentModal?.showLoader ? (
+                <Loader2 size={12} className={`animate-spin ${currentModal.loaderClass}`} />
+              ) : (
+                currentModal?.confirmText
+              )}
             </button>
           </div>
         </div>
       </div>
 
-      {/* 2. BACKGROUND STRUCTURE WRAPPER */}
+      {/* BACKGROUND STRUCTURE WRAPPER */}
       <div 
         className={`w-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] transform will-change-transform
-          ${isConfirmingDelete ? 'scale-[0.985] opacity-40 pointer-events-none select-none' : 'scale-100 opacity-100'}`}
+          ${isAnyModalOpen ? 'scale-[0.985] opacity-40 pointer-events-none select-none' : 'scale-100 opacity-100'}`}
       >
         
         {/* Standardized Header Utility Interface */}
@@ -268,21 +330,15 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
             </div>
           </div>
           
-          {/* Action Row - Integrated Dropdown and Regenerate controls */}
+          {/* Action Row Controls Interface Layer */}
           <div className="flex items-center justify-end gap-2 shrink-0 self-end sm:self-center">
-            {isSaving && (
-              <div className="flex items-center gap-1.5 px-2 py-1 bg-zinc-900/60 border border-zinc-800/40 rounded-lg text-[11px] font-mono text-zinc-500">
-                <Loader2 size={11} className="animate-spin text-amber-500/80" />
-                <span>Saving...</span>
-              </div>
-            )}
-
-            {/* Fully Custom High-Aesthetic Dropdown Menu Selection Layer */}
+            
+            {/* Custom High-Aesthetic Dropdown Menu Selection Layer */}
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                disabled={isSaving || isRegenerating || isConfirmingDelete}
+                disabled={isSaving || isRegenerating || isAnyModalOpen}
                 className="flex items-center justify-between gap-2 bg-zinc-900/90 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700/80 rounded-xl px-3 py-1.5 focus:outline-none focus:border-zinc-700 focus:ring-1 focus:ring-zinc-800/50 transition-all duration-200 select-none disabled:opacity-40 cursor-pointer"
               >
                 <span className="text-zinc-300 text-[11px] font-mono tracking-wider font-semibold min-w-[90px] text-left cursor-pointer">
@@ -323,8 +379,8 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
             {/* Self-Animating AI Sparkle Action Trigger */}
             <button
               type="button"
-              onClick={handleAIRegenerate}
-              disabled={isSaving || isRegenerating || isConfirmingDelete}
+              onClick={() => isDirty ? setActiveModalType('regen') : executeAIRegeneration()}
+              disabled={isSaving || isRegenerating || isAnyModalOpen}
               title="Regenerate context content using selected model"
               className={`p-2 rounded-xl transition-all duration-300 border bg-zinc-900 shrink-0 cursor-pointer
                 ${isRegenerating 
@@ -341,14 +397,46 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
             <span className="w-[1px] h-5 bg-zinc-800/80 mx-0.5 shrink-0" />
 
+            {/* Delete Trigger Button Container */}
             <button
               type="button"
-              onClick={() => setIsConfirmingDelete(true)}
-              disabled={isSaving || isRegenerating || isConfirmingDelete}
-              className="p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border bg-transparent border-transparent text-zinc-500 hover:text-red-400 hover:bg-zinc-900/40 disabled:opacity-20 cursor-pointer"
+              onClick={() => setActiveModalType('delete')}
+              disabled={isSaving || isRegenerating || isAnyModalOpen}
+              className="p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border bg-transparent border-transparent text-zinc-500 hover:text-red-400 hover:bg-zinc-900/40 disabled:opacity-20 cursor-pointer shrink-0"
             >
               <Trash2 size={16} className="cursor-pointer" />
             </button>
+
+            {/* ALWAYS-RENDERED DISCARD TRIGGER BUTTON */}
+            <button
+              type="button"
+              onClick={() => setActiveModalType('discard')}
+              disabled={!isDirty || isSaving || isRegenerating || isAnyModalOpen}
+              title="Discard unsaved edits"
+              className={`p-2 rounded-xl border transition-all shrink-0
+                ${isDirty && !isAnyModalOpen
+                  ? 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 active:scale-90 cursor-pointer' 
+                  : 'border-zinc-800/40 bg-zinc-900/10 text-zinc-600 opacity-50 cursor-not-allowed'
+                }`}
+            >
+              <X size={13} />
+            </button>
+
+            {/* CENTRAL SYSTEM CORE PERSISTENCE SAVE TRIGGER */}
+            <button
+              type="button"
+              onClick={() => setActiveModalType('save')}
+              disabled={!isDirty || isSaving || isRegenerating || isAnyModalOpen}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-sans font-semibold uppercase tracking-wider transition-all active:scale-95 cursor-pointer border shrink-0
+                ${isDirty && !isAnyModalOpen
+                  ? 'bg-amber-500 text-zinc-950 border-amber-400 hover:bg-amber-400 shadow-[0_0_14px_rgba(245,158,11,0.25)]' 
+                  : 'bg-zinc-900/40 text-zinc-600 border-zinc-800/40 opacity-50 cursor-not-allowed'
+                }`}
+            >
+              {isSaving ? <Loader2 size={11} className="animate-spin" /> : <Check size={11} />}
+              <span>Save Changes</span>
+            </button>
+            
           </div>
         </div>
 
