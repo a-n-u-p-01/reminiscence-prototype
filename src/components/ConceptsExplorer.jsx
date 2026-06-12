@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Search, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dashboardService } from '../api/dashboardService';
 import ConceptDetail from './ConceptDetail';
@@ -21,7 +21,6 @@ export default function ConceptsExplorer({ onBack }) {
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Cache invalidation state variable used to trigger database re-evaluation on command
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
@@ -38,7 +37,7 @@ export default function ConceptsExplorer({ onBack }) {
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault(); 
     setPage(1); 
-    setActiveQuery(search); 
+    setActiveQuery(search); // Updates and fires server data pipeline only on command
   };
 
   useEffect(() => {
@@ -47,12 +46,11 @@ export default function ConceptsExplorer({ onBack }) {
     }
   }, [isPullToRefresh]);
 
-  // Main data layer synchronization worker
   useEffect(() => {
     let isMounted = true;
 
+
     async function fetchServerData() {
-      setIsLoading(true);
       try {
         const targetPage = isPullToRefresh ? 1 : page;
         const response = await dashboardService.getConceptsExplorer(targetPage, activeQuery, sortNewest);
@@ -73,18 +71,15 @@ export default function ConceptsExplorer({ onBack }) {
       }
     }
 
-    fetchServerData();
+    
+    setIsLoading(true);
+    setTimeout(()=>fetchServerData(),1000);
     return () => { isMounted = false; };
-    // Adding refreshTrigger dependency handles deletion-initiated layout updates instantly
   }, [page, activeQuery, sortNewest, isPullToRefresh, setIsPullToRefresh, refreshTrigger]);
 
-  // Clean intercept worker node triggered upon successful API deletions downstream
   const handleConceptDeletedEvent = (deletedId) => {
-    // 1. Kick query evaluation page parameter back down to 1 cleanly
     setPage(1);
-    // 2. Increment seed token variable to force trigger fetching pipeline side effects
     setRefreshTrigger(prev => prev + 1);
-    // 3. Clear selected view state locally to slide window safely back to Explorer list layout
     setSelectedConcept(null);
   };
 
@@ -105,7 +100,7 @@ export default function ConceptsExplorer({ onBack }) {
             onDelete={handleConceptDeletedEvent}
             onSave={(updated) => {
               setSelectedConcept(updated);
-              setRefreshTrigger(prev => prev + 1); // Refresh list underlying data as well on edit save
+              setRefreshTrigger(prev => prev + 1); 
             }}
           />
         </motion.div>
@@ -116,8 +111,9 @@ export default function ConceptsExplorer({ onBack }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="w-full max-w-xl lg:max-w-2xl mx-auto pb-20 space-y-6 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
+          className="w-full max-w-xl lg:max-w-2xl mx-auto pb-20 space-y-5 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
         >
+          {/* Top Navbar */}
           <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">
             <div className="flex items-center gap-2.5">
               <button onClick={onBack} className="text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0">
@@ -136,6 +132,43 @@ export default function ConceptsExplorer({ onBack }) {
             </button>
           </div>
 
+          {/* Minimal Search Row Implementation */}
+          <form 
+            onSubmit={handleSearchSubmit} 
+            className="group relative flex items-center bg-zinc-950/40 border border-zinc-800/60 focus-within:border-zinc-700/80 rounded-xl px-3 h-10 transition-all duration-200 pointer-events-auto"
+          >
+            <Search 
+              size={15} 
+              className="text-zinc-600 group-focus-within:text-zinc-400 transition-colors duration-200 shrink-0" 
+            />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search concepts..."
+              className="w-full h-full bg-transparent border-none outline-none focus:ring-0 px-3 text-[13px] text-zinc-200 placeholder-zinc-600 font-sans"
+            />
+            
+            {/* Animated Submission Button Component */}
+            <AnimatePresence>
+              {search.trim().length > 0 && (
+                <motion.button
+                  key="submit-arrow"
+                  type="submit"
+                  initial={{ opacity: 0, scale: 0.8, x: 5 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, x: 5 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-zinc-300 hover:bg-zinc-100 hover:text-zinc-950 transition-colors active:scale-90 shrink-0"
+                  aria-label="Execute search parameters"
+                >
+                  <ArrowRight size={13} />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </form>
+
+          {/* Progress Activity Loader Bar */}
           <div className="absolute top-[55px] left-0 right-0 h-[1px] bg-zinc-900 overflow-hidden">
             {isLoading && (
               <motion.div 
@@ -147,6 +180,7 @@ export default function ConceptsExplorer({ onBack }) {
             )}
           </div>
 
+          {/* Concepts Resulting List Matrix */}
           <div className={`bg-zinc-900/20 border border-zinc-800/60 rounded-xl px-4 divide-y divide-zinc-800/40 min-h-[220px] transition-all duration-150 pointer-events-auto ${isLoading ? 'opacity-50 pointer-events-none filter blur-[0.3px]' : 'opacity-100'}`}>
             {concepts.length === 0 ? (
               <div className="text-s1 text-zinc-600 font-mono py-12 text-center tracking-widest uppercase">
@@ -186,6 +220,7 @@ export default function ConceptsExplorer({ onBack }) {
             )}
           </div>
 
+          {/* Pagination Operations Controls */}
           {totalPages > 1 && (
             <div className="flex justify-between items-center pt-2 font-mono text-s1 text-zinc-500 pointer-events-auto">
               <button 
@@ -205,6 +240,7 @@ export default function ConceptsExplorer({ onBack }) {
               <button 
                 type="button"
                 disabled={page >= totalPages || isLoading}
+                onClick={() => setPage(prev => prev - 1)}
                 onClick={() => setPage(prev => prev + 1)}
                 className="flex items-center space-x-1 bg-zinc-950 border border-zinc-800/80 p-2 rounded-lg disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
               >

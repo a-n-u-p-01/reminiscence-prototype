@@ -4,6 +4,7 @@ import { CheckCircle2, ShieldAlert, Smile, Frown, Layers, X, HelpCircle, ArrowRi
 import { noteService } from '../api/noteService';
 import { useReviewEngine } from '../context/ReviewContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import CopyButton from '../components/CopyButton';
 
 export default function ReviewScreen({ onBackToHome }) {
   const {
@@ -436,11 +437,13 @@ export default function ReviewScreen({ onBackToHome }) {
                 <div className="space-y-6 flex-1">
                   <div className="flex justify-between items-center pb-4 border-b border-zinc-900/60">
                     <div className="flex items-center gap-2">
-                      <span className="w-1 h-1 rounded-full bg-blue-500/80" />
-                      <span className="text-[10px] font-medium tracking-[0.25em] font-mono text-zinc-500 uppercase block">
-                        Verified Solution
+                      {/* <span className="w-1 h-1 rounded-full bg-blue-500/80" /> */}
+                        <span className="text-[10px] font-medium tracking-[0.25em] font-mono text-zinc-500 uppercase block">
+                        {activeCard?.name}
                       </span>
+                      <CopyButton text={activeCard?.name}/>
                     </div>
+                  
                   </div>
 
                   <div className="py-2 min-h-[120px] flex items-start">
