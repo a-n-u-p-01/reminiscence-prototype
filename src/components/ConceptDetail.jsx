@@ -6,6 +6,7 @@ import { useHomeEngine } from '../context/HomeContext';
 export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const [activeInlineField, setActiveInlineField] = useState(null);
   const [inlineValue, setInlineValue] = useState('');
+  const [initialTextareaHeight, setInitialTextareaHeight] = useState('auto');
 
   // Unified Modal Engine State: null | 'delete' | 'save' | 'regen' | 'discard'
   const [activeModalType, setActiveModalType] = useState(null); 
@@ -23,7 +24,8 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   });
 
   const dropdownRef = useRef(null);
-  const textareaRef = useRef(null); // Ref to capture active textarea for dynamic resizing
+  const textareaRef = useRef(null); 
+  const displayContainerRef = useRef(null); // Ref to capture pre-rendered height footprints
   const providers = ['MISTRAL_AI', 'CLOUDFLARE', 'SILICONFLOW', 'GROQ', 'GEMINI', 'GITHUBMODELS'];
 
   const isDirty = 
@@ -31,13 +33,13 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     draft.mainNote !== (concept?.mainNote || '') ||
     draft.extraNote !== (concept?.extraNote || '');
 
-  // Automatically adjust height of the textarea to fit its content
+  // Automatically adjust height of the textarea to fit subsequent dynamic content updates
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'; // Reset height
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Set to content scroll height
+      textareaRef.current.style.height = 'auto'; 
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [inlineValue, activeInlineField]);
+  }, [inlineValue]);
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -60,8 +62,15 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
   if (!concept) return null;
 
-  // ONLY use formatForEditor if the field is 'extraNote' (your notes)
+  // PREMIUM FIX: Instantly catch height before component updates to prevent micro-jumps
   const startInlineEditing = (field, currentVal) => {
+    if (displayContainerRef.current) {
+      const currentDisplayHeight = displayContainerRef.current.clientHeight;
+      setInitialTextareaHeight(`${currentDisplayHeight}px`);
+    } else {
+      setInitialTextareaHeight('auto');
+    }
+
     const valueToEdit = field === 'extraNote' 
       ? formatForEditor(currentVal)
       : (currentVal || '');
@@ -77,12 +86,18 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
   const formatForEditor = (text) => {
     if (!text) return '';
-    return text
+    
+    const cleanedText = text
       .replace(/\r\n/g, ' ')
       .replace(/\n/g, ' ')
       .replace(/\s+/g, ' ')
-      .trim()
-      .replace(/\. (?=[A-Z])/g, '.\n\n');
+      .trim();
+
+    const points = cleanedText
+      .split(/(?<=\.)\s+(?=[A-Z])/)
+      .filter(Boolean);
+
+    return points.map(p => p.trim()).join('\n');
   };
 
   const handleGlobalSave = async () => {
@@ -327,7 +342,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
             
             {activeInlineField === 'question' ? (
               <div className="space-y-3">
-                <textarea ref={textareaRef} value={inlineValue} onChange={(e) => setInlineValue(e.target.value)} className="w-full bg-transparent text-s3 text-zinc-200 font-sans leading-relaxed border-none outline-none focus:ring-0 p-0 resize-none overflow-hidden whitespace-pre-wrap" autoFocus />
+                <textarea ref={textareaRef} value={inlineValue} onChange={(e) => setInlineValue(e.target.value)} className="w-full bg-transparent text-s3 text-zinc-200 font-sans leading-relaxed border-none outline-none focus:ring-0 p-0 resize-none overflow-hidden whitespace-pre-wrap" style={{ minHeight: initialTextareaHeight }} autoFocus />
                 <div className="flex justify-end gap-2 pt-2 border-t border-zinc-900">
                   <button onClick={() => setActiveInlineField(null)} className="text-zinc-500 hover:text-zinc-400 p-1 rounded-lg transition-colors cursor-pointer"><X size={14} /></button>
                   <button onClick={() => commitInlineFieldUpdate('question')} className="text-amber-400 hover:text-amber-300 p-1 rounded-lg transition-colors cursor-pointer"><Check size={14} /></button>
@@ -351,7 +366,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
             {activeInlineField === 'mainNote' ? (
               <div className="space-y-3">
-                <textarea ref={textareaRef} value={inlineValue} onChange={(e) => setInlineValue(e.target.value)} className="w-full bg-transparent text-s3 text-zinc-300 font-sans leading-relaxed border-none outline-none focus:ring-0 p-0 resize-none overflow-hidden whitespace-pre-wrap" autoFocus />
+                <textarea ref={textareaRef} value={inlineValue} onChange={(e) => setInlineValue(e.target.value)} className="w-full bg-transparent text-s3 text-zinc-300 font-sans leading-relaxed border-none outline-none focus:ring-0 p-0 resize-none overflow-hidden whitespace-pre-wrap" style={{ minHeight: initialTextareaHeight }} autoFocus />
                 <div className="flex justify-end gap-2 pt-2 border-t border-zinc-900">
                   <button onClick={() => setActiveInlineField(null)} className="text-zinc-500 hover:text-zinc-400 p-1 rounded-lg transition-colors cursor-pointer"><X size={14} /></button>
                   <button onClick={() => commitInlineFieldUpdate('mainNote')} className="text-amber-400 hover:text-amber-300 p-1 rounded-lg transition-colors cursor-pointer"><Check size={14} /></button>
@@ -375,14 +390,25 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
             {activeInlineField === 'extraNote' ? (
               <div className="space-y-3">
-                <textarea ref={textareaRef} value={inlineValue} onChange={(e) => setInlineValue(e.target.value)} placeholder="Separate items with periods to automatically break them into structures..." className="w-full bg-transparent text-s3 text-zinc-300 font-sans leading-relaxed border-none outline-none focus:ring-0 p-0 resize-none overflow-hidden whitespace-pre-wrap" autoFocus />
+                {/* PREMIUM TRACK FIX: Render textarea instantly with initial container footprint height matching */}
+                <textarea 
+                  ref={textareaRef} 
+                  value={inlineValue} 
+                  onChange={(e) => setInlineValue(e.target.value)} 
+                  placeholder="Sentence one. Sentence two." 
+                  className="w-full bg-transparent text-s3 text-zinc-300 font-sans leading-relaxed border-none outline-none focus:ring-0 p-0 resize-none overflow-hidden whitespace-pre-wrap pt-1 block style-normal" 
+                  style={{ minHeight: initialTextareaHeight }}
+                  autoFocus 
+                />
                 <div className="flex justify-end gap-2 pt-2 border-t border-zinc-900">
                   <button onClick={() => setActiveInlineField(null)} className="text-zinc-500 hover:text-zinc-400 p-1 rounded-lg transition-colors cursor-pointer"><X size={14} /></button>
                   <button onClick={() => commitInlineFieldUpdate('extraNote')} className="text-amber-400 hover:text-amber-300 p-1 rounded-lg transition-colors cursor-pointer"><Check size={14} /></button>
                 </div>
               </div>
             ) : (
-              <div className="font-sans text-zinc-300">{renderKeyNotes(draft.extraNote)}</div>
+              <div ref={displayContainerRef} className="font-sans text-zinc-300">
+                {renderKeyNotes(draft.extraNote)}
+              </div>
             )}
           </div>
 
