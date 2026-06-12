@@ -23,6 +23,7 @@ export default function ConceptsExplorer({ onBack }) {
   
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  // Sync route layout matching hash conditions
   useEffect(() => {
     const syncRoute = () => {
       const hash = window.location.hash.replace('#', '');
@@ -34,8 +35,17 @@ export default function ConceptsExplorer({ onBack }) {
     return () => { window.removeEventListener('hashchange', syncRoute) };
   }, []);
 
+  // Automatically reset search query and hit API when the input text is completely cleared
+  useEffect(() => {
+    if (search.trim() === '' && activeQuery !== '') {
+      setPage(1);
+      setActiveQuery('');
+    }
+  }, [search, activeQuery]);
+
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault(); 
+    if (search.trim() === '') return; // Guard against hitting search on empty configurations manually
     setPage(1); 
     setActiveQuery(search); 
   };
@@ -48,7 +58,6 @@ export default function ConceptsExplorer({ onBack }) {
 
   useEffect(() => {
     let isMounted = true;
-
 
     async function fetchServerData() {
       try {
@@ -71,10 +80,12 @@ export default function ConceptsExplorer({ onBack }) {
       }
     }
 
-    
     setIsLoading(true);
-    setTimeout(()=>fetchServerData(),500);
-    return () => { isMounted = false; };
+    const delayDebounceIdx = setTimeout(() => fetchServerData(), 500);
+    return () => { 
+      isMounted = false; 
+      clearTimeout(delayDebounceIdx);
+    };
   }, [page, activeQuery, sortNewest, isPullToRefresh, setIsPullToRefresh, refreshTrigger]);
 
   const handleConceptDeletedEvent = (deletedId) => {
@@ -132,7 +143,7 @@ export default function ConceptsExplorer({ onBack }) {
             </button>
           </div>
 
-          {/* Minimal Search Row Implementation */}
+          {/* Search Row Component */}
           <form 
             onSubmit={handleSearchSubmit} 
             className="group relative flex items-center bg-zinc-950/40 border border-zinc-800/60 focus-within:border-zinc-700/80 rounded-xl px-3 h-10 transition-all duration-200 pointer-events-auto"
@@ -240,7 +251,6 @@ export default function ConceptsExplorer({ onBack }) {
               <button 
                 type="button"
                 disabled={page >= totalPages || isLoading}
-                onClick={() => setPage(prev => prev - 1)}
                 onClick={() => setPage(prev => prev + 1)}
                 className="flex items-center space-x-1 bg-zinc-950 border border-zinc-800/80 p-2 rounded-lg disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
               >
