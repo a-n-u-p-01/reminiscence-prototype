@@ -238,7 +238,7 @@ export default function ConceptsExplorer({ onBack }) {
                 type="button"
                 disabled={page <= 1 || isLoading}
                 onClick={() => setPage(prev => prev - 1)}
-                className="flex items-center space-x-1 bg-zinc-950 border border-zinc-800/80 p-2 rounded-lg disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
+                className="cursor-pointer flex items-center space-x-1 bg-zinc-950 border border-zinc-800/80 p-2 rounded-lg disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
               >
                 <ChevronLeft size={14} />
                 <span className="px-1 text-[10px] font-bold">PREV</span>
@@ -252,7 +252,7 @@ export default function ConceptsExplorer({ onBack }) {
                 type="button"
                 disabled={page >= totalPages || isLoading}
                 onClick={() => setPage(prev => prev + 1)}
-                className="flex items-center space-x-1 bg-zinc-950 border border-zinc-800/80 p-2 rounded-lg disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
+                className="cursor-pointer flex items-center space-x-1 bg-zinc-950 border border-zinc-800/80 p-2 rounded-lg disabled:opacity-20 active:scale-95 transition-all text-zinc-400 hover:text-white"
               >
                 <span className="px-1 text-[10px] font-bold">NEXT</span>
                 <ChevronRight size={14} />

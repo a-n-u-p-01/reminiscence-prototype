@@ -376,7 +376,7 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('FORGOT', e)}
-                      className="group bg-zinc-900/20 hover:bg-red-950/10 border border-zinc-900 hover:border-red-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+                      className="cursor-pointer group bg-zinc-900/20 hover:bg-red-950/10 border border-zinc-900 hover:border-red-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
                     >
                       <ShieldAlert size={12} className="text-zinc-600 group-hover:text-red-500/80 transition-colors" />
                       <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Forget</span>
@@ -388,7 +388,7 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('PARTIAL', e)}
-                      className="group bg-zinc-900/20 hover:bg-orange-950/10 border border-zinc-900 hover:border-orange-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+                      className="cursor-pointer group bg-zinc-900/20 hover:bg-orange-950/10 border border-zinc-900 hover:border-orange-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
                     >
                       <Frown size={12} className="text-zinc-600 group-hover:text-orange-500/80 transition-colors" />
                       <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Partial</span>
@@ -400,7 +400,7 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('RECALLED', e)}
-                      className="group bg-zinc-900/20 hover:bg-blue-950/10 border border-zinc-900 hover:border-blue-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+                      className="cursor-pointer group bg-zinc-900/20 hover:bg-blue-950/10 border border-zinc-900 hover:border-blue-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
                     >
                       <Smile size={12} className="text-zinc-600 group-hover:text-blue-500/80 transition-colors" />
                       <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Recall</span>
@@ -412,7 +412,7 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('FLUENT', e)}
-                      className="group bg-zinc-900/20 hover:bg-emerald-950/10 border border-zinc-900 hover:border-emerald-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+                      className="cursor-pointer group bg-zinc-900/20 hover:bg-emerald-950/10 border border-zinc-900 hover:border-emerald-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
                     >
                       <CheckCircle2 size={12} className="text-zinc-600 group-hover:text-emerald-500/80 transition-colors" />
                       <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Fluent</span>

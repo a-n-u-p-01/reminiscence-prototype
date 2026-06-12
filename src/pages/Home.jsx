@@ -231,7 +231,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         <button
           type="button"
           onClick={() => setShowAddConcept(true)}
-          className="text-s1 font-mono uppercase tracking-widest text-theme-muted hover:text-theme-accent transition-colors flex items-center gap-1 px-2.5 py-1.5 bg-theme-card border border-theme rounded-lg shrink-0 active:scale-[0.98]"
+          className="cursor-pointer text-s1 font-mono uppercase tracking-widest text-theme-muted hover:text-theme-accent transition-colors flex items-center gap-1 px-2.5 py-1.5 bg-theme-card border border-theme rounded-lg shrink-0 active:scale-[0.98]"
         >
           <Plus size={11} />
           <span>Concept</span>
@@ -264,7 +264,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
 
             <button
               onClick={onNavigateToReview}
-              className="w-full bg-theme-accent hover:opacity-90 text-theme-card font-medium text-s2 py-3 px-4 rounded-xl active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm transition-all duration-200"
+              className="cursor-pointer w-full bg-theme-accent hover:opacity-90 text-theme-card font-medium text-s2 py-3 px-4 rounded-xl active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm transition-all duration-200"
             >
               <BookOpen size={13} className="opacity-90" />
               <span>Start Revision</span>
@@ -278,7 +278,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 setStatusMessage(null);
                 setForceShowInput(true);
               }}
-              className="text-s2 font-mono text-theme-muted hover:text-theme-accent transition-colors flex items-center justify-center gap-1.5 mx-auto tracking-wide py-1 px-3 rounded-lg hover:bg-theme-card/30"
+              className="cursor-pointer text-s2 font-mono text-theme-muted hover:text-theme-accent transition-colors flex items-center justify-center gap-1.5 mx-auto tracking-wide py-1 px-3 rounded-lg hover:bg-theme-card/30"
             >
               <Plus size={12} />
               <span>Log today's new note anyway</span>
@@ -351,7 +351,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
               <button
                 type="submit"
                 disabled={isInputDisabled || !hasUnsavedChanges}
-                className={`w-full border border-theme text-theme-secondary hover:text-theme-primary font-medium text-s2 py-3 rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm ${loading
+                className={`cursor-pointer w-full border border-theme text-theme-secondary hover:text-theme-primary font-medium text-s2 py-3 rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm ${loading
                   ? 'ai-loading-btn border-theme-accent/20 text-theme-accent'
                   : 'bg-theme-card hover:bg-theme'
                   }`}

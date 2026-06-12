@@ -102,7 +102,7 @@ export default function AddConceptPage({ onBack, onSave }) {
             type="button"
             onClick={handleAnimatedBack}
             disabled={isSaving}
-            className="text-theme-muted hover:text-theme-primary p-1.5 -ml-1.5 rounded-lg transition-colors active:scale-95 disabled:opacity-40"
+            className="cursor-pointer text-theme-muted hover:text-theme-primary p-1.5 -ml-1.5 rounded-lg transition-colors active:scale-95 disabled:opacity-40"
           >
             <ArrowLeft size={16} />
           </button>
@@ -116,7 +116,7 @@ export default function AddConceptPage({ onBack, onSave }) {
           type="submit"
           form="concept-form"
           disabled={isSaving || !isFormValid}
-          className="bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-theme-card disabled:hover:text-theme-secondary"
+          className="cursor-pointer bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-theme-card disabled:hover:text-theme-secondary"
         >
           {isSaving ? (
             <Loader2 size={12} className="animate-spin text-theme-accent" />
