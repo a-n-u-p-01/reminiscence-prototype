@@ -25,7 +25,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
   const dropdownRef = useRef(null);
   const textareaRef = useRef(null); 
-  const displayContainerRef = useRef(null); // Ref to capture pre-rendered height footprints
+  const displayContainerRef = useRef(null); 
   const providers = ['MISTRAL_AI', 'CLOUDFLARE', 'SILICONFLOW', 'GROQ', 'GEMINI', 'GITHUBMODELS'];
 
   const isDirty = 
@@ -62,7 +62,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
   if (!concept) return null;
 
-  // PREMIUM FIX: Instantly catch height before component updates to prevent micro-jumps
   const startInlineEditing = (field, currentVal) => {
     if (displayContainerRef.current) {
       const currentDisplayHeight = displayContainerRef.current.clientHeight;
@@ -250,7 +249,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const isAnyModalOpen = !!activeModalType;
 
   return (
-    <div className="w-full max-w-xl lg:max-w-2xl mx-auto pb-20 relative antialiased select-text selection:bg-zinc-800 selection:text-white">
+    <div className="w-full max-w-xl lg:max-w-2xl mx-auto pb-20 px-4 sm:px-0 relative antialiased select-text selection:bg-zinc-800 selection:text-white">
       
       {/* UNIFIED DYNAMIC CONFIRMATION MODAL OVERLAY */}
       <div className={`fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-md flex flex-col items-center justify-start pt-28 p-6 text-center transition-all duration-200 ${isAnyModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
@@ -272,62 +271,75 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
       {/* CORE WRAPPER SCREEN LAYOUT */}
       <div className={`w-full transition-all duration-200 ${isAnyModalOpen ? 'scale-[0.99] opacity-30 pointer-events-none select-none filter blur-[0.5px]' : 'scale-100 opacity-100'}`}>
         
-        {/* Navigation Toolbar Controls */}
-        <div className="border-b border-zinc-800/60 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-h-[56px]">
-          <div className="flex items-start gap-2.5 flex-1 min-w-0">
-            <button onClick={onBack} disabled={isSaving || isRegenerating} className="cursor-pointer text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0 disabled:opacity-40 mt-0.5">
-              <ArrowLeft size={22} />
-            </button>
-            <div className="flex-1 min-w-0">
-              <h1 className="font-semibold tracking-tight text-zinc-100 text-s4 break-words leading-snug">{concept.conceptName || concept.name}</h1>
+        {/* HYPER-MINIMAL TWO-ROW STRUCTURAL TOOLBAR */}
+        <div className="border-b border-zinc-800/60 pb-3 space-y-2">
+          
+          {/* ROW 1: Navigation Left, Secondary Actions Right */}
+          <div className="flex items-center justify-between gap-4 min-h-[36px]">
+            {/* Left Hand: Title space */}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <button onClick={onBack} disabled={isSaving || isRegenerating} className="cursor-pointer text-zinc-500 hover:text-white transition-colors active:scale-90 p-1 -ml-1 rounded-md shrink-0 disabled:opacity-40">
+                <ArrowLeft size={20} />
+              </button>
+              <h1 className="font-semibold tracking-tight text-zinc-100 text-base sm:text-s4 truncate leading-snug">
+                {concept.conceptName || concept.name}
+              </h1>
+            </div>
+            
+            {/* Right Hand: Context Lifecycles */}
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Global Undo/Discard Trigger */}
+              <button type="button" onClick={() => setActiveModalType('discard')} disabled={!isDirty || isSaving || isRegenerating} title="Discard unsaved edits" className={`p-1.5 rounded-lg border transition-all shrink-0 ${isDirty ? 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 active:scale-90 cursor-pointer' : 'border-zinc-800/40 bg-zinc-900/10 text-zinc-600 opacity-50 cursor-not-allowed'}`}>
+                <X size={12} />
+              </button>
+
+              <span className="w-[1px] h-3.5 bg-zinc-800/40 mx-0.5 shrink-0" />
+
+              {/* Context Deletion Icon */}
+              <button type="button" onClick={() => setActiveModalType('delete')} disabled={isSaving || isRegenerating || activeInlineField !== null} className="p-1.5 rounded-lg transition-all duration-200 active:scale-90 flex items-center justify-center border border-transparent text-zinc-500 hover:text-red-400 hover:bg-zinc-900/40 disabled:opacity-20 shrink-0 cursor-pointer">
+                <Trash2 size={14} />
+              </button>
             </div>
           </div>
-          
-          <div className="flex items-center justify-end gap-2 shrink-0 self-end sm:self-center">
-            {/* Model Provider Selector Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <button type="button" onClick={() => setIsDropdownOpen(!isDropdownOpen)} disabled={isSaving || isRegenerating || activeInlineField !== null} className="flex items-center justify-between gap-2 bg-zinc-900/90 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700/80 rounded-xl px-3 py-1.5 focus:outline-none transition-all duration-200 disabled:opacity-40 cursor-pointer">
-                <span className="text-zinc-300 text-[11px] font-mono tracking-wider font-semibold min-w-[90px] text-left">{selectedProvider}</span>
-                <ChevronDown size={11} className={`text-zinc-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-zinc-400' : ''}`} />
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-[145px] bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-30">
-                  <div className="py-1 flex flex-col">
-                    {providers.map((prov) => (
-                      <button key={prov} type="button" onClick={() => { setSelectedProvider(prov); setIsDropdownOpen(false); }} className={`w-full text-left font-mono text-[11px] tracking-wide px-3 py-2 transition-colors block ${selectedProvider === prov ? 'bg-zinc-800/80 text-amber-400 font-bold' : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/40'}`}>{prov}</button>
-                    ))}
+
+          {/* ROW 2: Ultra-Compact AI Configuration & Micro Save Trigger */}
+          <div className="flex items-center justify-between gap-2 pt-0.5">
+            {/* Left Hand: Compact Dropdown and Sparkle */}
+            <div className="flex items-center gap-1">
+              {/* Model Provider Selector Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button type="button" onClick={() => setIsDropdownOpen(!isDropdownOpen)} disabled={isSaving || isRegenerating || activeInlineField !== null} className="flex items-center justify-between gap-1.5 bg-zinc-900/40 hover:bg-zinc-900/80 border border-zinc-800/50 hover:border-zinc-700/60 rounded-lg px-2 py-1 focus:outline-none transition-all duration-200 disabled:opacity-40 cursor-pointer">
+                  <span className="text-zinc-400 text-[10px] font-mono tracking-wider font-semibold min-w-[75px] sm:min-w-[80px] text-left">{selectedProvider}</span>
+                  <ChevronDown size={8} className={`text-zinc-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-zinc-400' : ''}`} />
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute left-0 mt-1 w-[135px] bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50">
+                    <div className="py-0.5 flex flex-col">
+                      {providers.map((prov) => (
+                        <button key={prov} type="button" onClick={() => { setSelectedProvider(prov); setIsDropdownOpen(false); }} className={`w-full text-left font-mono text-[10px] tracking-wide px-2.5 py-1.5 transition-colors block ${selectedProvider === prov ? 'bg-zinc-800/80 text-amber-400 font-bold' : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/40'}`}>{prov}</button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+
+              {/* AI Sparkle Action Trigger */}
+              <button type="button" onClick={() => isDirty ? setActiveModalType('regen') : executeAIRegeneration()} disabled={isSaving || isRegenerating || activeInlineField !== null} title="Regenerate data" className={`p-1.5 rounded-lg transition-all duration-300 border bg-zinc-900/40 shrink-0 cursor-pointer ${isRegenerating ? 'border-amber-500/40 bg-amber-950/10' : 'border-zinc-800/50 text-zinc-500 hover:text-amber-400 hover:bg-zinc-800/50 active:scale-90'} disabled:opacity-30`}>
+                <Sparkles size={11} className={isRegenerating ? 'animate-spin text-amber-400' : 'text-inherit'} />
+              </button>
             </div>
 
-            {/* AI Sparkle Action Trigger */}
-            <button type="button" onClick={() => isDirty ? setActiveModalType('regen') : executeAIRegeneration()} disabled={isSaving || isRegenerating || activeInlineField !== null} title="Regenerate data via selected matrix model" className={`p-2 rounded-xl transition-all duration-300 border bg-zinc-900 shrink-0 cursor-pointer ${isRegenerating ? 'border-amber-500/40 bg-amber-950/10 shadow-[0_0_12px_rgba(245,158,11,0.1)]' : 'border-zinc-800 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800/50 active:scale-90'} disabled:opacity-30`}>
-              <Sparkles size={15} className={`transition-all duration-500 ${isRegenerating ? 'animate-spin text-amber-400 scale-110' : 'text-inherit'}`} />
-            </button>
-
-            <span className="w-[1px] h-5 bg-zinc-800/80 mx-0.5 shrink-0" />
-
-            {/* Delete Trigger Context Button */}
-            <button type="button" onClick={() => setActiveModalType('delete')} disabled={isSaving || isRegenerating || activeInlineField !== null} className="p-2 rounded-xl transition-all duration-200 active:scale-90 flex items-center justify-center border border-transparent text-zinc-500 hover:text-red-400 hover:bg-zinc-900/40 disabled:opacity-20 shrink-0 cursor-pointer">
-              <Trash2 size={16} />
-            </button>
-
-            {/* Global Undo/Discard Edits Trigger */}
-            <button type="button" onClick={() => setActiveModalType('discard')} disabled={!isDirty || isSaving || isRegenerating} title="Discard unsaved edits" className={`p-2 rounded-xl border transition-all shrink-0 ${isDirty ? 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 active:scale-90 cursor-pointer' : 'border-zinc-800/40 bg-zinc-900/10 text-zinc-600 opacity-50 cursor-not-allowed'}`}>
-              <X size={13} />
-            </button>
-
-            {/* Central System Architecture Save Trigger */}
-            <button type="button" onClick={() => setActiveModalType('save')} disabled={!isDirty || isSaving || isRegenerating} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-sans font-semibold uppercase tracking-wider transition-all active:scale-95 border shrink-0 ${isDirty ? 'bg-amber-500 text-zinc-950 border-amber-400 hover:bg-amber-400 shadow-[0_0_14px_rgba(245,158,11,0.25)] cursor-pointer' : 'bg-zinc-900/40 text-zinc-600 border-zinc-800/40 opacity-50 cursor-not-allowed'}`}>
-              {isSaving ? <Loader2 size={11} className="animate-spin" /> : <Check size={11} />}
+            {/* Right Hand: Premium Micro Save Button */}
+            <button type="button" onClick={() => setActiveModalType('save')} disabled={!isDirty || isSaving || isRegenerating} className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-sans font-bold uppercase tracking-wider transition-all active:scale-95 border shrink-0 ${isDirty ? 'bg-amber-500 text-zinc-950 border-amber-400 hover:bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)] cursor-pointer' : 'bg-zinc-900/20 text-zinc-600 border-zinc-800/30 opacity-40 cursor-not-allowed'}`}>
+              {isSaving ? <Loader2 size={10} className="animate-spin" /> : <Check size={10} />}
               <span>Save Changes</span>
             </button>
           </div>
+
         </div>
 
         {/* HIGH REFINEMENT CONTEXTUAL INLINE FIELDS CARD ARCHITECTURE */}
-        <div className="mt-8 space-y-6">
+        <div className="mt-5 space-y-5">
           
           {/* INLINE MODULE CARD: QUESTION LAYER */}
           <div className={`p-4 rounded-xl border transition-all duration-200 ${activeInlineField === 'question' ? 'bg-zinc-950 border-zinc-700 ring-1 ring-zinc-800/50' : 'bg-zinc-900/20 border-zinc-800/50 hover:border-zinc-800/80'}`}>
@@ -390,7 +402,6 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
 
             {activeInlineField === 'extraNote' ? (
               <div className="space-y-3">
-                {/* PREMIUM TRACK FIX: Render textarea instantly with initial container footprint height matching */}
                 <textarea 
                   ref={textareaRef} 
                   value={inlineValue} 
