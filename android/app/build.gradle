@@ -40,15 +40,22 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    
+    // Explicit Firebase Messaging dependency to ensure initialization structures are linked 
+    implementation platform('com.google.firebase:firebase-bom:33.1.1')
+    implementation 'com.google.firebase:firebase-messaging'
 }
 
 apply from: 'capacitor.build.gradle'
 
 try {
     def servicesJSON = file('google-services.json')
-    if (servicesJSON.text) {
+    if (servicesJSON.exists() && servicesJSON.text) {
         apply plugin: 'com.google.gms.google-services'
+        logger.lifecycle("✅ Firebase config found: com.google.gms.google-services applied successfully.")
+    } else {
+        logger.warn("⚠️ google-services.json is empty or missing from app folder!")
     }
 } catch(Exception e) {
-    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+    logger.error("❌ Critical exception applying google-services plugin: " + e.getMessage())
 }

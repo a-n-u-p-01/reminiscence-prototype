@@ -20,7 +20,8 @@ import { getItem, setItem } from '../src/storage/storageService';
 import WelcomeSheet from './components/WelcomeSheet';
 import VersionGuard from './components/VersionGuard';
 import { authService } from './api/authService';
-import pkg from '../package.json'
+import { usePushNotifications } from './hooks/pushNotificationService'; // <-- LINKED STANDALONE HOOK
+import pkg from '../package.json';
 
 const TAB_SEQUENCE = ['home', 'dashboard', 'revision', 'settings'];
 
@@ -125,7 +126,8 @@ function usePullToRefresh(
 }
 
 export default function App() {
-  const { isAuthenticated, isDisconnecting, loading } = useAuth();
+  // Destructured 'user' explicitly out of your global application context layer
+  const { isAuthenticated, isDisconnecting, loading, user } = useAuth();
   const mainContentRef = useRef(null);
   const clearAppContext = useAppReset();
   const [pullDistance, setPullDistance] = useState(0);
@@ -153,6 +155,11 @@ export default function App() {
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [backPressExitFlag, setBackPressExitFlag] = useState(false);
+
+  // -----------------------------------------------------------------
+  // INITIALIZE PUSH SUB-ENGINE ON STARTUP
+  // -----------------------------------------------------------------
+  usePushNotifications(user?.id, isAuthenticated, navigateTo);
 
   useEffect(() => {
     async function initOnboardingCheck() {
@@ -240,7 +247,7 @@ export default function App() {
     };
   }, []);
 
-  const navigateTo = (tab) => {
+  function navigateTo(tab) {
     window.history.replaceState(null, '', `#${tab}`);
     setCurrentTab(tab);
 
@@ -248,7 +255,7 @@ export default function App() {
       mainContentRef.current.scrollTo({ top: 0, behavior: 'auto' });
     }
     window.scrollTo(0, 0);
-  };
+  }
 
   useEffect(() => {
     const sanitizeAndRoute = () => {
@@ -351,13 +358,13 @@ export default function App() {
     filter: isAnyRefreshing ? 'blur(0.5px) saturate(0.98)' : 'blur(0px) saturate(1)',
     contain: 'layout style'
   };
+
   if (latestVersion && String(latestVersion).trim() !== String(localVersion).trim()) {
-    return <VersionGuard localVersion={localVersion} latestVersion={latestVersion} />
+    return <VersionGuard localVersion={localVersion} latestVersion={latestVersion} />;
   }
 
-
   return (
-    <div className="flex flex-col  md:flex-row flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
+    <div className="flex flex-col md:flex-row flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
 
       <div
         style={{ height: 'env(safe-area-inset-top, 24px)' }}
@@ -453,17 +460,13 @@ export default function App() {
         </div>
       </div>
 
-      {/* ULTRA-PREMIUM INTERACTION NAVIGATION COMPONENT:
-        Mobile: Snaps cleanly to screen bottom edge as standard bottom tab layout.
-        Laptop/Desktop: Pulls to the center-screen container line with modern glassy round structures.
-      */}
       <nav
         className={`
-         fixed bottom-0 left-0 right-0 isolate flex opacity-100 z-50 px-5 shadow-2xl h-[74px] justify-around items-center
-  w-full max-w-xl lg:max-w-2xl mx-auto
-  md:bottom-5 md:rounded-2xl md:border md:border-zinc-800/60
-  bg-theme-card/90 backdrop-blur-xl backdrop-saturate-150 border-t border-theme
-  pb-[env(safe-area-inset-bottom)] will-change-transform transition-all duration-300 ease-out
+          fixed bottom-0 left-0 right-0 isolate flex opacity-100 z-50 px-5 shadow-2xl h-[74px] justify-around items-center
+          w-full max-w-xl lg:max-w-2xl mx-auto
+          md:bottom-5 md:rounded-2xl md:border md:border-zinc-800/60
+          bg-theme-card/90 backdrop-blur-xl backdrop-saturate-150 border-t border-theme
+          pb-[env(safe-area-inset-bottom)] will-change-transform transition-all duration-300 ease-out
           ${isKeyboardVisible ? 'hidden' : 'flex'}
           ${isAnyRefreshing ? 'pointer-events-none opacity-40' : 'opacity-100'}
         `}
@@ -525,8 +528,9 @@ function NavBtn({ active, onClick, icon: Icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center w-16 h-full group relative transition-all duration-150 active:scale-95 outline-none select-none ${active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'
-        }`}
+      className={`flex flex-col items-center justify-center w-16 h-full group relative transition-all duration-150 active:scale-95 outline-none select-none ${
+        active ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'
+      }`}
     >
       <div className="p-1 transition-transform duration-200 ease-out group-hover:scale-105 group-active:scale-95">
         <Icon size={20} className="stroke-[1.8]" />

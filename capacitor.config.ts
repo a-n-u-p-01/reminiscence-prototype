@@ -17,6 +17,11 @@ const config: CapacitorConfig = {
   },
 
   plugins: {
+    // CRITICAL: Tells the Android OS layer how to behave when the app is active
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
+
     SplashScreen: {
       launchShowDuration: 800,
       launchAutoHide: true,

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "156057942418",
+    "project_id": "reminiscence-d6313",
+    "storage_bucket": "reminiscence-d6313.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:156057942418:android:6975f69afe84f38a2ca94b",
+        "android_client_info": {
+          "package_name": "com.anupam.reminiscence"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2XhFMPEEuG7mRs2hxX9oc3Kw247VMUHI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
