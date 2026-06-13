@@ -19,6 +19,7 @@ import { useAppReset } from './hooks/useAppReset';
 import { getItem, setItem } from '../src/storage/storageService';
 import WelcomeSheet from './components/WelcomeSheet';
 import VersionGuard from './components/VersionGuard';
+import StudyRail from './components/StudyRail';
 import { authService } from './api/authService';
 import { usePushNotifications } from './hooks/pushNotificationService'; // <-- LINKED STANDALONE HOOK
 import pkg from '../package.json';
@@ -145,7 +146,7 @@ export default function App() {
     lazyLoadRevisionQueue
   } = useReviewEngine();
 
-  const { refreshDashboard } = useDashboard();
+  const { refreshDashboard, metrics } = useDashboard();
   const { refreshHomeNote, statusMessage, setStatusMessage, setIsPullToRefresh } = useHomeEngine();
 
   const [currentTab, setCurrentTab] = useState(() => {
@@ -486,7 +487,7 @@ export default function App() {
 
       {/* Main Slide Track Viewport Wrapper */}
       <div
-        className="flex-1 min-w-0 overflow-hidden relative h-full w-full"
+        className="flex-1 min-w-0 overflow-hidden relative h-full w-full xl:flex-none xl:w-[44rem] 2xl:w-[52rem]"
         style={{ touchAction: 'pan-y' }}
       >
         <div
@@ -543,6 +544,16 @@ export default function App() {
           </main>
         </div>
       </div>
+
+      {/* Desktop right rail (xl+) — Study Companion, or a calm Focus panel while reviewing */}
+      <aside className="hidden xl:flex xl:flex-col flex-1 min-w-0 h-full overflow-y-auto border-l border-theme px-6 py-10">
+        <StudyRail
+          dueCount={globalCount}
+          metrics={metrics}
+          focusMode={currentTab === 'revision'}
+          onStartReview={() => navigateTo('revision')}
+        />
+      </aside>
 
       <nav
         className={`
