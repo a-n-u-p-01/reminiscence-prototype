@@ -103,7 +103,7 @@ export default function ConceptsExplorer({ onBack }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="w-full max-w-xl lg:max-w-2xl mx-auto pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
+          className="w-full max-w-3xl mx-auto pb-20 space-y-6 touch-pan-y will-change-transform active:cursor-grabbing select-none"
         >
           <ConceptDetail 
             concept={selectedConcept} 
@@ -122,7 +122,7 @@ export default function ConceptsExplorer({ onBack }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="w-full max-w-xl lg:max-w-2xl mx-auto pb-20 space-y-5 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
+          className="w-full max-w-3xl mx-auto pb-20 space-y-5 touch-pan-y relative will-change-transform active:cursor-grabbing select-none"
         >
           {/* Top Navbar */}
           <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px] pointer-events-auto">

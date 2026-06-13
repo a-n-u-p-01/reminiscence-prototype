@@ -247,7 +247,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   const isAnyModalOpen = !!activeModalType;
 
   return (
-    <div className="w-full max-w-4xl mx-auto pb-20 relative antialiased select-text selection:bg-zinc-800 selection:text-white">
+    <div className="w-full max-w-3xl mx-auto pb-20 relative antialiased select-text selection:bg-zinc-800 selection:text-white">
       
       {/* UNIFIED DYNAMIC CONFIRMATION MODAL OVERLAY */}
       <div className={`fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-md flex flex-col items-center justify-start pt-28 p-6 text-center transition-all duration-200 ${isAnyModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>

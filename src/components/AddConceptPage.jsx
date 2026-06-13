@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Check, Loader2 } from 'lucide-react';
-import { noteService } from '../api/noteService'; 
+import { noteService } from '../api/noteService';
 import { useHomeEngine } from '../context/HomeContext';
+import PageHeader from './PageHeader';
 
 export default function AddConceptPage({ onBack, onSave }) {
   const defaultFormState = {
@@ -88,47 +89,37 @@ export default function AddConceptPage({ onBack, onSave }) {
   const isFormValid = !!form.title.trim();
 
   return (
-    <div className={`max-w-xl lg:max-w-2xl mx-auto text-theme-primary transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] transform will-change-transform
-      ${animateIn 
-        ? 'opacity-100 translate-y-0 scale-100' 
+    <div className={`max-w-3xl mx-auto text-theme-primary transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] transform will-change-transform
+      ${animateIn
+        ? 'opacity-100 translate-y-0 scale-100'
         : 'opacity-0 translate-y-3 scale-[0.99]'
       }`}
     >
       
-      {/* Premium Compact Header */}
-      <div className="flex items-center justify-between pb-4 mb-5 border-b border-zinc-800/60">
-        <div className="flex items-center gap-2.5">
+      {/* Unified Page Header */}
+      <PageHeader
+        onBack={handleAnimatedBack}
+        title="New Concept"
+        subtitle="Anchor a new idea into your review queue."
+        actions={(
           <button
-            type="button"
-            onClick={handleAnimatedBack}
-            disabled={isSaving}
-            className="cursor-pointer text-theme-muted hover:text-theme-primary p-1.5 -ml-1.5 rounded-lg transition-colors active:scale-95 disabled:opacity-40"
+            type="submit"
+            form="concept-form"
+            disabled={isSaving || !isFormValid}
+            className="cursor-pointer bg-blue-500 border border-blue-500 text-white hover:bg-blue-400 hover:border-blue-400 font-semibold text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-theme-card disabled:border-theme disabled:text-theme-secondary disabled:hover:bg-theme-card"
           >
-            <ArrowLeft size={16} />
+            {isSaving ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : (
+              <Check size={12} />
+            )}
+            <span>Add</span>
           </button>
-          <div>
-            <h1 className="text-s4 font-semibold tracking-tight text-theme-primary">New Concept</h1>
-          </div>
-        </div>
-
-        {/* Premium Minimal Outline Button */}
-        <button
-          type="submit"
-          form="concept-form"
-          disabled={isSaving || !isFormValid}
-          className="cursor-pointer bg-theme-card border border-theme text-theme-secondary hover:text-theme-primary hover:bg-theme font-medium text-s2 px-4 py-1.5 rounded-xl transition-all active:scale-[0.96] flex items-center gap-1.5 shadow-sm font-sans tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-theme-card disabled:hover:text-theme-secondary"
-        >
-          {isSaving ? (
-            <Loader2 size={12} className="animate-spin text-theme-accent" />
-          ) : (
-            <Check size={12} className="text-theme-accent" />
-          )}
-          <span>Add</span>
-        </button>
-      </div>
+        )}
+      />
 
       {/* Main Structural Form Layout */}
-      <form id="concept-form" onSubmit={handleSubmit} className="space-y-4">
+      <form id="concept-form" onSubmit={handleSubmit} className="space-y-4 mt-5">
         
         {/* Row 1: Title & Question (Side-by-Side Split) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

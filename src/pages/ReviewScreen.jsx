@@ -5,6 +5,7 @@ import { noteService } from '../api/noteService';
 import { useReviewEngine } from '../context/ReviewContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import CopyButton from '../components/CopyButton';
+import PageHeader from '../components/PageHeader';
 
 export default function ReviewScreen({ onBackToHome }) {
   const {
@@ -272,33 +273,30 @@ export default function ReviewScreen({ onBackToHome }) {
       )}
 
       {/* FIXED CONTAINER: Added w-full */}
-      <div ref={containerRef} className="w-full space-y-6 min-h-[350px] max-w-xl lg:max-w-2xl mx-auto pb-32 text-zinc-800 dark:text-zinc-100 select-none">
+      <div ref={containerRef} className="w-full space-y-6 min-h-[350px] max-w-3xl mx-auto pb-32 text-zinc-800 dark:text-zinc-100 select-none">
         
-        {/* Persistent Header Section */}
-        <div className="relative border-b border-zinc-200 dark:border-zinc-900 pb-4">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-s5 font-semibold tracking-tight text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
-                <Layers size={16} className="text-blue-500 stroke-[2]" />
-                <span className="text-zinc-800 dark:text-zinc-200">Recall Active Engine</span>
-              </h1>
-              <p className="text-s1 text-zinc-400 dark:text-zinc-500 mt-0.5">Active retention tracking loop.</p>
-            </div>
-            <span className="text-s2 font-mono bg-zinc-100 dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 font-medium px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-sm">
+        {/* Unified Page Header */}
+        <PageHeader
+          icon={Layers}
+          title="Recall Active Engine"
+          subtitle="Active retention tracking loop."
+          actions={(
+            <span className="text-s2 font-mono bg-theme-card text-theme-secondary font-medium px-2.5 py-1 rounded-full border border-theme shadow-sm">
               Queue: {loading ? '...' : concepts?.length || 0}
             </span>
-          </div>
+          )}
+        />
 
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-transparent overflow-hidden">
-            {loading && (
-              <motion.div 
-                initial={{ left: "-100%" }}
-                animate={{ left: "100%" }}
-                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-zinc-400 dark:via-zinc-500 to-transparent"
-              />
-            )}
-          </div>
+        {/* Loading shimmer */}
+        <div className="relative h-[2px] -mt-5 overflow-hidden rounded-full">
+          {loading && (
+            <motion.div
+              initial={{ left: '-100%' }}
+              animate={{ left: '100%' }}
+              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+              className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-theme-accent to-transparent"
+            />
+          )}
         </div>
 
         {/* Dynamic Card Container Area */}
@@ -310,10 +308,28 @@ export default function ReviewScreen({ onBackToHome }) {
           </div>
         ) : !concepts || concepts.length === 0 ? (
           initialCheckDone && (
-            <div className="min-h-[260px] flex items-center justify-center">
-              <p className="text-xs font-mono tracking-[0.2em] text-zinc-400 dark:text-zinc-500 uppercase">
-                No Revision Pending
-              </p>
+            <div className="min-h-[280px] flex flex-col items-center justify-center text-center gap-5 px-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-full" />
+                <div className="relative h-16 w-16 rounded-2xl bg-theme-card border border-theme flex items-center justify-center text-emerald-400">
+                  <CheckCircle2 size={28} strokeWidth={1.6} />
+                </div>
+              </div>
+              <div className="space-y-1.5 max-w-[260px]">
+                <p className="text-s2 font-medium text-theme-primary tracking-tight">All caught up</p>
+                <p className="text-s1 text-theme-muted leading-relaxed">
+                  No concepts are due right now. New reviews will surface here exactly when they're ready to decay.
+                </p>
+              </div>
+              {onBackToHome && (
+                <button
+                  onClick={onBackToHome}
+                  className="mt-1 text-s1 font-mono uppercase tracking-widest text-theme-muted hover:text-theme-accent transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-theme bg-theme-card active:scale-[0.98]"
+                >
+                  <span>Back to home</span>
+                  <ArrowRight size={12} />
+                </button>
+              )}
             </div>
           )
         ) : (
@@ -332,7 +348,7 @@ export default function ReviewScreen({ onBackToHome }) {
             >
               {/* FRONT CONTAINER VIEW */}
               <div
-                className="col-start-1 row-start-1 w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-start transition-all duration-300"
+                className="col-start-1 row-start-1 w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-between transition-all duration-300"
                 style={{
                   backfaceVisibility: 'hidden',
                   pointerEvents: showAnswer ? 'none' : 'auto',

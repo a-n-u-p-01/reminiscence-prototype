@@ -3,6 +3,7 @@ import { ArrowUpRight,Calendar, Flame, Layers, Trophy, Activity, ChevronLeft, Ch
 import { useDashboard } from '../context/DashboardContext';
 import { noteService } from '../api/noteService';
 import ConceptsExplorer from '../components/ConceptsExplorer';
+import PageHeader from '../components/PageHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 export default function DashboardScreen() {
   const heatmapScrollContainerRef = useRef(null);
@@ -337,15 +338,14 @@ return (
 }}
   className="w-full"
 >
-     <div className="space-y-6 max-w-2xl lg:max-w-2xl mx-auto pb-12 text-theme-primary mx-auto relative select-none transition-all duration-300 ease-in-out">
+     <div className="space-y-6 max-w-3xl mx-auto pb-12 text-theme-primary relative select-none transition-all duration-300 ease-in-out">
 
-      {/* Visual Header */}
-      <div className="border-b border-theme pb-4">
-        <h1 className="text-s6 font-semibold tracking-tight text-theme-primary flex items-center gap-2">
-          <Activity size={18} className="text-blue-500 shrink-0" />
-          <span>Retention Engine Dashboard</span>
-        </h1>
-      </div>
+      {/* Unified Page Header */}
+      <PageHeader
+        icon={Activity}
+        title="Retention Engine Dashboard"
+        subtitle="Your streaks, mastery and activity at a glance."
+      />
 
      {/* Grid Stats */}
       <div className="grid grid-cols-3 gap-4">
@@ -449,7 +449,7 @@ return (
               }
 
               return (
-                <div className="w-max space-y-1.5">
+                <div className="w-max space-y-1.5 mx-auto">
                   <div className="relative h-4 mb-1">
                     {monthLabels.map(({ index, label }) => (
                       <span
@@ -492,7 +492,7 @@ return (
           </div>
         </div>
 
-        <div className="flex justify-end items-center gap-1.5 pt-1 text-s1 font-mono text-theme-muted select-none">
+        <div className="flex justify-center items-center gap-1.5 pt-1 text-s1 font-mono text-theme-muted select-none">
           <span>Less Logs</span>
           <div className="w-2.5 h-2.5 rounded-[1px] bg-zinc-900/40 border border-zinc-950" />
           <div className="w-2.5 h-2.5 rounded-[1px] bg-blue-950/40 border border-blue-900/30" />
@@ -526,6 +526,8 @@ return (
         <div className="flex justify-between items-center bg-theme p-2 border border-theme rounded-lg">
           <button
             onClick={() => handleStepDate(-1)}
+            aria-label="Previous day"
+            title="Previous day"
             className="p-1 text-theme-secondary hover:text-zinc-200 hover:bg-zinc-900 rounded-md transition-all active:scale-95"
           >
             <ChevronLeft size={16} />
@@ -540,6 +542,8 @@ return (
             onClick={() => handleStepDate(1)}
             style={{ contentVisibility: 'auto' }}
             disabled={selectedDate === todayStr}
+            aria-label="Next day"
+            title="Next day"
             className="p-1 text-theme-secondary hover:text-zinc-200 hover:bg-zinc-900 rounded-md transition-all disabled:opacity-20 disabled:hover:bg-transparent active:scale-95"
           >
             <ChevronRight size={16} />

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { BookOpen, Flame, Plus, Sparkles, Brain, Target, CalendarDays, Edit2, ChevronDown } from 'lucide-react';
 import { useHomeEngine } from '../context/HomeContext';
 import AddConceptPage from '../components/AddConceptPage';
+import PageHeader from '../components/PageHeader';
 
 export default function HomePage({ pendingCount, onNavigateToReview, mainContentRef, onAddConcept }) {
   const {
@@ -203,7 +204,7 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
   }
 
   return (
-    <div className="space-y-6 min-h-[350px] lg:max-w-2xl max-w-xl  mx-auto pb-12 text-theme-primary select-none transition-all duration-300 ease-in-out">
+    <div className="space-y-6 min-h-[350px] max-w-3xl mx-auto pb-12 text-theme-primary select-none transition-all duration-300 ease-in-out">
 
       <style>{`
         @keyframes mini-accent-pulse {
@@ -215,28 +216,24 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
         }
       `}</style>
 
-      {/* Header Blocks */}
-      <div className="border-b border-theme pb-5 flex justify-between items-end gap-4 transition-all duration-300">
-        <div>
-          <h1 className="text-s6 font-semibold tracking-tight text-theme-primary transition-opacity duration-200">
-            {showDashboardMode ? 'Workspace Dashboard' : 'Knowledge Logging'}
-          </h1>
-          <p className="text-s2 text-theme-muted font-sans tracking-wide mt-1 transition-opacity duration-200">
-            {showDashboardMode
-              ? 'Knowledge baseline status update.'
-              : 'Convert natural language daily logs into review anchors.'}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowAddConcept(true)}
-          className="cursor-pointer text-s1 font-mono uppercase tracking-widest text-theme-muted hover:text-theme-accent transition-colors flex items-center gap-1 px-2.5 py-1.5 bg-theme-card border border-theme rounded-lg shrink-0 active:scale-[0.98]"
-        >
-          <Plus size={11} />
-          <span>Concept</span>
-        </button>
-      </div>
+      {/* Unified Page Header */}
+      <PageHeader
+        icon={Brain}
+        title={showDashboardMode ? 'Workspace Dashboard' : 'Knowledge Logging'}
+        subtitle={showDashboardMode
+          ? 'Knowledge baseline status update.'
+          : 'Convert natural language daily logs into review anchors.'}
+        actions={(
+          <button
+            type="button"
+            onClick={() => setShowAddConcept(true)}
+            className="cursor-pointer text-s1 font-mono uppercase tracking-widest text-theme-muted hover:text-theme-accent transition-colors flex items-center gap-1 px-2.5 py-1.5 bg-theme-card border border-theme rounded-lg shrink-0 active:scale-[0.98]"
+          >
+            <Plus size={11} />
+            <span>Concept</span>
+          </button>
+        )}
+      />
 
       {/* Core Dynamic Screen Modes Layout Container */}
       <div className="relative transition-all duration-300 ease-in-out grid grid-cols-1">
@@ -307,6 +304,8 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                     <button
                       type="button"
                       onClick={() => setIsEditing(true)}
+                      aria-label="Edit note"
+                      title="Edit note"
                       className="text-s1 text-theme-secondary hover:text-theme-primary font-medium font-mono flex items-center gap-1 transition-colors px-2 py-0.5 rounded-lg bg-theme border border-theme active:scale-[0.97]"
                     >
                       <Edit2 size={10} />
@@ -334,9 +333,11 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
                 />
 
                 {/* INTERACTIVE FLOATING SCROLL NOTICE BUTTON */}
-                <button 
+                <button
                   type="button"
                   onClick={scrollToBottom}
+                  aria-label="Scroll to bottom of note"
+                  title="Scroll to bottom"
                   className={`absolute bottom-[10px] left-1/2 -translate-x-1/2 flex items-center justify-center bg-zinc-900/95 hover:bg-zinc-800 border border-zinc-800/80 rounded-full p-1.5 shadow-lg transform z-20 transition-all duration-300 ease-out active:scale-90
                     ${hasMoreContentBelow 
                       ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' 

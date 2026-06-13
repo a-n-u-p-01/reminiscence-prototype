@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Terminal, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Terminal, ArrowRight, Eye, EyeOff, ArrowLeft, Brain, Target, TrendingUp } from 'lucide-react';
 import { authService } from '../api/authService';
 import { useAuth } from '../context/AuthContext';
 import { useAppReset } from '../hooks/useAppReset';
@@ -105,8 +105,8 @@ export default function AuthPage({ onAuthSuccess }) {
   };
 
   return (
-    <div className="h-dvh w-full bg-[var(--color-dark-bg)] flex flex-col items-center pt-24 px-6 overflow-hidden transition-colors duration-300">
-      
+    <div className="min-h-dvh h-dvh w-full bg-[var(--color-dark-bg)] flex overflow-hidden transition-colors duration-300">
+
       {/* Autofill CSS Fix */}
       <style>
         {`
@@ -120,11 +120,57 @@ export default function AuthPage({ onAuthSuccess }) {
         `}
       </style>
 
-      <StatusCapsule 
-        message={error ? { text: error, type: 'error' } : null} 
+      <StatusCapsule
+        message={error ? { text: error, type: 'error' } : null}
       />
 
-      <div className="w-full max-w-[320px]">
+      {/* ===== Desktop brand panel (lg+) ===== */}
+      <div className="hidden lg:flex lg:flex-col lg:justify-between lg:w-[46%] xl:w-1/2 relative border-r border-[var(--color-dark-border)] p-12 xl:p-16 overflow-hidden">
+        <div className="pointer-events-none absolute -top-24 -left-24 w-[60%] h-[60%] bg-[var(--color-blue-600)] opacity-[0.07] blur-[120px] rounded-full" />
+        <div className="pointer-events-none absolute -bottom-24 -right-16 w-[50%] h-[50%] bg-[var(--color-blue-500)] opacity-[0.05] blur-[120px] rounded-full" />
+
+        <div className="relative flex items-center gap-2.5">
+          <div className="h-10 w-10 rounded-xl bg-[var(--color-dark-card)] border border-[var(--color-dark-border)] flex items-center justify-center text-[var(--color-blue-400)]">
+            <Brain size={20} strokeWidth={1.7} />
+          </div>
+          <span className="text-[var(--color-zinc-100)] font-semibold text-lg tracking-tight">Reminiscence</span>
+        </div>
+
+        <div className="relative max-w-md">
+          <h2 className="text-4xl xl:text-5xl font-semibold tracking-tight text-[var(--color-zinc-100)] leading-[1.1]">
+            Turn daily notes into lasting memory.
+          </h2>
+          <p className="text-[var(--color-zinc-500)] text-sm leading-relaxed mt-5">
+            A focused spaced-repetition workspace. Log what you learn, and the engine resurfaces it exactly when you're about to forget.
+          </p>
+
+          <div className="mt-10 space-y-5">
+            {[
+              { icon: Brain, title: 'Contextual synthesis', desc: 'Raw thoughts distilled into precise revision anchors.' },
+              { icon: Target, title: 'Active recall loops', desc: 'Reviews trigger only when concepts are ready to decay.' },
+              { icon: TrendingUp, title: 'Retention you can see', desc: 'Streaks, mastery and a 365-day activity matrix.' },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-start gap-3.5">
+                <div className="p-2 rounded-lg bg-[var(--color-dark-card)] border border-[var(--color-dark-border)] text-[var(--color-blue-400)] shrink-0">
+                  <Icon size={15} />
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-[var(--color-zinc-200)]">{title}</div>
+                  <div className="text-xs text-[var(--color-zinc-500)] mt-0.5 leading-normal">{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-zinc-600)]">
+          Engineered for deep retention
+        </div>
+      </div>
+
+      {/* ===== Form side ===== */}
+      <div className="flex-1 min-w-0 flex flex-col items-center justify-start lg:justify-center pt-24 lg:pt-0 px-6 overflow-y-auto">
+      <div className="w-full max-w-[320px] lg:max-w-[360px]">
         
         <div className="flex justify-start mb-10">
           <div className="flex items-center gap-2 bg-[var(--color-dark-card)] px-3 py-1.5 rounded-lg border border-[var(--color-dark-border)]">
@@ -244,6 +290,7 @@ export default function AuthPage({ onAuthSuccess }) {
             </button>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

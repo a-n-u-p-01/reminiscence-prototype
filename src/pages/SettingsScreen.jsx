@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { useAppReset } from '../hooks/useAppReset';
 import { Capacitor, CapacitorCookies } from '@capacitor/core';
+import PageHeader from '../components/PageHeader';
 
 
 // --- Premium Custom Dropdown Component ---
@@ -36,7 +37,7 @@ function CustomSelect({ value, onChange, options, sizeClass, openUpwards = false
         disabled={disabled} // 1. Added disabled attribute
         onClick={() => setIsOpen(!isOpen)}
         // 2. Added opacity styling for visual feedback
-        className={`w-full flex items-center justify-between gap-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 p-2 px-3 rounded-lg text-zinc-200 focus:outline-none focus:border-blue-500/50 transition-all text-left ${sizeClass} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`w-full flex items-center justify-between gap-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 p-2 px-3 rounded-lg text-zinc-200 focus:outline-none focus:border-zinc-600 transition-all text-left ${sizeClass} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <span className="truncate">{displayText}</span>
         {!disabled && <ChevronDown size={14} className={`text-zinc-500 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />}
@@ -175,40 +176,30 @@ export default function SettingsScreen() {
   const activeAlgoInfo = algoMetadata[draftAlgoEngine] || algoMetadata.fsrs;
 
   return (
-    <div className={`text-zinc-100 pb-20 max-w-xl lg:max-w-2xl mx-auto space-y-6 transition-all duration-150 ease-in-out text-s3 animate-[fadeIn_0.2s_ease-out]`}>
+    <div className={`text-zinc-100 pb-20 max-w-3xl mx-auto space-y-6 transition-all duration-150 ease-in-out text-s3 animate-[fadeIn_0.2s_ease-out]`}>
 
-      {/* Structural Header */}
-      <div className="border-b border-zinc-800/60 pb-5 flex items-center justify-between gap-4 min-h-[56px]">
-        <div className="flex items-center gap-2">
-          <Settings size={16} className="text-blue-500 shrink-0" />
-          <h1 className={`font-semibold tracking-tight text-zinc-100 flex items-center text-s4`}>
-            System Settings
-            {isDirty && (
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse ml-2" />
+      {/* Unified Page Header */}
+      <PageHeader
+        icon={Settings}
+        title="System Settings"
+        subtitle="Personalize your workspace."
+        actions={(isDirty || saveStatus !== 'idle') ? (
+          <button
+            onClick={handleSaveSettings}
+            disabled={saveStatus === 'saving'}
+            className="flex items-center justify-center gap-1.5 text-xs font-mono font-bold py-1.5 px-3.5 rounded-lg border transition-all duration-150 active:scale-[0.98] bg-zinc-100 border-zinc-200 text-zinc-950 hover:bg-zinc-200"
+          >
+            {saveStatus === 'saving' ? (
+              <span className="h-3 w-3 border-2 border-zinc-950/30 border-t-zinc-950 rounded-full animate-spin" />
+            ) : saveStatus === 'saved' ? (
+              <Check size={12} className="stroke-[3]" />
+            ) : (
+              <Save size={12} />
             )}
-          </h1>
-        </div>
-
-        {/* Action Button */}
-        <div className="shrink-0">
-          {(isDirty || saveStatus !== 'idle') && (
-            <button
-              onClick={handleSaveSettings}
-              disabled={saveStatus === 'saving'}
-              className="flex items-center justify-center gap-1.5 text-xs font-mono font-bold py-1.5 px-3.5 rounded-lg border transition-all duration-150 active:scale-[0.98] bg-zinc-100 border-zinc-200 text-zinc-950 hover:bg-zinc-200"
-            >
-              {saveStatus === 'saving' ? (
-                <span className="h-3 w-3 border-2 border-zinc-950/30 border-t-zinc-950 rounded-full animate-spin" />
-              ) : saveStatus === 'saved' ? (
-                <Check size={12} className="stroke-[3]" />
-              ) : (
-                <Save size={12} />
-              )}
-              <span>{saveStatus === 'saving' ? 'SAVING' : saveStatus === 'saved' ? 'SAVED' : 'SAVE'}</span>
-            </button>
-          )}
-        </div>
-      </div>
+            <span>{saveStatus === 'saving' ? 'SAVING' : saveStatus === 'saved' ? 'SAVED' : 'SAVE'}</span>
+          </button>
+        ) : null}
+      />
 
       {/* Account Identity Component */}
       <div className="bg-zinc-900/20 border border-zinc-800/60 rounded-xl p-4 flex items-center justify-between gap-4">
@@ -436,12 +427,12 @@ export default function SettingsScreen() {
         {/* Minimal Footer Link */}
         <div className="pt-4 px-1 flex justify-center">
           <a 
-            href="https://drive.google.com/drive/folders/1mI_t7jWKKQYe87ivAm-ouAkX1FkbMJlW?usp=drive_link" 
+                        href="https://drive.google.com/drive/folders/1mI_t7jWKKQYe87ivAm-ouAkX1FkbMJlW?usp=drive_link" 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-zinc-500 hover:text-blue-400 transition-colors text-s2 font-medium"
           >
-            <span>Download for Android</span>
+                       <span>Download for Android</span>
             <ExternalLink size={12} strokeWidth={2.5} />
           </a>
         </div>

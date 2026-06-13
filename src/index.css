@@ -345,3 +345,106 @@ main {
 .premium-modal-enter {
   animation: modalContentPopUp 0.35s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
 }
+
+/* =========================
+   GENERIC FADE (used by Settings / dropdowns)
+========================= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   FOCUS — PREMIUM / MINIMAL
+   - Nothing ever gets the default browser outline.
+   - Text fields (input / textarea / select / contenteditable) show NO ring at
+     all on click or focus; they signal focus only through their own border /
+     background, which each component already styles tastefully.
+   - Real controls (buttons / links) get a soft, refined ring ONLY when reached
+     by keyboard (:focus-visible never matches a mouse click on a button), so
+     pointer users see a perfectly clean UI while keyboard users stay oriented.
+========================= */
+* {
+  outline: none;
+}
+*:focus,
+*:focus-visible {
+  outline: none;
+}
+
+/* Text inputs: never any focus ring/outline — clean and minimal. */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+[contenteditable]:focus,
+[contenteditable]:focus-visible {
+  outline: none !important;
+  box-shadow: none;
+}
+
+/* Keyboard-only ring for actionable controls — soft, with a background gap. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-dark-bg),
+              0 0 0 3px color-mix(in srgb, var(--color-blue-500) 45%, transparent);
+  border-radius: 10px;
+}
+
+/* Premium text-selection + caret color, theme-aware. */
+::selection {
+  background: color-mix(in srgb, var(--color-blue-500) 28%, transparent);
+  color: var(--color-zinc-100);
+}
+input,
+textarea,
+[contenteditable] {
+  caret-color: var(--color-blue-500, #3b82f6);
+}
+
+/* =========================
+   DESKTOP SCROLLBARS
+   Mobile/Android stay scrollbar-free (handled above). On pointer-precise
+   desktops we re-enable a slim, themed scrollbar so long pages feel native.
+========================= */
+@media (pointer: fine) and (min-width: 1024px) {
+  main {
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--color-dark-border) transparent !important;
+  }
+  main::-webkit-scrollbar {
+    display: block !important;
+    width: 8px !important;
+    height: 8px !important;
+    background: transparent !important;
+  }
+  main::-webkit-scrollbar-thumb {
+    background: var(--color-dark-border) !important;
+    border-radius: 99px !important;
+    border: 2px solid transparent !important;
+    background-clip: padding-box !important;
+  }
+  main::-webkit-scrollbar-thumb:hover {
+    background: var(--color-zinc-600, #52525b) !important;
+    background-clip: padding-box !important;
+  }
+}
+
+/* =========================
+   MOTION SAFETY
+========================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
