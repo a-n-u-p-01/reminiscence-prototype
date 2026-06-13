@@ -79,7 +79,8 @@ export default function HomePage({ pendingCount, onNavigateToReview, mainContent
     handleSaveNote(requestBody);
   };
 
-  const showDashboardMode = pendingCount > 0 && !forceShowInput;
+  // const showDashboardMode = pendingCount > 0 && !forceShowInput;
+  const showDashboardMode = false;
   const isInputDisabled = loading || isInitialFetching || !isEditing;
 
   const handleKeyDown = (e) => {

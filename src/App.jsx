@@ -176,7 +176,7 @@ export default function App() {
   // -----------------------------------------------------------------
   // INITIALIZE PUSH SUB-ENGINE ON STARTUP
   // -----------------------------------------------------------------
-  usePushNotifications(user?.id, isAuthenticated, navigateTo);
+  usePushNotifications(isAuthenticated, navigateTo);
 
   useEffect(() => {
     async function initOnboardingCheck() {
