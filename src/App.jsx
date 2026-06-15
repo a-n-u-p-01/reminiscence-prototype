@@ -78,7 +78,7 @@ function usePullToRefresh(
       setPullDistance(damped);
 
       if (damped > THRESHOLD) {
-        setPullMessage('Release to refresh');
+        setPullMessage('');
       } else if (damped > 18) {
         setPullMessage('Pull to refresh');
       } else {
