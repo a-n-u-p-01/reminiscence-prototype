@@ -118,18 +118,43 @@ export default function ReviewScreen({ onBackToHome }) {
     }, 250);
   };
 
-  const renderKeyNotes = (notes) => {
-    if (!notes) return null;
-    const points = Array.isArray(notes) 
-      ? notes 
-      : notes.split('\n').filter(p => p.trim() !== '');
+  // const renderKeyNotes = (notes) => {
+  //   if (!notes) return null;
+  //   const points = Array.isArray(notes) 
+  //     ? notes 
+  //     : notes.split('\n').filter(p => p.trim() !== '');
+
+  //   return (
+  //     <ul className="space-y-2">
+  //       {points.map((point, index) => (
+  //         <li key={index} className="flex gap-2 text-s3 text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans items-start">
+  //           <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-600 mt-2 shrink-0" />
+  //           <span>{point.replace(/^[•\-\d.\s]+/, '')}</span>
+  //         </li>
+  //       ))}
+  //     </ul>
+  //   );
+  // };
+
+   const renderKeyNotes = (notes) => {
+    if (!notes) return <div className="text-s2 font-mono text-zinc-600 tracking-wide pt-1">No modular segments mapped.</div>;
+
+    const cleanedText = notes
+      .replace(/\r\n/g, ' ')
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const points = cleanedText
+      .split(/(?<=\.)\s+(?=[A-Z])/)
+      .filter(Boolean);
 
     return (
-      <ul className="space-y-2">
+      <ul className="space-y-2.5 pt-1">
         {points.map((point, index) => (
-          <li key={index} className="flex gap-2 text-s3 text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans items-start">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-600 mt-2 shrink-0" />
-            <span>{point.replace(/^[•\-\d.\s]+/, '')}</span>
+          <li key={index} className="text-s3 text-zinc-400 leading-relaxed flex items-start gap-2">
+            <span className="text-zinc-600 font-mono mt-0.5 select-none">▪</span>
+            <span>{point.trim()}</span>
           </li>
         ))}
       </ul>
