@@ -31,10 +31,11 @@ function usePullToRefresh(
   onRefresh,
   pullDistance,
   setPullDistance,
-  setPullMessage
+  setPullMessage,
+  isRefreshing,
+  setIsRefreshing,
+  setShowAfterRefresh
 ) {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
   const startY = useRef(0);
   const isPulling = useRef(false);
   const currentDistanceRef = useRef(0);
@@ -102,9 +103,12 @@ function usePullToRefresh(
         } catch (error) {
           console.error(error);
         } finally {
+          setIsRefreshing(false);
+          // Show "Pull to refresh" after refresh completes
+          setShowAfterRefresh(true);
           setTimeout(() => {
-            setIsRefreshing(false);
-          }, 150);
+            setShowAfterRefresh(false);
+          }, 800);
         }
       } else {
         setPullDistance(0);
@@ -121,7 +125,7 @@ function usePullToRefresh(
       el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('touchend', onTouchEnd);
     };
-  }, [scrollRef, onRefresh, isRefreshing, setPullDistance, setPullMessage]);
+  }, [scrollRef, onRefresh, isRefreshing, setIsRefreshing, setPullDistance, setPullMessage, setShowAfterRefresh]);
 
   return isRefreshing;
 }
@@ -129,9 +133,15 @@ function usePullToRefresh(
 export default function App() {
   const { isAuthenticated, isDisconnecting, loading, user } = useAuth();
   const mainContentRef = useRef(null);
+  const dashboardRef = useRef(null);
+  const revisionRef = useRef(null);
+  const settingsRef = useRef(null);
+
   const clearAppContext = useAppReset();
   const [pullDistance, setPullDistance] = useState(0);
   const [pullMessage, setPullMessage] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showAfterRefresh, setShowAfterRefresh] = useState(false);
   const [latestVersion, setlatestVersion] = useState('');
 
   const [showWelcome, setShowWelcome] = useState(false);
@@ -140,13 +150,12 @@ export default function App() {
   const {
     globalCount,
     isCountLoaded,
-    isManualRefreshing,
     handleSyncData,
     lazyLoadRevisionQueue
   } = useReviewEngine();
 
   const { refreshDashboard, metrics } = useDashboard();
-  const { refreshHomeNote, statusMessage, setStatusMessage, setIsPullToRefresh } = useHomeEngine();
+  const { refreshHomeNote, statusMessage, setStatusMessage } = useHomeEngine();
 
   const [currentTab, setCurrentTab] = useState(() => {
     const hash = window.location.hash.replace('#', '');
@@ -325,16 +334,12 @@ export default function App() {
     fetchLatesAppVersion();
   }, []);
 
-  const dashboardRef = useRef(null);
-  const revisionRef = useRef(null);
-  const settingsRef = useRef(null);
+  usePullToRefresh(mainContentRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing, setShowAfterRefresh);
+  usePullToRefresh(dashboardRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing, setShowAfterRefresh);
+  usePullToRefresh(revisionRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing, setShowAfterRefresh);
+  usePullToRefresh(settingsRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing, setShowAfterRefresh);
 
-  const isHomeRefreshing = usePullToRefresh(mainContentRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage);
-  const isDashRefreshing = usePullToRefresh(dashboardRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage);
-  const isRevRefreshing = usePullToRefresh(revisionRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage);
-  const isSetRefreshing = usePullToRefresh(settingsRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage);
-
-  const isAnyRefreshing = isHomeRefreshing || isDashRefreshing || isRevRefreshing || isSetRefreshing;
+  const isAnyRefreshing = isRefreshing;
 
   if (loading) {
     return (
@@ -379,15 +384,15 @@ export default function App() {
     );
   }
 
-  const activeMessage = statusMessage || (isManualRefreshing ? "Syncing" : null);
-  const activeType = statusMessage ? (statusMessage.type || 'success') : 'sync';
+  const activeMessage = statusMessage?.text || null;
+  const activeType = statusMessage?.type || 'success';
   const activeTabOffsetIndex = TAB_SEQUENCE.indexOf(currentTab);
 
   const dynamicSlideTransformStyle = isDesktop
     ? { transform: 'none', transition: 'none', contain: 'layout style' }
     : {
-        transform: `translateY(${pullDistance}px) translateX(-${activeTabOffsetIndex * 25}%)`,
-        transition: pullDistance === 0 ? 'transform 330ms cubic-bezier(0.19, 1, 0.22, 1), filter 250ms ease' : 'none',
+        transform: `translateX(-${activeTabOffsetIndex * 25}%)`,
+        transition: 'transform 330ms cubic-bezier(0.19, 1, 0.22, 1), filter 250ms ease',
         filter: isAnyRefreshing ? 'blur(0.5px) saturate(0.98)' : 'blur(0px) saturate(1)',
         contain: 'layout style'
       };
@@ -395,6 +400,9 @@ export default function App() {
   if (latestVersion && String(latestVersion).trim() !== String(localVersion).trim()) {
     return <VersionGuard localVersion={localVersion} latestVersion={latestVersion} />;
   }
+
+  // Show indicator when pulling, refreshing, or after refresh
+  const showIndicator = pullDistance > 3 || isRefreshing || showAfterRefresh;
 
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
@@ -404,36 +412,42 @@ export default function App() {
         className="fixed top-0 left-0 right-0 bg-theme z-[90] w-full md:hidden"
       />
 
-      <style>{`
-        .refresh-lock-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 999;
-          pointer-events: none;
-          backdrop-filter: blur(1.5px) saturate(70%);
-          -webkit-backdrop-filter: blur(1.5px) saturate(70%);
-          background: color-mix(in srgb, var(--theme-bg, #000) 8%, transparent);
-          animation: refreshOverlayIn 180ms ease;
-        }
-        .refresh-lock-overlay::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
-          background-size: 3px 3px;
-          opacity: 0.4;
-        }
-        .ptr-element { display: none !important; }
-        .pull-to-refresh-material { overflow: visible !important; height: auto !important; min-height: 100% !important; }
-        .pull-to-refresh-material__control { z-index: 100 !important; top: 32px !important; }
-      `}</style>
-
       <StatusCapsule
         message={activeMessage}
         type={activeType}
       />
 
-      {/* Left sidebar – restored to w-64 */}
+     <div
+  className="fixed top-0 left-0 right-0 z-30 flex flex-col items-center justify-start pointer-events-none transition-all duration-300 ease-out"
+  style={{
+    opacity: showIndicator ? 1 : 0,
+    transform: `translateY(${Math.min(pullDistance * 0.3, 20)}px)`,
+  }}
+>
+  <div className="mt-2 flex items-center gap-2.5 px-4 py-2 rounded-xl bg-theme-card shadow-sm shadow-black/10">
+    {isRefreshing && (
+      <div className="relative w-4 h-4">
+        <svg
+          className="w-4 h-4 text-theme-muted animate-spin"
+          style={{ animationDuration: '0.6s' }}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+      </div>
+    )}
+    <span className="text-[10px] font-mono text-theme-muted tracking-wider select-none transition-opacity duration-200">
+      {isRefreshing ? 'Refreshing…' : 'Pull to refresh'}
+    </span>
+  </div>
+</div>
+
+      {/* Left sidebar */}
       <aside className="hidden lg:flex lg:flex-col w-64 shrink-0 h-full border-r border-theme bg-theme-card px-4 py-6 gap-1.5">
         <div className="flex items-center gap-2.5 px-2 pb-6 mb-2 border-b border-theme">
           <div className="h-9 w-9 rounded-xl bg-theme border border-theme flex items-center justify-center text-theme-accent shrink-0">
@@ -458,25 +472,11 @@ export default function App() {
         </div>
       </aside>
 
-      {/* Middle content – expands with flex-1 */}
+      {/* Middle content */}
       <div
         className="flex-1 min-w-0 overflow-hidden relative h-full w-full"
         style={{ touchAction: 'pan-y' }}
       >
-        <div
-          className="absolute top-0 left-0 right-0 z-20 flex justify-center pointer-events-none"
-          style={{
-            transform: `translateY(${Math.min(pullDistance * 0.3, 12)}px)`,
-            transition: isAnyRefreshing ? 'transform 0.2s ease' : 'none'
-          }}
-        >
-          {pullMessage && (
-            <div className="mt-2 text-[10px] font-medium tracking-wide text-theme-muted transition-opacity duration-150">
-              {pullMessage}
-            </div>
-          )}
-        </div>
-
         <div
           style={{
             ...dynamicSlideTransformStyle,
@@ -518,7 +518,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Right rail – fixed width w-64 */}
+      {/* Right rail */}
       <aside className="hidden xl:flex xl:flex-col w-64 shrink-0 h-full overflow-y-auto border-l border-theme px-6 py-10">
         <StudyRail
           dueCount={globalCount}
@@ -580,10 +580,6 @@ export default function App() {
           label="Settings"
         />
       </nav>
-
-      {isAnyRefreshing && (
-        <div className="refresh-lock-overlay" />
-      )}
 
       {showWelcome && (
         <WelcomeSheet onComplete={handleWelcomeComplete} />
