@@ -118,25 +118,7 @@ export default function ReviewScreen({ onBackToHome }) {
     }, 250);
   };
 
-  // const renderKeyNotes = (notes) => {
-  //   if (!notes) return null;
-  //   const points = Array.isArray(notes) 
-  //     ? notes 
-  //     : notes.split('\n').filter(p => p.trim() !== '');
-
-  //   return (
-  //     <ul className="space-y-2">
-  //       {points.map((point, index) => (
-  //         <li key={index} className="flex gap-2 text-s3 text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans items-start">
-  //           <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-600 mt-2 shrink-0" />
-  //           <span>{point.replace(/^[•\-\d.\s]+/, '')}</span>
-  //         </li>
-  //       ))}
-  //     </ul>
-  //   );
-  // };
-
-   const renderKeyNotes = (notes) => {
+  const renderKeyNotes = (notes) => {
     if (!notes) return <div className="text-s2 font-mono text-zinc-600 tracking-wide pt-1">No modular segments mapped.</div>;
 
     const cleanedText = notes
@@ -297,10 +279,8 @@ export default function ReviewScreen({ onBackToHome }) {
         document.body
       )}
 
-      {/* FIXED CONTAINER: Added w-full */}
       <div ref={containerRef} className="w-full space-y-6 min-h-[350px] max-w-3xl mx-auto pb-32 text-zinc-800 dark:text-zinc-100 select-none">
         
-        {/* Unified Page Header */}
         <PageHeader
           icon={Layers}
           title="Recall Active Engine"
@@ -312,7 +292,6 @@ export default function ReviewScreen({ onBackToHome }) {
           )}
         />
 
-        {/* Loading shimmer */}
         <div className="relative h-[2px] -mt-5 overflow-hidden rounded-full">
           {loading && (
             <motion.div
@@ -324,7 +303,6 @@ export default function ReviewScreen({ onBackToHome }) {
           )}
         </div>
 
-        {/* Dynamic Card Container Area */}
         {loading ? (
           <div className="min-h-[260px] flex items-center justify-center">
             <p className="text-xs font-mono tracking-[0.2em] text-zinc-400 dark:text-zinc-500 uppercase animate-pulse">
@@ -362,7 +340,6 @@ export default function ReviewScreen({ onBackToHome }) {
             className={`w-full transition-all duration-300 ${isExiting ? 'opacity-0 scale-98 blur-[1px]' : 'opacity-100 scale-100'}`}
             style={{ perspective: '1200px' }}
           >
-            {/* FIXED 3D ROOT: Changed from relative to absolute/grid stack engine */}
             <div
               key={activeCard?.userConceptId}
               className="grid grid-cols-1 grid-rows-1 w-full transition-transform duration-500"
@@ -371,44 +348,44 @@ export default function ReviewScreen({ onBackToHome }) {
                 transformStyle: 'preserve-3d',
               }}
             >
-              {/* FRONT CONTAINER VIEW */}
+              {/* FRONT CONTAINER – balanced spacing */}
               <div
-                className="col-start-1 row-start-1 w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-between transition-all duration-300"
+                className="col-start-1 row-start-1 w-full bg-theme-card border border-theme rounded-xl p-5 flex flex-col justify-between transition-all duration-300"
                 style={{
                   backfaceVisibility: 'hidden',
                   pointerEvents: showAnswer ? 'none' : 'auto',
                   visibility: showAnswer ? 'hidden' : 'visible'
                 }}
               >
-                <div className="flex justify-between items-center pb-4 border-b border-zinc-900/60 mb-6">
+                <div className="flex justify-between items-center pb-2.5 border-b border-theme mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                    <span className="text-[10px] font-medium tracking-[0.25em] font-mono text-zinc-500 uppercase block">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400/70" />
+                    <span className="text-[10px] font-medium tracking-[0.15em] font-mono text-theme-muted uppercase">
                       Active Inquiry
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowFSRSModal(true)}
-                    className="text-zinc-600 hover:text-zinc-300 p-1 rounded transition-colors duration-200"
+                    className="text-theme-muted hover:text-theme-primary p-1 rounded-lg transition-colors duration-200 hover:bg-theme/20 active:scale-90"
                     aria-label="Open Recall Evaluation Guide"
                   >
-                    <HelpCircle size={13} className="stroke-[2]" />
+                    <HelpCircle size={14} className="stroke-[1.8]" />
                   </button>
                 </div>
 
-                <div className="py-4 min-h-[120px] flex items-start">
-                  <p className="text-sm text-zinc-200 leading-relaxed font-light tracking-wide w-full font-sans">
-                    {activeCard?.questionText}
+                <div className="py-1.5 flex items-start pl-3 border-l-2 border-blue-400/30">
+                  <p className="text-[15px] text-theme-primary leading-relaxed font-medium tracking-wide w-full font-sans">
+                    {activeCard?.questionText || "No question available"}
                   </p>
                 </div>
 
-                <div className="pt-6 border-t border-zinc-900/60 mt-6 space-y-4">
+                <div className="pt-2.5 border-t border-theme mt-1.5 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-medium font-mono text-zinc-600 uppercase tracking-widest block">
+                    <span className="text-[10px] font-medium font-mono text-theme-muted uppercase tracking-widest">
                       Evaluate Performance
                     </span>
-                    <span className="text-[9px] font-mono text-zinc-500 tracking-wider bg-zinc-900/40 px-2 py-0.5 rounded border border-zinc-900">
+                    <span className="text-[9px] font-mono text-theme-muted/60 tracking-wider bg-theme/30 px-2.5 py-0.5 rounded-full border border-theme">
                       FSRS v5.1
                     </span>
                   </div>
@@ -417,57 +394,53 @@ export default function ReviewScreen({ onBackToHome }) {
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('FORGOT', e)}
-                      className="cursor-pointer group bg-zinc-900/20 hover:bg-red-950/10 border border-zinc-900 hover:border-red-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+                      className="cursor-pointer group relative bg-theme/20 hover:bg-red-950/30 border border-theme hover:border-red-700/50 py-2.5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all duration-200 active:scale-[0.95] disabled:opacity-30"
                     >
-                      <ShieldAlert size={12} className="text-zinc-600 group-hover:text-red-500/80 transition-colors" />
-                      <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Forget</span>
-                      <span className="text-[9px] font-mono text-red-500/60 group-hover:text-red-400/90 transition-colors tracking-wider uppercase font-medium">
-                        Reset
-                      </span>
+                      <ShieldAlert size={14} className="text-theme-muted group-hover:text-red-400 group-hover:scale-110 transition-all duration-200" />
+                      <span className="text-[10px] font-medium text-theme-secondary group-hover:text-theme-primary transition-colors tracking-wide">Forget</span>
+                      <span className="text-[7px] font-mono text-red-500/50 group-hover:text-red-400/90 transition-colors tracking-widest uppercase">Reset</span>
+                      <span className="absolute inset-0 rounded-xl border border-red-400/0 group-hover:border-red-400/20 transition-all duration-300" />
                     </button>
 
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('PARTIAL', e)}
-                      className="cursor-pointer group bg-zinc-900/20 hover:bg-orange-950/10 border border-zinc-900 hover:border-orange-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+                      className="cursor-pointer group relative bg-theme/20 hover:bg-orange-950/30 border border-theme hover:border-orange-700/50 py-2.5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all duration-200 active:scale-[0.95] disabled:opacity-30"
                     >
-                      <Frown size={12} className="text-zinc-600 group-hover:text-orange-500/80 transition-colors" />
-                      <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Partial</span>
-                      <span className="text-[9px] font-mono text-orange-500/60 group-hover:text-orange-400/90 transition-colors tracking-wider uppercase font-medium">
-                        Short
-                      </span>
+                      <Frown size={14} className="text-theme-muted group-hover:text-orange-400 group-hover:scale-110 transition-all duration-200" />
+                      <span className="text-[10px] font-medium text-theme-secondary group-hover:text-theme-primary transition-colors tracking-wide">Partial</span>
+                      <span className="text-[7px] font-mono text-orange-500/50 group-hover:text-orange-400/90 transition-colors tracking-widest uppercase">Short</span>
+                      <span className="absolute inset-0 rounded-xl border border-orange-400/0 group-hover:border-orange-400/20 transition-all duration-300" />
                     </button>
 
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('RECALLED', e)}
-                      className="cursor-pointer group bg-zinc-900/20 hover:bg-blue-950/10 border border-zinc-900 hover:border-blue-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+                      className="cursor-pointer group relative bg-theme/20 hover:bg-blue-950/30 border border-theme hover:border-blue-700/50 py-2.5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all duration-200 active:scale-[0.95] disabled:opacity-30"
                     >
-                      <Smile size={12} className="text-zinc-600 group-hover:text-blue-500/80 transition-colors" />
-                      <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Recall</span>
-                      <span className="text-[9px] font-mono text-blue-500/60 group-hover:text-blue-400/90 transition-colors tracking-wider uppercase font-medium">
-                        Norm
-                      </span>
+                      <Smile size={14} className="text-theme-muted group-hover:text-blue-400 group-hover:scale-110 transition-all duration-200" />
+                      <span className="text-[10px] font-medium text-theme-secondary group-hover:text-theme-primary transition-colors tracking-wide">Recall</span>
+                      <span className="text-[7px] font-mono text-blue-500/50 group-hover:text-blue-400/90 transition-colors tracking-widest uppercase">Norm</span>
+                      <span className="absolute inset-0 rounded-xl border border-blue-400/0 group-hover:border-blue-400/20 transition-all duration-300" />
                     </button>
 
                     <button
                       disabled={submittingRating || isExiting}
                       onClick={(e) => handleRateCard('FLUENT', e)}
-                      className="cursor-pointer group bg-zinc-900/20 hover:bg-emerald-950/10 border border-zinc-900 hover:border-emerald-900/40 py-3.5 rounded-lg flex flex-col items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.96] disabled:opacity-20"
+                      className="cursor-pointer group relative bg-theme/20 hover:bg-emerald-950/30 border border-theme hover:border-emerald-700/50 py-2.5 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all duration-200 active:scale-[0.95] disabled:opacity-30"
                     >
-                      <CheckCircle2 size={12} className="text-zinc-600 group-hover:text-emerald-500/80 transition-colors" />
-                      <span className="text-[11px] font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors tracking-wide">Fluent</span>
-                      <span className="text-[9px] font-mono text-emerald-500/60 group-hover:text-emerald-400/90 transition-colors tracking-wider uppercase font-medium">
-                        Skip
-                      </span>
+                      <CheckCircle2 size={14} className="text-theme-muted group-hover:text-emerald-400 group-hover:scale-110 transition-all duration-200" />
+                      <span className="text-[10px] font-medium text-theme-secondary group-hover:text-theme-primary transition-colors tracking-wide">Fluent</span>
+                      <span className="text-[7px] font-mono text-emerald-500/50 group-hover:text-emerald-400/90 transition-colors tracking-widest uppercase">Skip</span>
+                      <span className="absolute inset-0 rounded-xl border border-emerald-400/0 group-hover:border-emerald-400/20 transition-all duration-300" />
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* BACK CONTAINER VIEW */}
+              {/* BACK CONTAINER – unchanged */}
               <div
-                className="col-start-1 row-start-1 w-full bg-zinc-950 border border-zinc-900 rounded-xl p-6 flex flex-col justify-between transition-all duration-300"
+                className="col-start-1 row-start-1 w-full bg-theme-card border border-theme rounded-xl p-6 flex flex-col justify-between transition-all duration-300"
                 style={{
                   transform: 'rotateY(180deg)',
                   backfaceVisibility: 'hidden',
@@ -475,46 +448,46 @@ export default function ReviewScreen({ onBackToHome }) {
                   visibility: showAnswer ? 'visible' : 'hidden'
                 }}
               >
-                <div className="space-y-6 flex-1">
-                  <div className="flex justify-between items-center pb-4 border-b border-zinc-900/60">
-                    <div className="flex items-center gap-2">
-                      {/* <span className="w-1 h-1 rounded-full bg-blue-500/80" /> */}
-                        <span className="text-[10px] font-medium tracking-[0.25em] font-mono text-zinc-500 uppercase block">
-                        {activeCard?.name}
+                <div className="space-y-5 flex-1">
+                  <div className="flex justify-between items-center pb-4 border-b border-theme">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/70" />
+                      <span className="text-[10px] font-medium tracking-[0.25em] font-mono text-theme-muted uppercase">
+                        {activeCard?.name || 'Concept'}
                       </span>
-                      <CopyButton text={activeCard?.name}/>
                     </div>
-                  
+                    <CopyButton text={activeCard?.name} className="text-theme-muted hover:text-theme-primary p-1.5 rounded-lg transition-colors duration-200 hover:bg-theme/20 active:scale-90" />
                   </div>
 
-                  <div className="py-2 min-h-[120px] flex items-start">
-                    <p className="text-sm text-zinc-200 leading-relaxed font-light tracking-wide whitespace-pre-wrap font-sans w-full">
+                  <div className="py-3 min-h-[120px] flex items-start">
+                    <p className="text-[15px] text-theme-primary leading-relaxed font-light tracking-wide whitespace-pre-wrap font-sans w-full">
                       {activeCard?.answerText}
                     </p>
                   </div>
 
                   {activeCard?.keyNotes && (
-                    <div className="pt-4 border-t border-zinc-900/60">
+                    <div className="pt-4 border-t border-theme">
                       <button
                         type="button"
                         onClick={() => setShowNotes(!showNotes)}
                         className="w-full flex items-center justify-between py-2 group focus:outline-none"
                       >
-                        <span className="text-[10px] font-medium tracking-[0.15em] font-mono text-zinc-500 group-hover:text-zinc-300 uppercase block text-left transition-colors">
+                        <span className="text-[10px] font-medium tracking-[0.15em] font-mono text-theme-muted group-hover:text-theme-primary uppercase transition-colors">
                           Key Insights
                         </span>
-                        <ChevronDown 
-                          size={13} 
-                          className={`text-zinc-600 group-hover:text-zinc-400 transition-transform duration-300 ease-[0.22,1,0.36,1] ${showNotes ? 'rotate-180 text-zinc-400' : ''}`} 
+                        <ChevronDown
+                          size={14}
+                          className={`text-theme-muted group-hover:text-theme-primary transition-transform duration-300 ease-[0.22,1,0.36,1] ${
+                            showNotes ? 'rotate-180' : ''
+                          }`}
                         />
                       </button>
-                      
-                      <div 
+                      <div
                         className={`transition-all duration-300 ease-[0.22,1,0.36,1] overflow-hidden ${
                           showNotes ? 'max-h-[1000px] opacity-100 mt-2' : 'max-h-0 opacity-0'
                         }`}
                       >
-                        <div className="text-xs text-zinc-400 font-sans tracking-wide leading-relaxed w-full pt-1">
+                        <div className="text-xs text-theme-secondary font-sans tracking-wide leading-relaxed w-full pt-1">
                           {renderKeyNotes(activeCard.keyNotes)}
                         </div>
                       </div>
@@ -522,17 +495,16 @@ export default function ReviewScreen({ onBackToHome }) {
                   )}
                 </div>
 
-                <div className="pt-6 border-t border-zinc-900/60 mt-8 w-full">
+                <div className="pt-5 border-t border-theme mt-6 w-full">
                   <button
                     onClick={handleNextCard}
-                    className="group w-full bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-900 text-zinc-400 hover:text-zinc-100 font-medium text-xs py-3.5 rounded-lg transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 tracking-wide"
+                    className="group w-full bg-theme/20 hover:bg-theme/40 border border-theme text-theme-secondary hover:text-theme-primary font-medium text-xs py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 tracking-wide"
                   >
                     <span>Next Concept Card</span>
-                    <ArrowRight size={13} className="text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all duration-200" />
+                    <ArrowRight size={14} className="text-theme-muted group-hover:text-theme-primary group-hover:translate-x-0.5 transition-all duration-200" />
                   </button>
                 </div>
               </div>
-
             </div>
           </div>
         )}

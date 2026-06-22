@@ -21,7 +21,7 @@ import WelcomeSheet from './components/WelcomeSheet';
 import VersionGuard from './components/VersionGuard';
 import StudyRail from './components/StudyRail';
 import { authService } from './api/authService';
-import { usePushNotifications } from './hooks/pushNotificationService'; // <-- LINKED STANDALONE HOOK
+import { usePushNotifications } from './hooks/pushNotificationService';
 import pkg from '../package.json';
 
 const TAB_SEQUENCE = ['home', 'dashboard', 'revision', 'settings'];
@@ -127,7 +127,6 @@ function usePullToRefresh(
 }
 
 export default function App() {
-  // Destructured 'user' explicitly out of your global application context layer
   const { isAuthenticated, isDisconnecting, loading, user } = useAuth();
   const mainContentRef = useRef(null);
   const clearAppContext = useAppReset();
@@ -157,10 +156,6 @@ export default function App() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [backPressExitFlag, setBackPressExitFlag] = useState(false);
 
-  // -----------------------------------------------------------------
-  // RESPONSIVE LAYOUT: detect desktop (lg+) to swap the mobile slide
-  // track for a sidebar-driven layout. Mobile/tablet stay untouched.
-  // -----------------------------------------------------------------
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
   );
@@ -173,9 +168,6 @@ export default function App() {
     return () => mq.removeEventListener('change', handleChange);
   }, []);
 
-  // -----------------------------------------------------------------
-  // INITIALIZE PUSH SUB-ENGINE ON STARTUP
-  // -----------------------------------------------------------------
   usePushNotifications(isAuthenticated, navigateTo);
 
   useEffect(() => {
@@ -209,9 +201,6 @@ export default function App() {
 
     const setupBackButtonLogic = async () => {
       const backListener = await CapacitorApp.addListener('backButton', () => {
-        // If we're anywhere above the root entry (a deeper tab, a concept
-        // sub-view, etc.), retrace the real history stack. hashchange then
-        // re-syncs the active tab / sub-view automatically.
         const atRoot = !!(window.history.state && window.history.state.rmRoot);
 
         if (!atRoot) {
@@ -219,7 +208,6 @@ export default function App() {
           return;
         }
 
-        // At the home root → confirm exit with a second press.
         if (backPressExitFlag) {
           CapacitorApp.exitApp();
         } else {
@@ -264,10 +252,6 @@ export default function App() {
   }, []);
 
   function navigateTo(tab) {
-    // Push a REAL history entry (instead of replaceState) so the browser's
-    // back/forward buttons on desktop and the hardware back button on Android
-    // both retrace tab navigation properly. Assigning location.hash pushes an
-    // entry and fires 'hashchange', which our router listener picks up below.
     if (window.location.hash !== `#${tab}`) {
       window.location.hash = tab;
     }
@@ -279,15 +263,11 @@ export default function App() {
     window.scrollTo(0, 0);
   }
 
-  // Normalize the very first history entry and stamp it as the app "root".
-  // Every later navigateTo() pushes a fresh (stateless) entry on top, so when
-  // back navigation returns here, history.state.rmRoot tells us we're at the
-  // base of the stack and the Android handler can offer exit instead of leaving.
   useEffect(() => {
     const raw = window.location.hash.replace('#', '');
     let initialRoute = 'home';
     if (raw === 'dashboard' || raw.startsWith('dashboard/')) {
-      initialRoute = raw; // preserve a deep-linked dashboard sub-route
+      initialRoute = raw;
     } else if (TAB_SEQUENCE.includes(raw)) {
       initialRoute = raw;
     }
@@ -336,10 +316,8 @@ export default function App() {
     async function fetchLatesAppVersion() {
       try {
         const data = await authService.getVersion();
-
         const remoteVersion = typeof data === 'object' ? data.version : data;
         setlatestVersion(remoteVersion);
-
       } catch (err) {
         console.error("Failed to sync version configuration:", err);
       }
@@ -405,8 +383,6 @@ export default function App() {
   const activeType = statusMessage ? (statusMessage.type || 'success') : 'sync';
   const activeTabOffsetIndex = TAB_SEQUENCE.indexOf(currentTab);
 
-  // On desktop the four panes no longer live on a horizontal translate track:
-  // the active pane simply fills the content column next to the sidebar.
   const dynamicSlideTransformStyle = isDesktop
     ? { transform: 'none', transition: 'none', contain: 'layout style' }
     : {
@@ -457,10 +433,7 @@ export default function App() {
         type={activeType}
       />
 
-      {/* ============================================================
-          DESKTOP SIDEBAR (lg+) — replaces the bottom tab bar on web.
-          Hidden on mobile/tablet, where the slide track + pill nav stay.
-      ============================================================ */}
+      {/* Left sidebar – restored to w-64 */}
       <aside className="hidden lg:flex lg:flex-col w-64 shrink-0 h-full border-r border-theme bg-theme-card px-4 py-6 gap-1.5">
         <div className="flex items-center gap-2.5 px-2 pb-6 mb-2 border-b border-theme">
           <div className="h-9 w-9 rounded-xl bg-theme border border-theme flex items-center justify-center text-theme-accent shrink-0">
@@ -485,9 +458,9 @@ export default function App() {
         </div>
       </aside>
 
-      {/* Main Slide Track Viewport Wrapper */}
+      {/* Middle content – expands with flex-1 */}
       <div
-        className="flex-1 min-w-0 overflow-hidden relative h-full w-full xl:flex-none xl:w-[44rem] 2xl:w-[52rem]"
+        className="flex-1 min-w-0 overflow-hidden relative h-full w-full"
         style={{ touchAction: 'pan-y' }}
       >
         <div
@@ -545,8 +518,8 @@ export default function App() {
         </div>
       </div>
 
-      {/* Desktop right rail (xl+) — Study Companion, or a calm Focus panel while reviewing */}
-      <aside className="hidden xl:flex xl:flex-col flex-1 min-w-0 h-full overflow-y-auto border-l border-theme px-6 py-10">
+      {/* Right rail – fixed width w-64 */}
+      <aside className="hidden xl:flex xl:flex-col w-64 shrink-0 h-full overflow-y-auto border-l border-theme px-6 py-10">
         <StudyRail
           dueCount={globalCount}
           metrics={metrics}

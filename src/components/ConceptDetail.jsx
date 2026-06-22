@@ -138,8 +138,10 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
   };
 
   const executeAIRegeneration = async () => {
-    const targetId = concept.conceptId || concept.id;
-    if (!targetId) return;
+    console.log('Initiating AI regeneration sequence for concept:', concept);
+    
+    const conceptTitle = concept.conceptName;
+    if (!conceptTitle) return;
 
     setActiveInlineField(null);
     setIsRegenerating(true);
@@ -147,7 +149,7 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
     setActiveModalType(null);
 
     try {
-      const data = await noteService.regenerateConcept(targetId, selectedProvider);
+      const data = await noteService.regenerateConcept(conceptTitle, selectedProvider);
       setDraft({
         question: data.question || '',
         mainNote: data.mainNote || '',
@@ -309,9 +311,49 @@ export default function ConceptDetail({ concept, onBack, onSave, onDelete }) {
               )}
             </div>
 
-            {/* AI Sparkle Action Trigger */}
-            <button type="button" onClick={() => isDirty ? setActiveModalType('regen') : executeAIRegeneration()} disabled={isSaving || isRegenerating || activeInlineField !== null} title="Regenerate data via selected matrix model" className={`p-2 rounded-xl transition-all duration-300 border bg-zinc-900 shrink-0 cursor-pointer ${isRegenerating ? 'border-amber-500/40 bg-amber-950/10 shadow-[0_0_12px_rgba(245,158,11,0.1)]' : 'border-zinc-800 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800/50 active:scale-90'} disabled:opacity-30`}>
-              <Sparkles size={15} className={`transition-all duration-500 ${isRegenerating ? 'animate-spin text-amber-400 scale-110' : 'text-inherit'}`} />
+            {/* ✨ NEBULA REGENERATE BUTTON ✨ */}
+            <button
+              type="button"
+              onClick={() => (isDirty ? setActiveModalType('regen') : executeAIRegeneration())}
+              disabled={isSaving || isRegenerating || activeInlineField !== null}
+              title="Regenerate data via selected matrix model"
+              className={`
+                relative w-9 h-9 rounded-full
+                flex items-center justify-center
+                transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+                bg-theme-card/60 border-0
+                ${isRegenerating
+                  ? 'shadow-[0_0_30px_rgba(245,158,11,0.25)]'
+                  : 'hover:shadow-[0_0_20px_rgba(245,158,11,0.08)]'
+                }
+                disabled:opacity-30 disabled:cursor-not-allowed
+                group
+              `}
+            >
+              {/* Outer rotating ring – only on hover (idle) */}
+              {!isRegenerating && (
+                <span className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-amber-400/40 transition-all duration-700 group-hover:rotate-180" />
+              )}
+
+              {/* Inner pulsing glow when generating */}
+              {isRegenerating && (
+                <>
+                  <span className="absolute inset-0 rounded-full bg-amber-500/10 animate-ping" />
+                  <span className="absolute inset-0 rounded-full bg-amber-500/20 animate-pulse" />
+                </>
+              )}
+
+              <Sparkles
+                size={15}
+                className={`
+                  relative z-10
+                  transition-all duration-500
+                  ${isRegenerating
+                    ? 'text-amber-400 animate-spin scale-110'
+                    : 'text-theme-muted group-hover:text-amber-400 group-hover:scale-110 group-hover:rotate-12'
+                  }
+                `}
+              />
             </button>
 
             <span className="w-[1px] h-5 bg-zinc-800/80 mx-0.5 shrink-0" />
