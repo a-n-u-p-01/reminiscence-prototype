@@ -10,10 +10,7 @@ import { ReviewProvider } from './context/ReviewContext.jsx';
 import { DashboardProvider } from './context/DashboardContext.jsx'; 
 import { HomeProvider } from './context/HomeContext.jsx'; // 🔑 Import clean context hook wrapper
 import { registerSW } from "virtual:pwa-register";
-
-registerSW({
-  immediate: true,
-});
+registerSW();
 
 // Prevent flash before React mounts
 const savedTheme = localStorage.getItem('appTheme') || 'zinc';

@@ -11,45 +11,68 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
 
+      injectRegister: "auto",
+
       includeAssets: [
-        "favicon.png"
+        "favicon.png",
+        "apple-touch-icon.png",
+        "masked-icon.svg"
       ],
 
       manifest: {
+        id: "/",
+
         name: "Reminiscence",
         short_name: "Reminiscence",
+
         description:
           "A focused spaced-repetition workspace that turns daily learning into long-term memory.",
 
-        theme_color: "#09090b",
-        background_color: "#09090b",
+        start_url: "/",
+
+        scope: "/",
 
         display: "standalone",
+
         orientation: "portrait",
+
+        background_color: "#09090b",
+
+        theme_color: "#09090b",
 
         icons: [
           {
-            src: "/icons/icon-192.png",
+            src: "icons/icon-192.png",
             sizes: "192x192",
-            type: "image/png",
+            type: "image/png"
           },
+
           {
-            src: "/icons/icon-512.png",
+            src: "icons/icon-512.png",
+            sizes: "512x512",
+            type: "image/png"
+          },
+
+          {
+            src: "icons/maskable-512.png",
             sizes: "512x512",
             type: "image/png",
-          },
-          {
-            src: "/icons/maskable-512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
-        ],
+            purpose: "any maskable"
+          }
+        ]
       },
 
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,json}"],
-      },
-    }),
-  ],
+        cleanupOutdatedCaches: true,
+
+        clientsClaim: true,
+
+        skipWaiting: true,
+
+        globPatterns: [
+          "**/*.{js,css,html,png,svg,json,ico}"
+        ]
+      }
+    })
+  ]
 });
