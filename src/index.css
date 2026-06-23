@@ -1006,9 +1006,7 @@ html.theme-sand {
 .theme-sand .border-amber-400 {
   border-color: #fbbf24 !important;
 }
-.theme-sand .shadow-\[0_0_14px_rgba\(245\,158\,11\,0.25\)\] {
-  box-shadow: 0 0 14px rgba(217, 119, 6, 0.15) !important;
-}
+
 .theme-sand .bg-zinc-900\/90 {
   background-color: #f5f5f4 !important;
 }
