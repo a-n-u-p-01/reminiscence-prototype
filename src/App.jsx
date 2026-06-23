@@ -33,8 +33,7 @@ function usePullToRefresh(
   setPullDistance,
   setPullMessage,
   isRefreshing,
-  setIsRefreshing,
-  setShowAfterRefresh
+  setIsRefreshing
 ) {
   const startY = useRef(0);
   const isPulling = useRef(false);
@@ -104,12 +103,9 @@ function usePullToRefresh(
           console.error(error);
         } finally {
           setIsRefreshing(false);
-          // Show "Pull to refresh" after refresh completes
-          setShowAfterRefresh(true);
-          setTimeout(() => {
-            setShowAfterRefresh(false);
-          }, 800);
-        }
+                  setPullDistance(0);
+
+          }
       } else {
         setPullDistance(0);
         setPullMessage('');
@@ -125,7 +121,7 @@ function usePullToRefresh(
       el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('touchend', onTouchEnd);
     };
-  }, [scrollRef, onRefresh, isRefreshing, setIsRefreshing, setPullDistance, setPullMessage, setShowAfterRefresh]);
+  }, [scrollRef, onRefresh, isRefreshing, setIsRefreshing, setPullDistance, setPullMessage]);
 
   return isRefreshing;
 }
@@ -141,7 +137,6 @@ export default function App() {
   const [pullDistance, setPullDistance] = useState(0);
   const [pullMessage, setPullMessage] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showAfterRefresh, setShowAfterRefresh] = useState(false);
   const [latestVersion, setlatestVersion] = useState('');
 
   const [showWelcome, setShowWelcome] = useState(false);
@@ -334,11 +329,10 @@ export default function App() {
     fetchLatesAppVersion();
   }, []);
 
-  usePullToRefresh(mainContentRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing, setShowAfterRefresh);
-  usePullToRefresh(dashboardRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing, setShowAfterRefresh);
-  usePullToRefresh(revisionRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing, setShowAfterRefresh);
-  usePullToRefresh(settingsRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing, setShowAfterRefresh);
-
+usePullToRefresh(mainContentRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing);
+usePullToRefresh(dashboardRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing);
+usePullToRefresh(revisionRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing);
+usePullToRefresh(settingsRef, handleGlobalRefresh, pullDistance, setPullDistance, setPullMessage, isRefreshing, setIsRefreshing);
   const isAnyRefreshing = isRefreshing;
 
   if (loading) {
@@ -402,8 +396,7 @@ export default function App() {
   }
 
   // Show indicator when pulling, refreshing, or after refresh
-  const showIndicator = pullDistance > 3 || isRefreshing || showAfterRefresh;
-
+const showIndicator = pullDistance > 3 || isRefreshing;
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full w-full relative text-theme-primary antialiased font-sans bg-theme select-none">
 

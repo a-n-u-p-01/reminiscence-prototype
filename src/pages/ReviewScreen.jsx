@@ -460,7 +460,7 @@ export default function ReviewScreen({ onBackToHome }) {
                   </div>
 
                   <div className="py-3 min-h-[120px] flex items-start">
-                    <p className="text-[15px] text-theme-primary leading-relaxed font-light tracking-wide whitespace-pre-wrap font-sans w-full">
+                    <p className="text-[15px] text-theme-secondary leading-relaxed font-sans tracking-wide whitespace-pre-wrap font-sans w-full">
                       {activeCard?.answerText}
                     </p>
                   </div>

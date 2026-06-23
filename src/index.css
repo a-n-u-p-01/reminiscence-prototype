@@ -124,34 +124,530 @@ html.theme-ocean {
   --color-blue-400: #00caca;
 }
 
-/* Frost Theme */
 html.theme-frost {
-  --color-dark-bg: #f8fafc;
+  /* Background – slightly cooler and a touch darker for contrast */
+  --color-dark-bg: #eef2f6;
   --color-dark-card: #ffffff;
-  --color-dark-border: #e2e8f0;
+  --color-dark-border: #d0d8e0;
 
+  /* Grayscale – adjusted for better hierarchy */
   --color-zinc-950: #ffffff;
-  --color-zinc-900: #f8fafc;
-  --color-zinc-800: #f1f5f9;
-  --color-zinc-700: #e2e8f0;
-  --color-zinc-600: #cbd5e1;
-  --color-zinc-500: #94a3b8;
-  --color-zinc-400: #64748b;
-  --color-zinc-300: #475569;
-  --color-zinc-200: #334155;
+  --color-zinc-900: #f1f5f9;
+  --color-zinc-800: #e2e8f0;
+  --color-zinc-700: #cbd5e1;
+  --color-zinc-600: #94a3b8;
+  --color-zinc-500: #64748b;
+  --color-zinc-400: #475569;
+  --color-zinc-300: #334155;
+  --color-zinc-200: #1e293b;
   --color-zinc-100: #0f172a;
 
-  --color-blue-600: #2563eb;
-  --color-blue-500: #3b82f6;
-  --color-blue-400: #60a5fa;
+  /* Accent – deeper, more saturated blues for light mode */
+  --color-blue-600: #1d4ed8;
+  --color-blue-500: #2563eb;
+  --color-blue-400: #3b82f6;
+}
+/* Frost theme overrides for heatmap and ratings */
+.theme-frost .bg-blue-950\/40 {
+  background-color: #dbeafe !important;   /* light blue background */
+  color: #1e40af !important;             /* dark blue text */
+  border-color: #93c5fd !important;
+}
+.theme-frost .bg-blue-800\/40 {
+  background-color: #bfdbfe !important;
+  color: #1e3a8a !important;
+  border-color: #60a5fa !important;
+}
+.theme-frost .bg-blue-600\/50 {
+  background-color: #93c5fd !important;
+  color: #1e3a8a !important;
+  border-color: #3b82f6 !important;
+}
+.theme-frost .bg-blue-500 {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+.theme-frost .bg-zinc-900\/40 {
+  background-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
 }
 
-/* Sand Theme */
+/* Rating buttons – more distinct borders and hover states */
+.theme-frost button.group:hover {
+  border-color: var(--color-blue-400) !important;
+  background-color: #f0f7ff !important;
+}
+.theme-frost button.group .text-theme-muted {
+  color: #475569 !important; /* darker for readability */
+}
+.theme-frost button.group .group-hover\:text-red-400 {
+  color: #dc2626 !important; /* vivid red on hover */
+}
+.theme-frost button.group .group-hover\:text-orange-400 {
+  color: #ea580c !important;
+}
+.theme-frost button.group .group-hover\:text-blue-400 {
+  color: #2563eb !important;
+}
+.theme-frost button.group .group-hover\:text-emerald-400 {
+  color: #059669 !important;
+}
+/* ========================================================
+   FROST THEME – SETTINGS SCREEN FIXES
+   ======================================================== */
+
+/* 1. Main setting cards – more separation from the page background */
+.theme-frost .bg-zinc-900\/20.border-zinc-800\/60 {
+  background-color: #ffffff !important;
+  border-color: #d1d9e6 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 2. The Text Size segment control track (container) */
+.theme-frost .bg-zinc-950.border-zinc-800 {
+  background-color: #e9edf2 !important; /* light gray track */
+  border-color: #cbd5e1 !important;
+}
+
+/* 3. Individual Text Size buttons – inactive state */
+.theme-frost .bg-zinc-800 {
+  background-color: transparent !important;
+  color: #475569 !important;
+}
+.theme-frost .bg-zinc-800:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: #1e293b !important;
+}
+
+/* 4. Individual Text Size buttons – active (selected) state */
+.theme-frost .bg-zinc-800.text-blue-400 {
+  background-color: #ffffff !important; /* white pill */
+  color: #2563eb !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 5. Custom Select dropdown trigger (the box itself) */
+.theme-frost .bg-zinc-950.border-zinc-800.rounded-lg {
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important; /* darker, visible border */
+}
+.theme-frost .bg-zinc-950.border-zinc-800.rounded-lg:hover {
+  border-color: #64748b !important;
+}
+
+/* 6. Dropdown option list items */
+.theme-frost .bg-zinc-950.border-zinc-800\/80 {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10) !important;
+}
+.theme-frost .hover\:bg-zinc-900:hover {
+  background-color: #f1f5f9 !important;
+}
+.theme-frost .bg-blue-600\/10 {
+  background-color: #eff6ff !important; /* subtle blue highlight */
+}
+
+/* 7. Disconnect button – light mode adaptation */
+.theme-frost .border-zinc-800.bg-zinc-950 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+.theme-frost .border-zinc-800.bg-zinc-950:hover {
+  background-color: #93c4fd7b !important;
+  border-color: #93c4fd61 !important;
+  color: #000000 !important;
+}
+
+/* 8. The “Download for Android” & “Getting Started” footer links */
+.theme-frost .text-zinc-500 {
+  color: #64748b !important;
+}
+.theme-frost .text-zinc-500:hover {
+  color: #2563eb !important;
+}
+
+
+
+/* ========================================================
+   FROST THEME – AUTH PAGE REFINEMENTS
+   ======================================================== */
+
+/* 1. Main container background – slightly cooler than the default */
+.theme-frost .bg-var,
+.theme-frost .bg-\[var\(--color-dark-bg\)\] {
+  background-color: #eef2f6 !important; /* soft, cool gray */
+}
+
+/* 2. Left brand panel (desktop) – give it a subtle card feel */
+@media (min-width: 1024px) {
+  .theme-frost .border-r.border-\[var\(--color-dark-border\)\] {
+    background-color: #ffffff !important;
+    border-right-color: #d1d9e6 !important;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04) !important;
+  }
+}
+
+/* 3. Brand tag (the "reminiscence" badge in the form side) */
+.theme-frost .bg-\[var\(--color-dark-card\)\] {
+  background-color: #ffffff !important;
+  border-color: #d1d9e6 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+}
+.theme-frost .bg-\[var\(--color-dark-card\)\] .text-\[var\(--color-zinc-100\)\] {
+  color: #0f172a !important; /* dark text for readability */
+}
+
+/* 4. All text inputs – more visible borders and clear background */
+.theme-frost input[type="text"],
+.theme-frost input[type="email"],
+.theme-frost input[type="password"] {
+  background-color: #ffffff !important;
+  border-bottom-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  border-bottom-width: 2px !important;
+}
+.theme-frost input:focus {
+  border-bottom-color: #2563eb !important;
+}
+
+/* 5. Primary button – more saturated and with a subtle shadow */
+.theme-frost .bg-\[var\(--color-blue-600\)\] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+}
+.theme-frost .bg-\[var\(--color-blue-600\)\]:hover {
+  background-color: #1d4ed8 !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
+}
+
+/* 6. Headings and labels – sharper contrast */
+.theme-frost .text-\[var\(--color-zinc-100\)\] {
+  color: #0f172a !important;
+}
+.theme-frost .text-\[var\(--color-zinc-500\)\] {
+  color: #475569 !important;
+}
+.theme-frost .text-\[var\(--color-zinc-600\)\] {
+  color: #64748b !important;
+}
+
+/* 7. Feature icons and descriptions – improve readability */
+.theme-frost .border-\[var\(--color-dark-border\)\] {
+  border-color: #d1d9e6 !important;
+}
+.theme-frost .text-\[var\(--color-zinc-200\)\] {
+  color: #1e293b !important;
+}
+.theme-frost .text-\[var\(--color-zinc-500\)\] {
+  color: #475569 !important;
+}
+
+/* 8. Toggle link ("Register" / "Sign in") – better hover and underline */
+.theme-frost button.text-\[var\(--color-zinc-500\)\] {
+  color: #64748b !important;
+}
+.theme-frost button.text-\[var\(--color-zinc-500\)\]:hover {
+  color: #2563eb !important;
+  text-decoration: underline !important;
+}
+
+/* 9. OTP inputs (if shown) – more defined */
+.theme-frost input[type="text"][inputmode="numeric"] {
+  background-color: #ffffff !important;
+  border-bottom-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+.theme-frost input[type="text"][inputmode="numeric"]:focus {
+  border-bottom-color: #2563eb !important;
+}
+/* ============================================================
+   FROST THEME – CONCEPTS EXPLORER & DETAIL
+   ============================================================ */
+
+/* --- 1. Backgrounds and cards --- */
+.theme-frost .bg-zinc-900\/20 {
+  background-color: #f8fafc !important;
+}
+.theme-frost .bg-zinc-950\/40 {
+  background-color: #eef2f6 !important;
+}
+.theme-frost .bg-zinc-950 {
+  background-color: #ffffff !important;
+}
+.theme-frost .bg-zinc-900\/40 {
+  background-color: #e9edf2 !important;
+}
+.theme-frost .border-zinc-800\/60,
+.theme-frost .border-zinc-800\/50,
+.theme-frost .border-zinc-800\/80 {
+  border-color: #d1d9e6 !important;
+}
+
+/* --- 2. Text colors --- */
+.theme-frost .text-zinc-100 {
+  color: #0f172a !important;
+}
+.theme-frost .text-zinc-200 {
+  color: #1e293b !important;
+}
+.theme-frost .text-zinc-300 {
+  color: #334155 !important;
+}
+.theme-frost .text-zinc-400 {
+  color: #475569 !important;
+}
+.theme-frost .text-zinc-500 {
+  color: #64748b !important;
+}
+.theme-frost .text-zinc-600 {
+  color: #94a3b8 !important;
+}
+
+/* --- 3. Dividers --- */
+.theme-frost .divide-zinc-800\/40 > * + * {
+  border-color: #e2e8f0 !important;
+}
+.theme-frost .border-b.border-zinc-800\/60 {
+  border-bottom-color: #d1d9e6 !important;
+}
+
+/* --- 4. Inputs & search --- */
+.theme-frost .bg-zinc-950\/40.border-zinc-800\/60 {
+  background-color: #ffffff !important;
+  border-color: #d1d9e6 !important;
+}
+.theme-frost .bg-zinc-950\/40.border-zinc-800\/60:focus-within {
+  border-color: #94a3b8 !important;
+}
+.theme-frost .text-zinc-200.placeholder-zinc-600::placeholder {
+  color: #94a3b8 !important;
+}
+.theme-frost .bg-zinc-900 {
+  background-color: #e9edf2 !important;
+}
+.theme-frost .bg-zinc-900:hover {
+  background-color: #cbd5e1 !important;
+}
+.theme-frost .text-zinc-300 {
+  color: #1e293b !important;
+}
+.theme-frost .hover\:bg-zinc-100:hover {
+  background-color: #e2e8f0 !important;
+}
+.theme-frost .hover\:text-zinc-950:hover {
+  color: #0f172a !important;
+}
+
+/* --- 5. Concept list items --- */
+.theme-frost .text-zinc-300.font-medium {
+  color: #0f172a !important;
+}
+.theme-frost .group-hover\:text-blue-400:hover {
+  color: #2563eb !important;
+}
+.theme-frost .text-zinc-500.font-mono {
+  color: #64748b !important;
+}
+.theme-frost .bg-zinc-950.border-zinc-800\/60 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+.theme-frost .group-hover\:border-zinc-700\/80:hover {
+  border-color: #94a3b8 !important;
+}
+.theme-frost .text-zinc-300.font-mono {
+  color: #1e293b !important;
+}
+
+/* --- 6. Pagination --- */
+.theme-frost .bg-zinc-950.border-zinc-800\/80 {
+  background-color: #ffffff !important;
+  border-color: #d1d9e6 !important;
+}
+.theme-frost .bg-zinc-950.border-zinc-800\/80:hover {
+  background-color: #f1f5f9 !important;
+}
+.theme-frost .text-zinc-400 {
+  color: #475569 !important;
+}
+.theme-frost .hover\:text-white:hover {
+  color: #0f172a !important;
+}
+.theme-frost .bg-zinc-900\/40.border-zinc-800\/40 {
+  background-color: #e9edf2 !important;
+  border-color: #cbd5e1 !important;
+}
+.theme-frost .text-zinc-500 {
+  color: #475569 !important;
+}
+
+/* --- 7. Detail page cards --- */
+.theme-frost .bg-zinc-900\/20.border-zinc-800\/50 {
+  background-color: #ffffff !important;
+  border-color: #d1d9e6 !important;
+}
+.theme-frost .bg-zinc-900\/20.border-zinc-800\/50:hover {
+  border-color: #94a3b8 !important;
+}
+.theme-frost .bg-zinc-950.border-zinc-700.ring-1.ring-zinc-800\/50 {
+  background-color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  --tw-ring-color: #cbd5e1 !important;
+}
+.theme-frost .text-zinc-200.font-medium {
+  color: #0f172a !important;
+}
+.theme-frost .text-zinc-300 {
+  color: #334155 !important;
+}
+.theme-frost .text-zinc-500.font-mono {
+  color: #64748b !important;
+}
+.theme-frost .hover\:text-zinc-300:hover {
+  color: #1e293b !important;
+}
+
+/* --- 8. Buttons in detail --- */
+.theme-frost .bg-amber-500 {
+  background-color: #2563eb !important; /* keep consistent blue accent */
+}
+.theme-frost .bg-amber-500:hover {
+  background-color: #1d4ed8 !important;
+}
+.theme-frost .text-amber-400 {
+  color: #2563eb !important;
+}
+.theme-frost .hover\:text-amber-300:hover {
+  color: #1d4ed8 !important;
+}
+.theme-frost .border-amber-400 {
+  border-color: #3b82f6 !important;
+}
+.theme-frost .bg-zinc-900\/90 {
+  background-color: #f1f5f9 !important;
+}
+.theme-frost .bg-zinc-900\/90:hover {
+  background-color: #e2e8f0 !important;
+}
+.theme-frost .border-zinc-800 {
+  border-color: #d1d9e6 !important;
+}
+.theme-frost .hover\:border-zinc-700\/80:hover {
+  border-color: #94a3b8 !important;
+}
+.theme-frost .text-zinc-300 {
+  color: #1e293b !important;
+}
+.theme-frost .text-zinc-500 {
+  color: #64748b !important;
+}
+.theme-frost .hover\:text-zinc-400:hover {
+  color: #475569 !important;
+}
+.theme-frost .bg-zinc-800\/80 {
+  background-color: #e9edf2 !important;
+}
+.theme-frost .text-amber-400 {
+  color: #2563eb !important;
+}
+.theme-frost .bg-zinc-800\/40 {
+  background-color: #e9edf2 !important;
+}
+.theme-frost .hover\:text-zinc-100:hover {
+  color: #0f172a !important;
+}
+.theme-frost .hover\:bg-zinc-800\/40:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* --- 9. Modals (delete, save, etc.) --- */
+.theme-frost .bg-zinc-950\/70 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+.theme-frost .bg-zinc-900 {
+  background-color: #ffffff !important;
+}
+.theme-frost .border-zinc-800\/90 {
+  border-color: #d1d9e6 !important;
+}
+.theme-frost .text-zinc-100 {
+  color: #0f172a !important;
+}
+.theme-frost .text-zinc-400 {
+  color: #475569 !important;
+}
+.theme-frost .bg-zinc-950.border-zinc-800\/60 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+.theme-frost .hover\:bg-zinc-800\/40:hover {
+  background-color: #e2e8f0 !important;
+}
+.theme-frost .text-red-400 {
+  color: #dc2626 !important;
+}
+.theme-frost .bg-red-950\/20 {
+  background-color: #fee2e2 !important;
+}
+.theme-frost .border-red-900\/40 {
+  border-color: #fca5a5 !important;
+}
+.theme-frost .hover\:bg-red-950\/40:hover {
+  background-color: #fecaca !important;
+}
+.theme-frost .bg-amber-950\/20 {
+  background-color: #fef3c7 !important;
+}
+.theme-frost .border-amber-900\/40 {
+  border-color: #fcd34d !important;
+}
+.theme-frost .hover\:bg-amber-950\/40:hover {
+  background-color: #fde68a !important;
+}
+.theme-frost .bg-amber-950\/30 {
+  background-color: #fef3c7 !important;
+}
+.theme-frost .border-amber-800\/60 {
+  border-color: #f59e0b !important;
+}
+.theme-frost .hover\:bg-amber-950\/50:hover {
+  background-color: #fde68a !important;
+}
+.theme-frost .text-amber-500 {
+  color: #d97706 !important;
+}
+
+/* --- 10. Misc. overrides for consistency --- */
+.theme-frost .border-zinc-800\/60 {
+  border-color: #d1d9e6 !important;
+}
+.theme-frost .border-theme {
+  border-color: #d1d9e6 !important;
+}
+.theme-frost .bg-theme-card {
+  background-color: #ffffff !important;
+}
+/* ============================================================
+   SAND THEME – COMPLETE
+   (Warm, earthy light theme with amber/gold accents)
+   ============================================================ */
+
+/* ============================================================
+   SAND THEME – Warm background with Amber accents
+   ============================================================ */
+
 html.theme-sand {
+  /* Warm sand background */
   --color-dark-bg: #fafafa;
   --color-dark-card: #ffffff;
   --color-dark-border: #e7e5e4;
 
+  /* Warm grayscale */
   --color-zinc-950: #ffffff;
   --color-zinc-900: #fafafa;
   --color-zinc-800: #f5f5f4;
@@ -163,10 +659,461 @@ html.theme-sand {
   --color-zinc-200: #44403c;
   --color-zinc-100: #1c1917;
 
+  /* Amber accents */
   --color-blue-600: #d97706;
   --color-blue-500: #f59e0b;
   --color-blue-400: #fbbf24;
 }
+
+/* ============================================================
+   SAND THEME – OVERRIDES (Mirroring Frost)
+   ============================================================ */
+
+/* --- Heatmap cells (GitHub-style grid) --- */
+.theme-sand .bg-blue-950\/40 {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fcd34d !important;
+}
+.theme-sand .bg-blue-800\/40 {
+  background-color: #fde68a !important;
+  color: #78350f !important;
+  border-color: #fbbf24 !important;
+}
+.theme-sand .bg-blue-600\/50 {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+}
+.theme-sand .bg-blue-500 {
+  background-color: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #b45309 !important;
+}
+.theme-sand .bg-zinc-900\/40 {
+  background-color: #f5f5f4 !important;
+  border-color: #e7e5e4 !important;
+}
+
+/* --- Rating buttons --- */
+.theme-sand button.group:hover {
+  border-color: var(--color-blue-400) !important;
+  background-color: #fffbeb !important;
+}
+.theme-sand button.group .text-theme-muted {
+  color: #78716c !important;
+}
+.theme-sand button.group .group-hover\:text-red-400 {
+  color: #dc2626 !important;
+}
+.theme-sand button.group .group-hover\:text-orange-400 {
+  color: #ea580c !important;
+}
+.theme-sand button.group .group-hover\:text-blue-400 {
+  color: #d97706 !important;
+}
+.theme-sand button.group .group-hover\:text-emerald-400 {
+  color: #059669 !important;
+}
+
+/* ============================================================
+   SETTINGS SCREEN (Mirroring Frost)
+   ============================================================ */
+
+.theme-sand .bg-zinc-900\/20.border-zinc-800\/60 {
+  background-color: #ffffff !important;
+  border-color: #e7e5e4 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+.theme-sand .bg-zinc-950.border-zinc-800 {
+  background-color: #f5f5f4 !important;
+  border-color: #d6d3d1 !important;
+}
+.theme-sand .bg-zinc-800 {
+  background-color: transparent !important;
+  color: #78716c !important;
+}
+.theme-sand .bg-zinc-800:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: #44403c !important;
+}
+.theme-sand .bg-zinc-800.text-blue-400 {
+  background-color: #ffffff !important;
+  color: #d97706 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+}
+.theme-sand .bg-zinc-950.border-zinc-800.rounded-lg {
+  background-color: #ffffff !important;
+  border-color: #a8a29e !important;
+}
+.theme-sand .bg-zinc-950.border-zinc-800.rounded-lg:hover {
+  border-color: #78716c !important;
+}
+.theme-sand .bg-zinc-950.border-zinc-800\/80 {
+  background-color: #ffffff !important;
+  border-color: #e7e5e4 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10) !important;
+}
+.theme-sand .hover\:bg-zinc-900:hover {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .bg-blue-600\/10 {
+  background-color: #fef3c7 !important;
+}
+.theme-sand .border-zinc-800.bg-zinc-950 {
+  background-color: #f5f5f4 !important;
+  border-color: #d6d3d1 !important;
+  color: #78716c !important;
+}
+.theme-sand .border-zinc-800.bg-zinc-950:hover {
+  background-color: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
+}
+.theme-sand .text-zinc-500 {
+  color: #a8a29e !important;
+}
+.theme-sand .text-zinc-500:hover {
+  color: #d97706 !important;
+}
+
+/* ============================================================
+   AUTH PAGE (Mirroring Frost)
+   ============================================================ */
+
+.theme-sand .bg-var,
+.theme-sand .bg-\[var\(--color-dark-bg\)\] {
+  background-color: #fafafa !important;
+}
+@media (min-width: 1024px) {
+  .theme-sand .border-r.border-\[var\(--color-dark-border\)\] {
+    background-color: #ffffff !important;
+    border-right-color: #e7e5e4 !important;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04) !important;
+  }
+}
+.theme-sand .bg-\[var\(--color-dark-card\)\] {
+  background-color: #ffffff !important;
+  border-color: #e7e5e4 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+}
+.theme-sand .bg-\[var\(--color-dark-card\)\] .text-\[var\(--color-zinc-100\)\] {
+  color: #1c1917 !important;
+}
+.theme-sand input[type="text"],
+.theme-sand input[type="email"],
+.theme-sand input[type="password"] {
+  background-color: #ffffff !important;
+  border-bottom-color: #d6d3d1 !important;
+  color: #1c1917 !important;
+  border-bottom-width: 2px !important;
+}
+.theme-sand input:focus {
+  border-bottom-color: #d97706 !important;
+}
+.theme-sand .bg-\[var\(--color-blue-600\)\] {
+  background-color: #d97706 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25) !important;
+}
+.theme-sand .bg-\[var\(--color-blue-600\)\]:hover {
+  background-color: #b45309 !important;
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35) !important;
+}
+.theme-sand .text-\[var\(--color-zinc-100\)\] {
+  color: #1c1917 !important;
+}
+.theme-sand .text-\[var\(--color-zinc-500\)\] {
+  color: #78716c !important;
+}
+.theme-sand .text-\[var\(--color-zinc-600\)\] {
+  color: #a8a29e !important;
+}
+.theme-sand .border-\[var\(--color-dark-border\)\] {
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .text-\[var\(--color-zinc-200\)\] {
+  color: #44403c !important;
+}
+.theme-sand button.text-\[var\(--color-zinc-500\)\] {
+  color: #a8a29e !important;
+}
+.theme-sand button.text-\[var\(--color-zinc-500\)\]:hover {
+  color: #d97706 !important;
+  text-decoration: underline !important;
+}
+.theme-sand input[type="text"][inputmode="numeric"] {
+  background-color: #ffffff !important;
+  border-bottom-color: #d6d3d1 !important;
+  color: #1c1917 !important;
+}
+.theme-sand input[type="text"][inputmode="numeric"]:focus {
+  border-bottom-color: #d97706 !important;
+}
+
+/* ============================================================
+   CONCEPTS EXPLORER & DETAIL (Mirroring Frost)
+   ============================================================ */
+
+.theme-sand .bg-zinc-900\/20 {
+  background-color: #fafafa !important;
+}
+.theme-sand .bg-zinc-950\/40 {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .bg-zinc-950 {
+  background-color: #ffffff !important;
+}
+.theme-sand .bg-zinc-900\/40 {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .border-zinc-800\/60,
+.theme-sand .border-zinc-800\/50,
+.theme-sand .border-zinc-800\/80 {
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .divide-zinc-800\/40 > * + * {
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .border-b.border-zinc-800\/60 {
+  border-bottom-color: #e7e5e4 !important;
+}
+
+.theme-sand .text-zinc-100 {
+  color: #1c1917 !important;
+}
+.theme-sand .text-zinc-200 {
+  color: #44403c !important;
+}
+.theme-sand .text-zinc-300 {
+  color: #57534e !important;
+}
+.theme-sand .text-zinc-400 {
+  color: #78716c !important;
+}
+.theme-sand .text-zinc-500 {
+  color: #a8a29e !important;
+}
+.theme-sand .text-zinc-600 {
+  color: #d6d3d1 !important;
+}
+
+.theme-sand .bg-zinc-950\/40.border-zinc-800\/60 {
+  background-color: #ffffff !important;
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .bg-zinc-950\/40.border-zinc-800\/60:focus-within {
+  border-color: #a8a29e !important;
+}
+.theme-sand .text-zinc-200.placeholder-zinc-600::placeholder {
+  color: #d6d3d1 !important;
+}
+.theme-sand .bg-zinc-900 {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .bg-zinc-900:hover {
+  background-color: #e7e5e4 !important;
+}
+.theme-sand .text-zinc-300 {
+  color: #44403c !important;
+}
+.theme-sand .hover\:bg-zinc-100:hover {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .hover\:text-zinc-950:hover {
+  color: #1c1917 !important;
+}
+
+.theme-sand .text-zinc-300.font-medium {
+  color: #1c1917 !important;
+}
+.theme-sand .group-hover\:text-blue-400:hover {
+  color: #d97706 !important;
+}
+.theme-sand .text-zinc-500.font-mono {
+  color: #a8a29e !important;
+}
+.theme-sand .bg-zinc-950.border-zinc-800\/60 {
+  background-color: #fafafa !important;
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .group-hover\:border-zinc-700\/80:hover {
+  border-color: #a8a29e !important;
+}
+.theme-sand .text-zinc-300.font-mono {
+  color: #44403c !important;
+}
+
+.theme-sand .bg-zinc-950.border-zinc-800\/80 {
+  background-color: #ffffff !important;
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .bg-zinc-950.border-zinc-800\/80:hover {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .text-zinc-400 {
+  color: #78716c !important;
+}
+.theme-sand .hover\:text-white:hover {
+  color: #1c1917 !important;
+}
+.theme-sand .bg-zinc-900\/40.border-zinc-800\/40 {
+  background-color: #f5f5f4 !important;
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .text-zinc-500 {
+  color: #78716c !important;
+}
+
+.theme-sand .bg-zinc-900\/20.border-zinc-800\/50 {
+  background-color: #ffffff !important;
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .bg-zinc-900\/20.border-zinc-800\/50:hover {
+  border-color: #a8a29e !important;
+}
+.theme-sand .bg-zinc-950.border-zinc-700.ring-1.ring-zinc-800\/50 {
+  background-color: #fafafa !important;
+  border-color: #a8a29e !important;
+  --tw-ring-color: #e7e5e4 !important;
+}
+.theme-sand .text-zinc-200.font-medium {
+  color: #1c1917 !important;
+}
+.theme-sand .text-zinc-300 {
+  color: #57534e !important;
+}
+.theme-sand .text-zinc-500.font-mono {
+  color: #a8a29e !important;
+}
+.theme-sand .hover\:text-zinc-300:hover {
+  color: #44403c !important;
+}
+
+.theme-sand .bg-amber-500 {
+  background-color: #d97706 !important;
+}
+.theme-sand .bg-amber-500:hover {
+  background-color: #b45309 !important;
+}
+.theme-sand .text-amber-400 {
+  color: #d97706 !important;
+}
+.theme-sand .hover\:text-amber-300:hover {
+  color: #b45309 !important;
+}
+.theme-sand .border-amber-400 {
+  border-color: #fbbf24 !important;
+}
+.theme-sand .shadow-\[0_0_14px_rgba\(245\,158\,11\,0.25\)\] {
+  box-shadow: 0 0 14px rgba(217, 119, 6, 0.15) !important;
+}
+.theme-sand .bg-zinc-900\/90 {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .bg-zinc-900\/90:hover {
+  background-color: #e7e5e4 !important;
+}
+.theme-sand .border-zinc-800 {
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .hover\:border-zinc-700\/80:hover {
+  border-color: #a8a29e !important;
+}
+.theme-sand .text-zinc-300 {
+  color: #44403c !important;
+}
+.theme-sand .text-zinc-500 {
+  color: #a8a29e !important;
+}
+.theme-sand .hover\:text-zinc-400:hover {
+  color: #78716c !important;
+}
+.theme-sand .bg-zinc-800\/80 {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .text-amber-400 {
+  color: #d97706 !important;
+}
+.theme-sand .bg-zinc-800\/40 {
+  background-color: #f5f5f4 !important;
+}
+.theme-sand .hover\:text-zinc-100:hover {
+  color: #1c1917 !important;
+}
+.theme-sand .hover\:bg-zinc-800\/40:hover {
+  background-color: #e7e5e4 !important;
+}
+
+/* --- Modals (delete, save, etc.) --- */
+.theme-sand .bg-zinc-950\/70 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+.theme-sand .bg-zinc-900 {
+  background-color: #ffffff !important;
+}
+.theme-sand .border-zinc-800\/90 {
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .text-zinc-100 {
+  color: #1c1917 !important;
+}
+.theme-sand .text-zinc-400 {
+  color: #78716c !important;
+}
+.theme-sand .bg-zinc-950.border-zinc-800\/60 {
+  background-color: #f5f5f4 !important;
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .hover\:bg-zinc-800\/40:hover {
+  background-color: #e7e5e4 !important;
+}
+.theme-sand .text-red-400 {
+  color: #dc2626 !important;
+}
+.theme-sand .bg-red-950\/20 {
+  background-color: #fee2e2 !important;
+}
+.theme-sand .border-red-900\/40 {
+  border-color: #fca5a5 !important;
+}
+.theme-sand .hover\:bg-red-950\/40:hover {
+  background-color: #fecaca !important;
+}
+.theme-sand .bg-amber-950\/20 {
+  background-color: #fef3c7 !important;
+}
+.theme-sand .border-amber-900\/40 {
+  border-color: #fcd34d !important;
+}
+.theme-sand .hover\:bg-amber-950\/40:hover {
+  background-color: #fde68a !important;
+}
+.theme-sand .bg-amber-950\/30 {
+  background-color: #fef3c7 !important;
+}
+.theme-sand .border-amber-800\/60 {
+  border-color: #f59e0b !important;
+}
+.theme-sand .hover\:bg-amber-950\/50:hover {
+  background-color: #fde68a !important;
+}
+.theme-sand .text-amber-500 {
+  color: #d97706 !important;
+}
+
+/* --- Misc. consistency --- */
+.theme-sand .border-zinc-800\/60 {
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .border-theme {
+  border-color: #e7e5e4 !important;
+}
+.theme-sand .bg-theme-card {
+  background-color: #ffffff !important;
+}
+
 
 /* Matte Theme */
 html.theme-matte {

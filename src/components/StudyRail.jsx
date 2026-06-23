@@ -35,22 +35,9 @@ export default function StudyRail() {
   }, []);
 
   return (
-    <div className="w-full max-w-[280px] mx-auto h-full flex flex-col items-center justify-center p-6 select-none text-center min-h-[350px]">
+    <div className="w-full max-w-[280px] mx-auto h-full flex flex-col items-center justify-center p-6 text-center min-h-[350px]">
       <div className="space-y-4 max-w-[240px]">
-        {/* Subtle Cinematic Chapter Mark */}
-        <span className="block text-[9px] font-mono tracking-[0.3em] text-theme-accent font-bold uppercase opacity-80">
-          // DIRECTION: {active.focus}
-        </span>
-        
-        {/* The High-Impact Screenplay Text */}
-        <p className="text-xs font-extrabold font-mono tracking-wide text-theme-primary leading-relaxed uppercase antialiased">
-          “{active.text}”
-        </p>
-        
-        {/* Clean Coordinate Line */}
-        <span className="block text-[9px] font-mono tracking-widest text-theme-muted/40 uppercase pt-1">
-          ACT CLASSIFICATION // {active.verse}
-        </span>
+      
       </div>
     </div>
   );
